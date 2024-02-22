@@ -1,30 +1,32 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
 package memoryRepository
 
 import (
 	"errors"
-	"github.com/hyperifyio/gocertcenter/internal/storage/models"
+	models2 "github.com/hyperifyio/gocertcenter/internal/models"
 )
 
-type MemoryCertificateRepository struct {
-	certificates map[string]*models.Certificate
+// CertificateRepository is a memory based repository for certificates
+type CertificateRepository struct {
+	certificates map[models2.SerialNumber]*models2.Certificate
 }
 
-func NewMemoryCertificateRepository() *MemoryCertificateRepository {
-	return &MemoryCertificateRepository{
-		certificates: make(map[string]*models.Certificate),
+// NewCertificateRepository creates a memory based repository for certificates
+func NewCertificateRepository() *CertificateRepository {
+	return &CertificateRepository{
+		certificates: make(map[models2.SerialNumber]*models2.Certificate),
 	}
 }
 
-func (r *MemoryCertificateRepository) GetExistingCertificate(serialNumber string) (*models.Certificate, error) {
-	if cert, exists := r.certificates[serialNumber]; exists {
-		return cert, nil
+func (r *CertificateRepository) GetExistingCertificate(serialNumber models2.SerialNumber) (*models2.Certificate, error) {
+	if certificate, exists := r.certificates[serialNumber]; exists {
+		return certificate, nil
 	}
 	return nil, errors.New("certificate not found")
 }
 
-func (r *MemoryCertificateRepository) CreateCertificate(certificate *models.Certificate) (*models.Certificate, error) {
-	r.certificates[certificate.SerialNumber] = certificate
+func (r *CertificateRepository) CreateCertificate(certificate *models2.Certificate) (*models2.Certificate, error) {
+	r.certificates[certificate.GetSerialNumber()] = certificate
 	return certificate, nil
 }

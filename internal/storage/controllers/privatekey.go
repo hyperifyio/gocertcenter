@@ -6,33 +6,35 @@ import (
 	models2 "github.com/hyperifyio/gocertcenter/internal/models"
 )
 
-// ICertificateService defines the interface for certificate storage operations,
+// IPrivateKeyService defines the interface for key storage operations,
 // facilitating the abstraction of data access mechanisms. By declaring this
 // interface within the controller package, it supports easy substitution of its
 // implementation, thereby promoting loose coupling between the application's
 // business logic and its data layer.
-type ICertificateService interface {
-	GetExistingCertificate(serialNumber models2.SerialNumber) (*models2.Certificate, error)
-	CreateCertificate(certificate *models2.Certificate) (*models2.Certificate, error)
+type IPrivateKeyService interface {
+
+	// GetExistingPrivateKey only returns public properties of the private key
+	GetExistingPrivateKey(serialNumber models2.SerialNumber) (*models2.PrivateKey, error)
+	CreatePrivateKey(key *models2.PrivateKey) (*models2.PrivateKey, error)
 }
 
-// CertificateController manages certificate operations.
+// PrivateKeyController manages key operations.
 //
-//	It utilizes the ICertificateService interface to abstract and inject the
+//	It utilizes the IPrivateKeyService interface to abstract and inject the
 //	underlying storage mechanism (e.g., database, memory). This design promotes
 //	separation of concerns by decoupling the business logic from the specific
 //	details of data persistence.
-type CertificateController struct {
-	service ICertificateService
+type PrivateKeyController struct {
+	service IPrivateKeyService
 }
 
-// NewCertificateController creates a new instance of CertificateController
+// NewPrivateKeyController creates a new instance of PrivateKeyController
 //
-//	injecting the specified ICertificateService implementation. This setup
+//	injecting the specified IPrivateKeyService implementation. This setup
 //	facilitates the separation of business logic from data access layers,
 //	aligning with the principles of dependency injection.
-func NewCertificateController(repository ICertificateService) *CertificateController {
-	return &CertificateController{
+func NewPrivateKeyController(repository IPrivateKeyService) *PrivateKeyController {
+	return &PrivateKeyController{
 		service: repository,
 	}
 }

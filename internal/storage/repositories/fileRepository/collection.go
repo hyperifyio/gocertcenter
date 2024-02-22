@@ -1,15 +1,16 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
 package fileRepository
 
-type FileRepositoryCollection struct {
-	CertificateRepository *FileCertificateRepository
-	KeyRepository         *FileKeyRepository
+// Collection implements a memory based repository collection
+type Collection struct {
+	CertificateRepository *CertificateRepository
+	KeyRepository         *PrivateKeyRepository
 }
 
-func NewFileRepositoryCollection(filePath string) *FileRepositoryCollection {
-	return &FileRepositoryCollection{
-		CertificateRepository: NewFileCertificateRepository(filePath),
-		KeyRepository:         NewFileKeyRepository(filePath),
+func NewCollection(filePath string) *Collection {
+	return &Collection{
+		CertificateRepository: NewCertificateRepository(filePath),
+		KeyRepository:         NewPrivateKeyRepository(filePath),
 	}
 }

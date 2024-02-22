@@ -1,15 +1,16 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
 package memoryRepository
 
-type MemoryRepositoryCollection struct {
-	CertificateRepository *MemoryCertificateRepository
-	KeyRepository         *MemoryKeyRepository
+// Collection implements memory based repository collection
+type Collection struct {
+	CertificateRepository *CertificateRepository
+	PrivateKeyRepository  *PrivateKeyRepository
 }
 
-func NewMemoryRepositoryCollection() *MemoryRepositoryCollection {
-	return &MemoryRepositoryCollection{
-		CertificateRepository: NewMemoryCertificateRepository(),
-		KeyRepository:         NewMemoryKeyRepository(),
+func NewCollection() *Collection {
+	return &Collection{
+		CertificateRepository: NewCertificateRepository(),
+		PrivateKeyRepository:  NewPrivateKeyRepository(),
 	}
 }

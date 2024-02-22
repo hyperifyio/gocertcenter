@@ -1,26 +1,28 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
 package fileRepository
 
 import (
 	"errors"
-	"github.com/hyperifyio/gocertcenter/internal/storage/models"
+	"github.com/hyperifyio/gocertcenter/internal/models"
 )
 
-type FileCertificateRepository struct {
+// CertificateRepository is a file based repository
+type CertificateRepository struct {
 	filePath string
 }
 
-func NewFileCertificateRepository(filePath string) *FileCertificateRepository {
-	return &FileCertificateRepository{
+// NewCertificateRepository creates a file based repository
+func NewCertificateRepository(filePath string) *CertificateRepository {
+	return &CertificateRepository{
 		filePath: filePath,
 	}
 }
 
-func (r *FileCertificateRepository) GetExistingCertificate(serialNumber string) (*models.Certificate, error) {
+func (r *CertificateRepository) GetExistingCertificate(serialNumber string) (*models.Certificate, error) {
 	return nil, errors.New("certificate not found")
 }
 
-func (r *FileCertificateRepository) CreateCertificate(certificate *models.Certificate) (*models.Certificate, error) {
+func (r *CertificateRepository) CreateCertificate(certificate *models.Certificate) (*models.Certificate, error) {
 	return nil, errors.New("certificate creation not implemented")
 }

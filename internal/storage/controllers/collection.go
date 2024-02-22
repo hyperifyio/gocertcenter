@@ -1,21 +1,20 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
 package controllers
 
-import (
-	"github.com/hyperifyio/gocertcenter/internal/storage/repositories/memoryRepository"
-)
-
 // ControllerCollection contains all the controller instances
 type ControllerCollection struct {
-	Certificate *CertificateController
-	Key         *KeyController
+	Certificate ICertificateService
+	PrivateKey  IPrivateKeyService
 }
 
 // NewControllerCollection returns a new ControllerCollection instance
-func NewControllerCollection(repositories *memoryRepository.MemoryRepositoryCollection) *ControllerCollection {
+func NewControllerCollection(
+	certificate ICertificateService,
+	privateKey IPrivateKeyService,
+) *ControllerCollection {
 	return &ControllerCollection{
-		Certificate: NewCertificateController(repositories.CertificateRepository),
-		Key:         NewKeyController(repositories.KeyRepository),
+		Certificate: certificate,
+		PrivateKey:  privateKey,
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2024. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
+// Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
 package main
 
@@ -33,8 +33,12 @@ func main() {
 	listenAddr := fmt.Sprintf(":%s", *listenPort)
 	tlsConfig := tlsutils.LoadTLSConfig(*certFile, *keyFile, *caFile)
 
-	repositoryCollection := memoryRepository.NewMemoryRepositoryCollection()
-	repositoryControllerCollection := controllers.NewControllerCollection(repositoryCollection)
+	repositoryCollection := memoryRepository.NewCollection()
+
+	repositoryControllerCollection := controllers.NewControllerCollection(
+		repositoryCollection.CertificateRepository,
+		repositoryCollection.PrivateKeyRepository,
+	)
 
 	server := gocertcenter.NewServer(listenAddr, *repositoryControllerCollection, tlsConfig)
 
