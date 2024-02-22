@@ -1,17 +1,19 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package controllers
+package modelcontrollers
+
+import "github.com/hyperifyio/gocertcenter/internal/models"
 
 // ControllerCollection contains all the controller instances
 type ControllerCollection struct {
-	Certificate ICertificateService
-	PrivateKey  IPrivateKeyService
+	Certificate models.ICertificateService
+	PrivateKey  models.IPrivateKeyService
 }
 
 // NewControllerCollection returns a new ControllerCollection instance
 func NewControllerCollection(
-	certificate ICertificateService,
-	privateKey IPrivateKeyService,
+	certificate models.ICertificateService,
+	privateKey models.IPrivateKeyService,
 ) *ControllerCollection {
 	return &ControllerCollection{
 		Certificate: certificate,

@@ -5,10 +5,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/hyperifyio/gocertcenter/internal/gocertcenter"
 	"github.com/hyperifyio/gocertcenter/internal/mainutils"
-	"github.com/hyperifyio/gocertcenter/internal/storage/controllers"
-	"github.com/hyperifyio/gocertcenter/internal/storage/repositories/memoryRepository"
+	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryRepository"
+	"github.com/hyperifyio/gocertcenter/internal/server"
 	"log"
 	"os"
 	"os/signal"
@@ -33,12 +32,12 @@ func main() {
 
 	repositoryCollection := memoryRepository.NewCollection()
 
-	repositoryControllerCollection := controllers.NewControllerCollection(
+	repositoryControllerCollection := modelcontrollers.NewControllerCollection(
 		repositoryCollection.CertificateRepository,
 		repositoryCollection.PrivateKeyRepository,
 	)
 
-	server := gocertcenter.NewServer(listenAddr, *repositoryControllerCollection)
+	server := server.NewServer(listenAddr, *repositoryControllerCollection)
 
 	shutdownHandler := func() error {
 		server.Stop()

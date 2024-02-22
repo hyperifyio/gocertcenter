@@ -15,3 +15,8 @@ func NewSerialNumber(randomManager IRandomManager) (SerialNumber, error) {
 	}
 	return serialNumber, nil
 }
+
+func SerialNumberToBigInt(s SerialNumber) *big.Int {
+	bigInt := (*big.Int)(s)
+	return bigInt
+}
