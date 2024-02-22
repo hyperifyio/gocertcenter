@@ -9,7 +9,6 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/mainutils"
 	"github.com/hyperifyio/gocertcenter/internal/storage/controllers"
 	"github.com/hyperifyio/gocertcenter/internal/storage/repositories/memoryRepository"
-	"github.com/hyperifyio/gocertcenter/internal/tlsutils"
 	"log"
 	"os"
 	"os/signal"
@@ -31,7 +30,6 @@ func main() {
 	var wg sync.WaitGroup
 
 	listenAddr := fmt.Sprintf(":%s", *listenPort)
-	tlsConfig := tlsutils.LoadTLSConfig(*certFile, *keyFile, *caFile)
 
 	repositoryCollection := memoryRepository.NewCollection()
 
@@ -40,7 +38,7 @@ func main() {
 		repositoryCollection.PrivateKeyRepository,
 	)
 
-	server := gocertcenter.NewServer(listenAddr, *repositoryControllerCollection, tlsConfig)
+	server := gocertcenter.NewServer(listenAddr, *repositoryControllerCollection)
 
 	shutdownHandler := func() error {
 		server.Stop()
