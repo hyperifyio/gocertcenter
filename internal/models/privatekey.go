@@ -11,7 +11,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"github.com/hyperifyio/gocertcenter/internal/managers"
 )
 
 // PrivateKey model
@@ -111,7 +110,7 @@ func (k *PrivateKey) GetPublicKey() any {
 }
 
 func (k *PrivateKey) CreateCertificate(
-	manager managers.ICertificateManager,
+	manager ICertificateManager,
 	template *x509.Certificate,
 	parent *x509.Certificate,
 ) (*x509.Certificate, error) {

@@ -4,28 +4,22 @@ package managers
 
 import (
 	"crypto/x509"
+	"github.com/hyperifyio/gocertcenter/internal/models"
 	"io"
 )
 
-// ICertificateManager describes the operations to manage x509 certificates.
-type ICertificateManager interface {
-	GetRandomManager() IRandomManager
-	CreateCertificate(rand io.Reader, template, parent *x509.Certificate, publicKey, privateKey any) ([]byte, error)
-	ParseCertificate(certBytes []byte) (*x509.Certificate, error)
-}
-
 type CertificateManager struct {
-	randomManager IRandomManager
+	randomManager models.IRandomManager
 }
 
-func NewCertificateManager(randomManager IRandomManager) CertificateManager {
+func NewCertificateManager(randomManager models.IRandomManager) CertificateManager {
 	if randomManager == nil {
 		return CertificateManager{randomManager: NewRandomManager()}
 	}
 	return CertificateManager{randomManager}
 }
 
-func (m CertificateManager) GetRandomManager() IRandomManager {
+func (m CertificateManager) GetRandomManager() models.IRandomManager {
 	return m.randomManager
 }
 

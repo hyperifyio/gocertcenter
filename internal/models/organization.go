@@ -5,7 +5,6 @@ package models
 import (
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"github.com/hyperifyio/gocertcenter/internal/managers"
 	"time"
 )
 
@@ -47,7 +46,7 @@ func (o *Organization) GetNames() []string {
 
 // NewRootCertificate creates a new root CA certificate
 func (o *Organization) NewRootCertificate(
-	manager managers.ICertificateManager,
+	manager ICertificateManager,
 	commonName string, // The name of the root CA
 	privateKey PrivateKey,
 	expiration time.Duration,
@@ -79,7 +78,7 @@ func (o *Organization) NewRootCertificate(
 
 // NewIntermediateCertificate creates a new intermediate CA certificate
 func (o *Organization) NewIntermediateCertificate(
-	manager managers.ICertificateManager,
+	manager ICertificateManager,
 	commonName string, // commonName The name of the intermediate CA
 	serialNumber SerialNumber, // serialNumber Serial Number of the intermediate certificate
 	parentCertificate *Certificate, // parentCertificate The parent certificate, typically the root CA
@@ -117,7 +116,7 @@ func (o *Organization) NewIntermediateCertificate(
 
 // NewServerCertificate creates a new server certificate
 func (o *Organization) NewServerCertificate(
-	manager managers.ICertificateManager,
+	manager ICertificateManager,
 	serialNumber SerialNumber, // Serial Number of the server certificate
 	parentCertificate *Certificate, // The parent certificate, typically the intermediate or root certificate
 	privateKey PrivateKey, // Private key of the parent
@@ -151,7 +150,7 @@ func (o *Organization) NewServerCertificate(
 
 // NewClientCertificate creates a new client certificate
 func (o *Organization) NewClientCertificate(
-	manager managers.ICertificateManager,
+	manager ICertificateManager,
 	commonName string, // The name of the client
 	serialNumber SerialNumber, // Serial Number of the client certificate
 	parentCertificate *Certificate, // The parent certificate, typically the intermediate or root certificate

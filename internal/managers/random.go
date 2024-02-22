@@ -7,11 +7,6 @@ import (
 	"math/big"
 )
 
-// IRandomManager describes operations to create random values
-type IRandomManager interface {
-	CreateBigInt(max *big.Int) (*big.Int, error)
-}
-
 type RandomManager struct {
 }
 
