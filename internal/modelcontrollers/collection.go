@@ -6,17 +6,20 @@ import "github.com/hyperifyio/gocertcenter/internal/models"
 
 // ControllerCollection contains all the controller instances
 type ControllerCollection struct {
-	Certificate models.ICertificateService
-	PrivateKey  models.IPrivateKeyService
+	Organization models.IOrganizationService
+	Certificate  models.ICertificateService
+	PrivateKey   models.IPrivateKeyService
 }
 
 // NewControllerCollection returns a new ControllerCollection instance
 func NewControllerCollection(
+	organization models.IOrganizationService,
 	certificate models.ICertificateService,
 	privateKey models.IPrivateKeyService,
 ) *ControllerCollection {
 	return &ControllerCollection{
-		Certificate: certificate,
-		PrivateKey:  privateKey,
+		Organization: organization,
+		Certificate:  certificate,
+		PrivateKey:   privateKey,
 	}
 }

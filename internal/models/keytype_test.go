@@ -1,20 +1,23 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package models
+package models_test
 
-import "testing"
+import (
+	"github.com/hyperifyio/gocertcenter/internal/models"
+	"testing"
+)
 
 func TestKeyType_String(t *testing.T) {
 	tests := []struct {
-		keyType KeyType
+		keyType models.KeyType
 		want    string
 	}{
-		{RSA, "RSA"},
-		{ECDSA_P224, "ECDSA_P224"},
-		{ECDSA_P256, "ECDSA_P256"},
-		{ECDSA_P384, "ECDSA_P384"},
-		{ECDSA_P521, "ECDSA_P521"},
-		{Ed25519, "Ed25519"},
+		{models.RSA, "RSA"},
+		{models.ECDSA_P224, "ECDSA_P224"},
+		{models.ECDSA_P256, "ECDSA_P256"},
+		{models.ECDSA_P384, "ECDSA_P384"},
+		{models.ECDSA_P521, "ECDSA_P521"},
+		{models.Ed25519, "Ed25519"},
 	}
 
 	for _, tt := range tests {
@@ -27,26 +30,26 @@ func TestKeyType_String(t *testing.T) {
 }
 
 func TestKeyType_IsRSA(t *testing.T) {
-	if !RSA.IsRSA() {
+	if !models.RSA.IsRSA() {
 		t.Errorf("RSA.IsRSA() = false, want true")
 	}
 
-	if ECDSA_P256.IsRSA() {
+	if models.ECDSA_P256.IsRSA() {
 		t.Errorf("ECDSA_P256.IsRSA() = true, want false")
 	}
 }
 
 func TestKeyType_IsECDSA(t *testing.T) {
 	tests := []struct {
-		keyType KeyType
+		keyType models.KeyType
 		want    bool
 	}{
-		{RSA, false},
-		{ECDSA_P224, true},
-		{ECDSA_P256, true},
-		{ECDSA_P384, true},
-		{ECDSA_P521, true},
-		{Ed25519, false},
+		{models.RSA, false},
+		{models.ECDSA_P224, true},
+		{models.ECDSA_P256, true},
+		{models.ECDSA_P384, true},
+		{models.ECDSA_P521, true},
+		{models.Ed25519, false},
 	}
 
 	for _, tt := range tests {
@@ -57,11 +60,11 @@ func TestKeyType_IsECDSA(t *testing.T) {
 }
 
 func TestKeyType_IsEd25519(t *testing.T) {
-	if !Ed25519.IsEd25519() {
+	if !models.Ed25519.IsEd25519() {
 		t.Errorf("Ed25519.IsEd25519() = false, want true")
 	}
 
-	if RSA.IsEd25519() {
+	if models.RSA.IsEd25519() {
 		t.Errorf("RSA.IsEd25519() = true, want false")
 	}
 }

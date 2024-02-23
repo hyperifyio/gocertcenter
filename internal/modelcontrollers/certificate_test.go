@@ -1,10 +1,11 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package modelcontrollers
+package modelcontrollers_test
 
 import (
 	"crypto/x509"
 	"github.com/hyperifyio/gocertcenter/internal/mocks"
+	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
 	"github.com/hyperifyio/gocertcenter/internal/models"
 	"math/big"
 	"testing"
@@ -13,10 +14,10 @@ import (
 func TestNewCertificateController(t *testing.T) {
 
 	mockService := &mocks.MockCertificateService{}
-	controller := NewCertificateController(mockService)
+	controller := modelcontrollers.NewCertificateController(mockService)
 
-	if controller.service != mockService {
-		t.Fatalf("Expected ICertificateService to be set to mockService, got %v", controller.service)
+	if controller.Service != mockService {
+		t.Fatalf("Expected ICertificateService to be set to mockService, got %v", controller.Service)
 	}
 }
 
@@ -35,8 +36,8 @@ func TestCertificateController_GetExistingCertificate(t *testing.T) {
 		},
 	}
 
-	controller := NewCertificateController(mockService)
-	cert, err := controller.service.GetExistingCertificate(big.NewInt(1234))
+	controller := modelcontrollers.NewCertificateController(mockService)
+	cert, err := controller.Service.GetExistingCertificate(big.NewInt(1234))
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}
@@ -57,8 +58,8 @@ func TestCertificateController_CreateCertificate(t *testing.T) {
 		},
 	}
 
-	controller := NewCertificateController(mockService)
-	createdCert, err := controller.service.CreateCertificate(newCert)
+	controller := modelcontrollers.NewCertificateController(mockService)
+	createdCert, err := controller.Service.CreateCertificate(newCert)
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}

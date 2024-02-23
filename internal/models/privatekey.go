@@ -96,6 +96,10 @@ func (k *PrivateKey) GetSerialNumber() SerialNumber {
 	return k.serialNumber
 }
 
+func (k *PrivateKey) GetKeyType() KeyType {
+	return k.keyType
+}
+
 func (k *PrivateKey) GetPublicKey() any {
 	switch k := k.data.(type) {
 	case *rsa.PrivateKey:

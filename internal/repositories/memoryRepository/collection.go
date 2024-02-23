@@ -4,13 +4,15 @@ package memoryRepository
 
 // Collection implements memory based repository collection
 type Collection struct {
-	CertificateRepository *CertificateRepository
-	PrivateKeyRepository  *PrivateKeyRepository
+	OrganizationRepository *OrganizationRepository
+	CertificateRepository  *CertificateRepository
+	PrivateKeyRepository   *PrivateKeyRepository
 }
 
 func NewCollection() *Collection {
 	return &Collection{
-		CertificateRepository: NewCertificateRepository(),
-		PrivateKeyRepository:  NewPrivateKeyRepository(),
+		OrganizationRepository: NewOrganizationRepository(),
+		CertificateRepository:  NewCertificateRepository(),
+		PrivateKeyRepository:   NewPrivateKeyRepository(),
 	}
 }

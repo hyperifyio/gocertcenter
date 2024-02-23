@@ -1,10 +1,11 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package server
+package serverlayer_test
 
 import (
 	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
 	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryRepository"
+	"github.com/hyperifyio/gocertcenter/internal/serverlayer"
 	"net/http"
 	"testing"
 	"time"
@@ -14,13 +15,13 @@ func TestNewServer(t *testing.T) {
 	listen := "localhost:8080"
 	mockControllerCollection := modelcontrollers.ControllerCollection{} // Assume this is a mock or a valid instance
 
-	server := NewServer(listen, mockControllerCollection)
-	if server.listen != listen {
-		t.Errorf("NewServer listen = %s; want %s", server.listen, listen)
+	server := serverlayer.NewServer(listen, mockControllerCollection)
+	if server.GetAddress() != listen {
+		t.Errorf("NewServer listen = %s; want %s", server.GetAddress(), listen)
 	}
 
-	if server.repositoryControllerCollection != mockControllerCollection {
-		t.Errorf("NewServer repositoryControllerCollection does not match the provided controller collection")
+	if server.RepositoryControllerCollection != mockControllerCollection {
+		t.Errorf("NewServer RepositoryControllerCollection does not match the provided controller collection")
 	}
 }
 
@@ -34,13 +35,17 @@ func TestServer_StartStop(t *testing.T) {
 	repositoryCollection := memoryRepository.NewCollection()
 
 	repositoryControllerCollection := modelcontrollers.NewControllerCollection(
+		repositoryCollection.OrganizationRepository,
 		repositoryCollection.CertificateRepository,
 		repositoryCollection.PrivateKeyRepository,
 	)
 
-	server := NewServer(listenAddr, *repositoryControllerCollection)
+	server := serverlayer.NewServer(listenAddr, *repositoryControllerCollection)
 
-	server.Start()
+	err := server.Start()
+	if err != nil {
+		t.Fatalf("Failed to start server: %v", err)
+	}
 
 	// Wait for the server to start
 	time.Sleep(time.Second)

@@ -1,36 +1,37 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package managers
+package managers_test
 
 import (
+	"github.com/hyperifyio/gocertcenter/internal/managers"
 	"math/big"
 	"testing"
 )
 
 func TestRandomManager_CreateBigInt(t *testing.T) {
-	manager := NewRandomManager()
-	max := big.NewInt(100) // Define a maximum value for the random number
+	manager := managers.NewRandomManager()
+	m := big.NewInt(100) // Define a maximum value for the random number
 
 	for i := 0; i < 10; i++ { // Perform multiple iterations to check the randomness
-		result, err := manager.CreateBigInt(max)
+		result, err := manager.CreateBigInt(m)
 		if err != nil {
 			t.Fatalf("CreateBigInt returned an unexpected error: %v", err)
 		}
 
-		if result.Cmp(big.NewInt(0)) == -1 || result.Cmp(max) >= 0 {
-			t.Errorf("Expected result to be >= 0 and < %v, got %v", max, result)
+		if result.Cmp(big.NewInt(0)) == -1 || result.Cmp(m) >= 0 {
+			t.Errorf("Expected result to be >= 0 and < %v, got %v", m, result)
 		}
 	}
 }
 
 func TestRandomManager_Randomness(t *testing.T) {
-	manager := NewRandomManager()
-	max := big.NewInt(1 << 62) // Use a large max to reduce the chance of collisions
+	manager := managers.NewRandomManager()
+	m := big.NewInt(1 << 62) // Use a large max to reduce the chance of collisions
 	iterations := 100
 	results := make(map[string]struct{}, iterations)
 
 	for i := 0; i < iterations; i++ {
-		result, err := manager.CreateBigInt(max)
+		result, err := manager.CreateBigInt(m)
 		if err != nil {
 			t.Fatalf("CreateBigInt returned an unexpected error: %v", err)
 		}

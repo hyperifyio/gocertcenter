@@ -4,29 +4,29 @@ package memoryRepository
 
 import (
 	"errors"
-	models2 "github.com/hyperifyio/gocertcenter/internal/models"
+	"github.com/hyperifyio/gocertcenter/internal/models"
 )
 
 // CertificateRepository is a memory based repository for certificates
 type CertificateRepository struct {
-	certificates map[models2.SerialNumber]*models2.Certificate
+	certificates map[models.SerialNumber]*models.Certificate
 }
 
 // NewCertificateRepository creates a memory based repository for certificates
 func NewCertificateRepository() *CertificateRepository {
 	return &CertificateRepository{
-		certificates: make(map[models2.SerialNumber]*models2.Certificate),
+		certificates: make(map[models.SerialNumber]*models.Certificate),
 	}
 }
 
-func (r *CertificateRepository) GetExistingCertificate(serialNumber models2.SerialNumber) (*models2.Certificate, error) {
+func (r *CertificateRepository) GetExistingCertificate(serialNumber models.SerialNumber) (*models.Certificate, error) {
 	if certificate, exists := r.certificates[serialNumber]; exists {
 		return certificate, nil
 	}
 	return nil, errors.New("certificate not found")
 }
 
-func (r *CertificateRepository) CreateCertificate(certificate *models2.Certificate) (*models2.Certificate, error) {
+func (r *CertificateRepository) CreateCertificate(certificate *models.Certificate) (*models.Certificate, error) {
 	r.certificates[certificate.GetSerialNumber()] = certificate
 	return certificate, nil
 }

@@ -1,10 +1,11 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package modelcontrollers
+package modelcontrollers_test
 
 import (
 	"github.com/hyperifyio/gocertcenter/internal/managers"
 	"github.com/hyperifyio/gocertcenter/internal/mocks"
+	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
 	"github.com/hyperifyio/gocertcenter/internal/models"
 	"testing"
 )
@@ -12,8 +13,8 @@ import (
 func TestNewPrivateKeyController(t *testing.T) {
 	mockService := &mocks.MockPrivateKeyService{}
 
-	controller := NewPrivateKeyController(mockService)
-	if controller.service != mockService {
+	controller := modelcontrollers.NewPrivateKeyController(mockService)
+	if controller.Service != mockService {
 		t.Errorf("Expected service to be set to the provided mockService, but it was not")
 	}
 }
@@ -35,8 +36,8 @@ func TestPrivateKeyController_GetPrivateKey(t *testing.T) {
 		},
 	}
 
-	controller := NewPrivateKeyController(mockService)
-	key, err := controller.service.GetExistingPrivateKey(serialNumber)
+	controller := modelcontrollers.NewPrivateKeyController(mockService)
+	key, err := controller.Service.GetExistingPrivateKey(serialNumber)
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}

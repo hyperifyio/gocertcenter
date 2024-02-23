@@ -4,23 +4,23 @@ package modelcontrollers
 
 import "github.com/hyperifyio/gocertcenter/internal/models"
 
-// PrivateKeyController manages key operations.
+// OrganizationController manages certificate operations.
 //
-//	It utilizes the IPrivateKeyService interface to abstract and inject the
+//	It utilizes the IOrganizationService interface to abstract and inject the
 //	underlying storage mechanism (e.g., database, memory). This design promotes
 //	separation of concerns by decoupling the business logic from the specific
 //	details of data persistence.
-type PrivateKeyController struct {
-	Service models.IPrivateKeyService
+type OrganizationController struct {
+	Service models.IOrganizationService
 }
 
-// NewPrivateKeyController creates a new instance of PrivateKeyController
+// NewOrganizationController creates a new instance of OrganizationController
 //
-//	injecting the specified IPrivateKeyService implementation. This setup
+//	injecting the specified IOrganizationService implementation. This setup
 //	facilitates the separation of business logic from data access layers,
 //	aligning with the principles of dependency injection.
-func NewPrivateKeyController(repository models.IPrivateKeyService) *PrivateKeyController {
-	return &PrivateKeyController{
+func NewOrganizationController(repository models.IOrganizationService) *OrganizationController {
+	return &OrganizationController{
 		Service: repository,
 	}
 }

@@ -19,7 +19,7 @@ func NewCertificateRepository(filePath string) *CertificateRepository {
 	}
 }
 
-func (r *CertificateRepository) GetExistingCertificate(serialNumber string) (*models.Certificate, error) {
+func (r *CertificateRepository) GetExistingCertificate(serialNumber models.SerialNumber) (*models.Certificate, error) {
 	return nil, errors.New("certificate not found")
 }
 

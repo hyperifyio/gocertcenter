@@ -1,12 +1,13 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package managers
+package managers_test
 
 import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"github.com/hyperifyio/gocertcenter/internal/managers"
 	"github.com/hyperifyio/gocertcenter/internal/mocks"
 	"math/big"
 	"testing"
@@ -17,14 +18,14 @@ func TestNewCertificateManager(t *testing.T) {
 	mockRandomManager := mocks.NewMockRandomManager()
 
 	// Test initialization with a provided random manager
-	managerWithMock := NewCertificateManager(mockRandomManager)
+	managerWithMock := managers.NewCertificateManager(mockRandomManager)
 	if managerWithMock.GetRandomManager() != mockRandomManager {
 		t.Errorf("Expected random manager to be the mock instance, got different instance")
 	}
 
 	// Test initialization without providing a random manager (should default to NewRandomManager)
-	managerWithDefault := NewCertificateManager(nil)
-	if _, ok := managerWithDefault.GetRandomManager().(*RandomManager); !ok {
+	managerWithDefault := managers.NewCertificateManager(nil)
+	if _, ok := managerWithDefault.GetRandomManager().(*managers.RandomManager); !ok {
 		t.Errorf("Expected default random manager to be of type *RandomManager, got %T", managerWithDefault.GetRandomManager())
 	}
 }
@@ -33,7 +34,7 @@ func TestCertificateManager_CreateAndParseCertificate(t *testing.T) {
 
 	mockRandomManager := mocks.NewMockRandomManager()
 
-	manager := NewCertificateManager(mockRandomManager)
+	manager := managers.NewCertificateManager(mockRandomManager)
 
 	// Create a minimal certificate template
 	template := &x509.Certificate{

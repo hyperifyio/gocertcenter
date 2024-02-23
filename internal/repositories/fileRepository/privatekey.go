@@ -3,7 +3,7 @@
 package fileRepository
 
 import (
-	models2 "github.com/hyperifyio/gocertcenter/internal/models"
+	"github.com/hyperifyio/gocertcenter/internal/models"
 )
 
 // PrivateKeyRepository is a file based repository for private keys
@@ -16,14 +16,18 @@ func NewPrivateKeyRepository(filePath string) *PrivateKeyRepository {
 	return &PrivateKeyRepository{filePath}
 }
 
+func (r *PrivateKeyRepository) GetFilePath() string {
+	return r.filePath
+}
+
 func (r *PrivateKeyRepository) GetExistingPrivateKey(
-	serialNumber models2.SerialNumber,
-) (*models2.PrivateKey, error) {
-	return models2.NewPrivateKey(serialNumber, nil), nil
+	serialNumber models.SerialNumber,
+) (*models.PrivateKey, error) {
+	return models.NewPrivateKey(serialNumber, models.ECDSA_P384, nil), nil
 }
 
 func (r *PrivateKeyRepository) CreatePrivateKey(
-	key *models2.PrivateKey,
-) (*models2.PrivateKey, error) {
+	key *models.PrivateKey,
+) (*models.PrivateKey, error) {
 	return key, nil
 }

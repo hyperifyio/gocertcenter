@@ -1,8 +1,9 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package mainutils
+package mainutils_test
 
 import (
+	"github.com/hyperifyio/gocertcenter/internal/mainutils"
 	"os"
 	"testing"
 )
@@ -21,7 +22,7 @@ func TestGetEnvOrDefault_VariableSet(t *testing.T) {
 	defer os.Unsetenv(testKey)
 
 	// Test GetEnvOrDefault
-	got := GetEnvOrDefault(testKey, "default value")
+	got := mainutils.GetEnvOrDefault(testKey, "default value")
 	if got != testValue {
 		t.Errorf("GetEnvOrDefault(%q, %q) = %q, want %q", testKey, "default value", got, testValue)
 	}
@@ -38,7 +39,7 @@ func TestGetEnvOrDefault_VariableNotSet(t *testing.T) {
 	}
 
 	// Test GetEnvOrDefault
-	got := GetEnvOrDefault(testKey, defaultValue)
+	got := mainutils.GetEnvOrDefault(testKey, defaultValue)
 	if got != defaultValue {
 		t.Errorf("GetEnvOrDefault(%q, %q) = %q, want %q", testKey, defaultValue, got, defaultValue)
 	}

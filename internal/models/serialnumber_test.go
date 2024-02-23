@@ -1,11 +1,12 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package models
+package models_test
 
 import (
 	"errors"
 	"github.com/hyperifyio/gocertcenter/internal/managers"
 	"github.com/hyperifyio/gocertcenter/internal/mocks"
+	"github.com/hyperifyio/gocertcenter/internal/models"
 	"math/big"
 	"testing"
 )
@@ -14,7 +15,7 @@ import (
 // serial number and does not return an error.
 func TestNewSerialNumber(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, err := NewSerialNumber(randomManager)
+	serialNumber, err := models.NewSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -34,7 +35,7 @@ func TestNewSerialNumberUniqueness(t *testing.T) {
 	seen := make(map[string]bool)
 	count := 100 // Number of serial numbers to generate for the test
 	for i := 0; i < count; i++ {
-		serialNumber, err := NewSerialNumber(randomManager)
+		serialNumber, err := models.NewSerialNumber(randomManager)
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
 		}
@@ -54,7 +55,7 @@ func TestNewSerialNumberWithMock(t *testing.T) {
 		},
 	}
 
-	serialNumber, err := NewSerialNumber(mockRandomManager)
+	serialNumber, err := models.NewSerialNumber(mockRandomManager)
 	if err != nil {
 		t.Fatalf("NewSerialNumber failed: %v", err)
 	}
@@ -74,8 +75,22 @@ func TestNewSerialNumberWithErrors(t *testing.T) {
 		},
 	}
 
-	_, err := NewSerialNumber(mockRandomManager)
+	_, err := models.NewSerialNumber(mockRandomManager)
 	if err == nil {
 		t.Fatalf("Expected NewSerialNumber() to fail, did not fail")
+	}
+}
+
+func TestSerialNumberToBigInt(t *testing.T) {
+	// Setup: Create a new serial number directly for testing purposes
+	expectedBigInt := big.NewInt(1234567890) // Example serial number
+	var serialNumber models.SerialNumber = expectedBigInt
+
+	// Execute: Convert SerialNumber to *big.Int
+	resultBigInt := models.SerialNumberToBigInt(serialNumber)
+
+	// Verify: The result should be equal to the initial *big.Int used to create SerialNumber
+	if resultBigInt.Cmp(expectedBigInt) != 0 {
+		t.Errorf("SerialNumberToBigInt did not return the expected *big.Int value. Expected: %v, Got: %v", expectedBigInt, resultBigInt)
 	}
 }

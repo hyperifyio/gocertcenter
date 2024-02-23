@@ -11,7 +11,7 @@ import "github.com/hyperifyio/gocertcenter/internal/models"
 //	separation of concerns by decoupling the business logic from the specific
 //	details of data persistence.
 type CertificateController struct {
-	service models.ICertificateService
+	Service models.ICertificateService
 }
 
 // NewCertificateController creates a new instance of CertificateController
@@ -21,6 +21,6 @@ type CertificateController struct {
 //	aligning with the principles of dependency injection.
 func NewCertificateController(repository models.ICertificateService) *CertificateController {
 	return &CertificateController{
-		service: repository,
+		Service: repository,
 	}
 }

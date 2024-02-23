@@ -1,21 +1,26 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package models
+package models_test
 
 import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"github.com/hyperifyio/gocertcenter/internal/models"
 	"math/big"
 	"testing"
 )
 
 // helper function to create a mock x509.Certificate
-func newMockX509Certificate(isCA bool, organization []string) *x509.Certificate {
+func newMockX509Certificate(isCA bool, organization []string, serialNumber *big.Int) *x509.Certificate {
+	if serialNumber == nil {
+		serialNumber = big.NewInt(1)
+	}
+
 	key, _ := rsa.GenerateKey(rand.Reader, 2048)
 	return &x509.Certificate{
-		SerialNumber: big.NewInt(1),
+		SerialNumber: serialNumber,
 		IsCA:         isCA,
 		Subject: pkix.Name{
 			Organization: organization,
@@ -27,9 +32,9 @@ func newMockX509Certificate(isCA bool, organization []string) *x509.Certificate 
 func TestNewCertificate(t *testing.T) {
 	orgID := "Org123"
 	signedBy := big.NewInt(2)
-	certData := newMockX509Certificate(true, []string{"Test Org"})
+	certData := newMockX509Certificate(true, []string{"Test Org"}, nil)
 
-	cert := NewCertificate(orgID, signedBy, certData)
+	cert := models.NewCertificate(orgID, signedBy, certData)
 	if cert.GetOrganizationID() != orgID {
 		t.Errorf("GetOrganizationID() = %v, want %v", cert.GetOrganizationID(), orgID)
 	}
@@ -47,12 +52,12 @@ func TestNewCertificate(t *testing.T) {
 }
 
 func TestCertificate_IsCA(t *testing.T) {
-	caCert := NewCertificate("OrgCA", big.NewInt(1), newMockX509Certificate(true, []string{"CA Org"}))
+	caCert := models.NewCertificate("OrgCA", big.NewInt(1), newMockX509Certificate(true, []string{"CA Org"}, nil))
 	if !caCert.IsCA() {
 		t.Error("IsCA() should return true for CA certificates")
 	}
 
-	nonCaCert := NewCertificate("OrgNonCA", big.NewInt(2), newMockX509Certificate(false, []string{"Non-CA Org"}))
+	nonCaCert := models.NewCertificate("OrgNonCA", big.NewInt(2), newMockX509Certificate(false, []string{"Non-CA Org"}, nil))
 	if nonCaCert.IsCA() {
 		t.Error("IsCA() should return false for non-CA certificates")
 	}
@@ -60,8 +65,7 @@ func TestCertificate_IsCA(t *testing.T) {
 
 func TestCertificate_GetSerialNumber(t *testing.T) {
 	expectedSerial := big.NewInt(123)
-	cert := NewCertificate("Org123", big.NewInt(2), newMockX509Certificate(false, []string{"Test Org"}))
-	cert.certificate.SerialNumber = expectedSerial
+	cert := models.NewCertificate("Org123", big.NewInt(2), newMockX509Certificate(false, []string{"Test Org"}, expectedSerial))
 	bigIntCertSignedBy := (*big.Int)(cert.GetSerialNumber())
 
 	if bigIntCertSignedBy.Cmp(expectedSerial) != 0 {
@@ -71,7 +75,7 @@ func TestCertificate_GetSerialNumber(t *testing.T) {
 
 func TestCertificate_GetOrganizationID(t *testing.T) {
 	expectedOrgID := "Org123"
-	cert := NewCertificate(expectedOrgID, big.NewInt(1), newMockX509Certificate(false, []string{"Test Org"}))
+	cert := models.NewCertificate(expectedOrgID, big.NewInt(1), newMockX509Certificate(false, []string{"Test Org"}, nil))
 	if cert.GetOrganizationID() != expectedOrgID {
 		t.Errorf("GetOrganizationID() = %v, want %v", cert.GetOrganizationID(), expectedOrgID)
 	}
@@ -79,19 +83,19 @@ func TestCertificate_GetOrganizationID(t *testing.T) {
 
 func TestCertificate_GetOrganizationName(t *testing.T) {
 	expectedOrgName := "PrimaryOrg"
-	cert := NewCertificate("Org123", big.NewInt(1), newMockX509Certificate(false, []string{expectedOrgName}))
+	cert := models.NewCertificate("Org123", big.NewInt(1), newMockX509Certificate(false, []string{expectedOrgName}, nil))
 	if cert.GetOrganizationName() != expectedOrgName {
 		t.Errorf("GetOrganizationName() = %v, want %v", cert.GetOrganizationName(), expectedOrgName)
 	}
 
 	// Test with no organization names
-	emptyStringCert := NewCertificate("EmptyOrg", big.NewInt(1), newMockX509Certificate(false, []string{""}))
+	emptyStringCert := models.NewCertificate("EmptyOrg", big.NewInt(1), newMockX509Certificate(false, []string{""}, nil))
 	if emptyStringCert.GetOrganizationName() != "" {
 		t.Errorf("GetOrganizationName() should return an empty string when no organization names are present, got %v", emptyStringCert.GetOrganizationName())
 	}
 
 	// Test with empty organization array
-	emptyCert := NewCertificate("EmptyOrg", big.NewInt(1), newMockX509Certificate(false, []string{}))
+	emptyCert := models.NewCertificate("EmptyOrg", big.NewInt(1), newMockX509Certificate(false, []string{}, nil))
 	if emptyCert.GetOrganizationName() != "" {
 		t.Errorf("GetOrganizationName() should return an empty string when no organization names are present, got %v", emptyCert.GetOrganizationName())
 	}
@@ -99,10 +103,10 @@ func TestCertificate_GetOrganizationName(t *testing.T) {
 
 func TestCertificate_GetOrganization(t *testing.T) {
 	expectedOrgs := []string{"Org1", "Org2"}
-	certData := newMockX509Certificate(false, []string{""})
+	certData := newMockX509Certificate(false, []string{""}, nil)
 	certData.Subject.Organization = expectedOrgs
 
-	cert := NewCertificate("Org123", big.NewInt(2), certData)
+	cert := models.NewCertificate("Org123", big.NewInt(2), certData)
 
 	orgs := cert.GetOrganization()
 	if len(orgs) != len(expectedOrgs) {
@@ -118,7 +122,7 @@ func TestCertificate_GetOrganization(t *testing.T) {
 
 func TestCertificate_GetSignedBy(t *testing.T) {
 	expectedSignedBy := big.NewInt(999)
-	cert := NewCertificate("Org123", expectedSignedBy, newMockX509Certificate(false, []string{"Test Org"}))
+	cert := models.NewCertificate("Org123", expectedSignedBy, newMockX509Certificate(false, []string{"Test Org"}, nil))
 
 	bigIntSSerialNumber := (*big.Int)(cert.GetSignedBy())
 
@@ -128,8 +132,8 @@ func TestCertificate_GetSignedBy(t *testing.T) {
 }
 
 func TestCertificate_GetCertificate(t *testing.T) {
-	expectedCert := newMockX509Certificate(true, []string{"Acme Co"})
-	cert := NewCertificate("Acme123", big.NewInt(2), expectedCert)
+	expectedCert := newMockX509Certificate(true, []string{"Acme Co"}, nil)
+	cert := models.NewCertificate("Acme123", big.NewInt(2), expectedCert)
 
 	if cert.GetCertificate() != expectedCert {
 		t.Error("GetCertificate did not return the expected *x509.Certificate")
