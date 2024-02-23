@@ -48,7 +48,7 @@ func (o *Organization) GetNames() []string {
 func (o *Organization) NewRootCertificate(
 	manager ICertificateManager,
 	commonName string, // The name of the root CA
-	privateKey PrivateKey,
+	privateKey PrivateKey, // Private key for self signing
 	expiration time.Duration,
 ) (*Certificate, error) {
 

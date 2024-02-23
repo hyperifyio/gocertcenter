@@ -10,7 +10,7 @@ import (
 
 func TestNewCertificateDTO(t *testing.T) {
 	tests := []struct {
-		name                      string
+		commonName                string
 		serialNumber              string
 		signedBy                  string
 		organization              string
@@ -23,7 +23,7 @@ func TestNewCertificateDTO(t *testing.T) {
 		want                      dtos.CertificateDTO
 	}{
 		{
-			name:                      "Root CA certificate",
+			commonName:                "Root CA certificate",
 			serialNumber:              "123456789",
 			signedBy:                  "Self",
 			organization:              "Test Org",
@@ -34,6 +34,7 @@ func TestNewCertificateDTO(t *testing.T) {
 			isClientCertificate:       false,
 			certificate:               "cert-data-root",
 			want: dtos.CertificateDTO{
+				CommonName:                "Root CA certificate",
 				SerialNumber:              "123456789",
 				SignedBy:                  "Self",
 				Organization:              "Test Org",
@@ -46,7 +47,7 @@ func TestNewCertificateDTO(t *testing.T) {
 			},
 		},
 		{
-			name:                      "Intermediate CA certificate",
+			commonName:                "Intermediate CA certificate",
 			serialNumber:              "987654321",
 			signedBy:                  "Root CA",
 			organization:              "Test Org",
@@ -57,6 +58,7 @@ func TestNewCertificateDTO(t *testing.T) {
 			isClientCertificate:       false,
 			certificate:               "cert-data-intermediate",
 			want: dtos.CertificateDTO{
+				CommonName:                "Intermediate CA certificate",
 				SerialNumber:              "987654321",
 				SignedBy:                  "Root CA",
 				Organization:              "Test Org",
@@ -72,8 +74,9 @@ func TestNewCertificateDTO(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.commonName, func(t *testing.T) {
 			got := dtos.NewCertificateDTO(
+				tt.commonName,
 				tt.serialNumber,
 				tt.signedBy,
 				tt.organization,
@@ -85,7 +88,7 @@ func TestNewCertificateDTO(t *testing.T) {
 				tt.certificate,
 			)
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewCertificateDTO() = %v, want %v", got, tt.want)
+				t.Errorf("NewCertificateDTO() = %v,\n want %v\n", got, tt.want)
 			}
 		})
 	}

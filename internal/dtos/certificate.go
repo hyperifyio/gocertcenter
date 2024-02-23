@@ -3,6 +3,7 @@
 package dtos
 
 type CertificateDTO struct {
+	CommonName                string `json:"commonName"`
 	SerialNumber              string `json:"serialNumber"`
 	SignedBy                  string `json:"signedBy"`
 	Organization              string `json:"organization"`
@@ -15,6 +16,7 @@ type CertificateDTO struct {
 }
 
 func NewCertificateDTO(
+	commonName string,
 	serialNumber string,
 	signedBy string,
 	organization string,
@@ -26,6 +28,7 @@ func NewCertificateDTO(
 	certificate string,
 ) CertificateDTO {
 	return CertificateDTO{
+		CommonName:                commonName,
 		SerialNumber:              serialNumber,
 		SignedBy:                  signedBy,
 		Organization:              organization,
