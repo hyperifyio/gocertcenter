@@ -69,6 +69,10 @@ covering REST API interactions and guidance on integrating CMM into your
 projects, whether for on-premise use or as a part of our SaaS offering at 
 [https://cert.center](https://cert.center).
 
+### OpenAPI
+
+Available from http://localhost:8080/documentation/json
+
 ## License
 
 CMM is available under the Functional Source License, Version 1.1, MIT Future 

@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/hyperifyio/gocertcenter/internal/api"
 	"github.com/hyperifyio/gocertcenter/internal/mainutils"
 	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
 	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryRepository"
@@ -40,6 +41,8 @@ func main() {
 	)
 
 	server := serverlayer.NewServer(listenAddr, *repositoryControllerCollection)
+
+	server.SetupRoutes(api.GetRoutes())
 
 	shutdownHandler := func() error {
 		server.Stop()

@@ -3,11 +3,16 @@
 package dtos
 
 type IndexDTO struct {
-	Version string `json:"version"`
+	Name    string `json:"name" jsonschema:"title=The name of the project,required" jsonschema_extras:"example=gocertcenter"`
+	Version string `json:"version" jsonschema:"title=The version of the package,required" jsonschema_extras:"example=0.0.1"`
 }
 
-func NewIndexDTO(version string) IndexDTO {
+func NewIndexDTO(
+	name string,
+	version string,
+) IndexDTO {
 	return IndexDTO{
+		Name:    name,
 		Version: version,
 	}
 }
