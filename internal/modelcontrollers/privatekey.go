@@ -4,14 +4,29 @@ package modelcontrollers
 
 import "github.com/hyperifyio/gocertcenter/internal/models"
 
-// PrivateKeyController manages key operations.
+// PrivateKeyController implements models.IPrivateKeyController to control
+// operations for private key models.
 //
-//	It utilizes the IPrivateKeyService interface to abstract and inject the
-//	underlying storage mechanism (e.g., database, memory). This design promotes
-//	separation of concerns by decoupling the business logic from the specific
-//	details of data persistence.
+// It utilizes another models.IPrivateKeyService interface to abstract and
+// inject the underlying storage mechanism (e.g., database, memory). This design
+// promotes separation of concerns by decoupling the business logic from the
+// specific details of data persistence.
 type PrivateKeyController struct {
-	Service models.IPrivateKeyService
+	repository models.IPrivateKeyService
+}
+
+var _ models.IPrivateKeyController = (*PrivateKeyController)(nil)
+
+func (r *PrivateKeyController) UsesPrivateKeyService(service models.IPrivateKeyService) bool {
+	return r.repository == service
+}
+
+func (r *PrivateKeyController) GetExistingPrivateKey(serialNumber models.SerialNumber) (models.IPrivateKey, error) {
+	return r.repository.GetExistingPrivateKey(serialNumber)
+}
+
+func (r *PrivateKeyController) CreatePrivateKey(key models.IPrivateKey) (models.IPrivateKey, error) {
+	return r.repository.CreatePrivateKey(key)
 }
 
 // NewPrivateKeyController creates a new instance of PrivateKeyController
@@ -21,6 +36,6 @@ type PrivateKeyController struct {
 //	aligning with the principles of dependency injection.
 func NewPrivateKeyController(repository models.IPrivateKeyService) *PrivateKeyController {
 	return &PrivateKeyController{
-		Service: repository,
+		repository: repository,
 	}
 }

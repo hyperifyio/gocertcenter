@@ -8,11 +8,14 @@ import (
 	"time"
 )
 
-// Organization model
+// Organization model implements IOrganization
 type Organization struct {
 	id    string
 	names []string
 }
+
+// Compile time assertion for implementing the interface
+var _ IOrganization = (*Organization)(nil)
 
 // NewOrganization creates a organization model from existing data
 func NewOrganization(
@@ -30,7 +33,7 @@ func (o *Organization) GetID() string {
 	return o.id
 }
 
-// GetOrganizationName returns the primary organization name
+// GetName returns the primary organization name
 func (o *Organization) GetName() string {
 	slice := o.GetNames()
 	if len(slice) > 0 {
@@ -39,7 +42,7 @@ func (o *Organization) GetName() string {
 	return ""
 }
 
-// GetOrganizationNames returns the full name of the organization including department
+// GetNames returns the full name of the organization including department
 func (o *Organization) GetNames() []string {
 	return o.names
 }
@@ -48,9 +51,9 @@ func (o *Organization) GetNames() []string {
 func (o *Organization) NewRootCertificate(
 	manager ICertificateManager,
 	commonName string, // The name of the root CA
-	privateKey PrivateKey, // Private key for self signing
+	privateKey IPrivateKey, // Private key for self signing
 	expiration time.Duration,
-) (*Certificate, error) {
+) (ICertificate, error) {
 
 	serialNumber := privateKey.GetSerialNumber()
 
@@ -81,10 +84,10 @@ func (o *Organization) NewIntermediateCertificate(
 	manager ICertificateManager,
 	commonName string, // commonName The name of the intermediate CA
 	serialNumber SerialNumber, // serialNumber Serial Number of the intermediate certificate
-	parentCertificate *Certificate, // parentCertificate The parent certificate, typically the root CA
-	parentPrivateKey PrivateKey, // parentPrivateKey Private key of the parent
+	parentCertificate ICertificate, // parentCertificate The parent certificate, typically the root CA
+	parentPrivateKey IPrivateKey, // parentPrivateKey Private key of the parent
 	expiration time.Duration, // The expiration duration
-) (*Certificate, error) {
+) (ICertificate, error) {
 
 	certificateTemplate := x509.Certificate{
 		SerialNumber: serialNumber,
@@ -118,11 +121,11 @@ func (o *Organization) NewIntermediateCertificate(
 func (o *Organization) NewServerCertificate(
 	manager ICertificateManager,
 	serialNumber SerialNumber, // Serial Number of the server certificate
-	parentCertificate *Certificate, // The parent certificate, typically the intermediate or root certificate
-	privateKey PrivateKey, // Private key of the parent
+	parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
+	privateKey IPrivateKey, // Private key of the parent
 	dnsNames []string, // List of domain names the certificate is valid for
 	expiration time.Duration,
-) (*Certificate, error) {
+) (ICertificate, error) {
 
 	certificateTemplate := x509.Certificate{
 		SerialNumber: serialNumber,
@@ -153,10 +156,10 @@ func (o *Organization) NewClientCertificate(
 	manager ICertificateManager,
 	commonName string, // The name of the client
 	serialNumber SerialNumber, // Serial Number of the client certificate
-	parentCertificate *Certificate, // The parent certificate, typically the intermediate or root certificate
-	privateKey PrivateKey, // Private key of the parent
+	parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
+	privateKey IPrivateKey, // Private key of the parent
 	expiration time.Duration,
-) (*Certificate, error) {
+) (ICertificate, error) {
 
 	certificateTemplate := x509.Certificate{
 		SerialNumber: serialNumber,

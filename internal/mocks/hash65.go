@@ -4,12 +4,15 @@ package mocks
 
 import (
 	"github.com/stretchr/testify/mock"
+	"hash"
 )
 
-// MockHash64 is a mock type for the Hash64 interface
+// MockHash64 is a mock type for hash.Hash64 interface
 type MockHash64 struct {
 	mock.Mock
 }
+
+var _ hash.Hash64 = (*MockHash64)(nil)
 
 // Write is the mock implementation of the Write method from the hash.Hash interface
 func (m *MockHash64) Write(p []byte) (n int, err error) {

@@ -12,9 +12,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// HttpServerManager implements apitypes.IServerManager
 type HttpServerManager struct {
 	server *http.Server
 }
+
+var _ apitypes.IServerManager = (*HttpServerManager)(nil)
 
 func NewHttpServerManager(
 	address string,

@@ -4,13 +4,16 @@ package fileRepository
 
 import (
 	"errors"
+
 	"github.com/hyperifyio/gocertcenter/internal/models"
 )
 
-// OrganizationRepository is a file based repository
+// OrganizationRepository implements models.IOrganizationService for a file system
 type OrganizationRepository struct {
 	filePath string
 }
+
+var _ models.IOrganizationService = (*OrganizationRepository)(nil)
 
 // NewOrganizationRepository creates a file based repository
 func NewOrganizationRepository(filePath string) *OrganizationRepository {
@@ -19,10 +22,10 @@ func NewOrganizationRepository(filePath string) *OrganizationRepository {
 	}
 }
 
-func (r *OrganizationRepository) GetExistingOrganization(id string) (*models.Organization, error) {
+func (r *OrganizationRepository) GetExistingOrganization(id string) (models.IOrganization, error) {
 	return nil, errors.New("organization not found")
 }
 
-func (r *OrganizationRepository) CreateOrganization(organization *models.Organization) (*models.Organization, error) {
+func (r *OrganizationRepository) CreateOrganization(organization models.IOrganization) (models.IOrganization, error) {
 	return nil, errors.New("organization creation not implemented")
 }

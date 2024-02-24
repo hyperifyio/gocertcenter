@@ -2,17 +2,14 @@
 
 package memoryRepository
 
-// Collection implements memory based repository collection
-type Collection struct {
-	OrganizationRepository *OrganizationRepository
-	CertificateRepository  *CertificateRepository
-	PrivateKeyRepository   *PrivateKeyRepository
-}
+import (
+	"github.com/hyperifyio/gocertcenter/internal/models"
+)
 
-func NewCollection() *Collection {
-	return &Collection{
-		OrganizationRepository: NewOrganizationRepository(),
-		CertificateRepository:  NewCertificateRepository(),
-		PrivateKeyRepository:   NewPrivateKeyRepository(),
-	}
+func NewCollection() *models.Collection {
+	return models.NewCollection(
+		NewOrganizationRepository(),
+		NewCertificateRepository(),
+		NewPrivateKeyRepository(),
+	)
 }

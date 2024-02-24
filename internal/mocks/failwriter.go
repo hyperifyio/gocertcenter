@@ -7,9 +7,12 @@ import (
 	"net/http"
 )
 
+// FailWriter implements http.ResponseWriter
 type FailWriter struct {
 	http.ResponseWriter
 }
+
+var _ http.ResponseWriter = (*FailWriter)(nil)
 
 func NewFailWriter(m http.ResponseWriter) *FailWriter {
 	return &FailWriter{m}

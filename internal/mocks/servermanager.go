@@ -3,14 +3,17 @@
 package mocks
 
 import (
+	"github.com/hyperifyio/gocertcenter/internal/apitypes"
 	"github.com/stretchr/testify/mock"
 	"net"
 )
 
-// MockServerManager is a mock type for the IServerManager interface.
+// MockServerManager is a mock type for apitypes.IServerManager interface.
 type MockServerManager struct {
 	mock.Mock
 }
+
+var _ apitypes.IServerManager = (*MockServerManager)(nil)
 
 // Serve is a mock method that simulates starting the server.
 func (m *MockServerManager) Serve(l net.Listener) error {

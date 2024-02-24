@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hyperifyio/gocertcenter/internal/hashutils"
+	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
 	"hash/fnv"
 	"log"
 	"net"
@@ -23,7 +24,6 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/apiresponses"
 	"github.com/hyperifyio/gocertcenter/internal/apitypes"
 	"github.com/hyperifyio/gocertcenter/internal/managers"
-	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
 )
 
 const DefaultHostname = "localhost"
@@ -34,10 +34,11 @@ const DefaultOpenApiVersion = "0.0.0"
 // DefaultStartDuration This is a time to wait for any possible errors while starting the server
 const DefaultStartDuration = 500 * time.Millisecond
 
+// Server implements apitypes.IServer
 type Server struct {
 	listen                         string
 	server                         apitypes.IServerManager
-	repositoryControllerCollection modelcontrollers.ControllerCollection
+	repositoryControllerCollection modelcontrollers.Collection
 	router                         *mux.Router
 	listener                       *net.Listener
 	context                        *context.Context
@@ -48,10 +49,12 @@ type Server struct {
 	hashFactory                    apitypes.Hash64FactoryFunc
 }
 
+var _ apitypes.IServer = (*Server)(nil)
+
 // NewServer ..
 func NewServer(
 	listen string,
-	repositoryControllerCollection modelcontrollers.ControllerCollection,
+	repositoryControllerCollection modelcontrollers.Collection,
 	swaggerFactory apitypes.NewSwaggerManagerFunc,
 ) (*Server, error) {
 	s := &Server{

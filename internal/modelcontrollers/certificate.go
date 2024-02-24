@@ -4,14 +4,29 @@ package modelcontrollers
 
 import "github.com/hyperifyio/gocertcenter/internal/models"
 
-// CertificateController manages certificate operations.
+// CertificateController implements models.ICertificateController to control
+// operations for certificate models.
 //
-//	It utilizes the ICertificateService interface to abstract and inject the
-//	underlying storage mechanism (e.g., database, memory). This design promotes
-//	separation of concerns by decoupling the business logic from the specific
-//	details of data persistence.
+// It utilizes models.ICertificateService implementation to abstract
+// and inject the underlying storage mechanism (e.g., database, memory). This
+// design promotes separation of concerns by decoupling the business logic from
+// the specific details of data persistence.
 type CertificateController struct {
-	Service models.ICertificateService
+	repository models.ICertificateService
+}
+
+var _ models.ICertificateController = (*CertificateController)(nil)
+
+func (r *CertificateController) UsesCertificateService(service models.ICertificateService) bool {
+	return r.repository == service
+}
+
+func (r *CertificateController) GetExistingCertificate(serialNumber models.SerialNumber) (models.ICertificate, error) {
+	return r.repository.GetExistingCertificate(serialNumber)
+}
+
+func (r *CertificateController) CreateCertificate(certificate models.ICertificate) (models.ICertificate, error) {
+	return r.repository.CreateCertificate(certificate)
 }
 
 // NewCertificateController creates a new instance of CertificateController
@@ -21,6 +36,6 @@ type CertificateController struct {
 //	aligning with the principles of dependency injection.
 func NewCertificateController(repository models.ICertificateService) *CertificateController {
 	return &CertificateController{
-		Service: repository,
+		repository: repository,
 	}
 }

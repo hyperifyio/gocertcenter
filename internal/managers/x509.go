@@ -8,9 +8,12 @@ import (
 	"io"
 )
 
+// CertificateManager implements models.ICertificateManager
 type CertificateManager struct {
 	randomManager models.IRandomManager
 }
+
+var _ models.ICertificateManager = (*CertificateManager)(nil)
 
 func NewCertificateManager(randomManager models.IRandomManager) CertificateManager {
 	if randomManager == nil {

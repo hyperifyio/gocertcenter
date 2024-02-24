@@ -26,7 +26,7 @@ import (
 
 func TestNewServer(t *testing.T) {
 	listen := "localhost:8080"
-	mockControllerCollection := modelcontrollers.ControllerCollection{} // Assume this is a mock or a valid instance
+	mockControllerCollection := modelcontrollers.Collection{} // Assume this is a mock or a valid instance
 	server, err := serverlayer.NewServer(listen, mockControllerCollection, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
@@ -43,10 +43,10 @@ func TestServer_StartStop(t *testing.T) {
 
 	repositoryCollection := memoryRepository.NewCollection()
 
-	repositoryControllerCollection := modelcontrollers.NewControllerCollection(
-		repositoryCollection.OrganizationRepository,
-		repositoryCollection.CertificateRepository,
-		repositoryCollection.PrivateKeyRepository,
+	repositoryControllerCollection := modelcontrollers.NewCollection(
+		modelcontrollers.NewOrganizationController(repositoryCollection.Organization),
+		modelcontrollers.NewCertificateController(repositoryCollection.Certificate),
+		modelcontrollers.NewPrivateKeyController(repositoryCollection.PrivateKey),
 	)
 
 	server, err := serverlayer.NewServer(listenAddr, *repositoryControllerCollection, nil)
@@ -80,7 +80,7 @@ func TestServer_StartStop(t *testing.T) {
 }
 
 func TestIsStarted(t *testing.T) {
-	server, err := serverlayer.NewServer("localhost:8080", modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer("localhost:8080", modelcontrollers.Collection{}, nil)
 
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
@@ -112,7 +112,7 @@ func TestGetURL(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		server, err := serverlayer.NewServer(tt.listen, modelcontrollers.ControllerCollection{}, nil)
+		server, err := serverlayer.NewServer(tt.listen, modelcontrollers.Collection{}, nil)
 		if err != nil {
 			t.Fatalf("Failed to create server: %v", err)
 		}
@@ -125,7 +125,7 @@ func TestGetURL(t *testing.T) {
 }
 
 func TestServer_StartError(t *testing.T) {
-	server, err := serverlayer.NewServer("invalidAddress", modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer("invalidAddress", modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -142,7 +142,7 @@ func TestServer_StartError(t *testing.T) {
 func TestServer_StartTwice(t *testing.T) {
 	listenAddr := "localhost:8081" // Use a different port to avoid conflicts
 
-	server, err := serverlayer.NewServer(listenAddr, modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer(listenAddr, modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -163,7 +163,7 @@ func TestServer_StartTwice(t *testing.T) {
 }
 
 func TestStart_ServerAlreadyStarted(t *testing.T) {
-	server, err := serverlayer.NewServer("localhost:8082", modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer("localhost:8082", modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -184,7 +184,7 @@ func TestStart_ServerAlreadyStarted(t *testing.T) {
 
 func TestStart_ListenerAlreadyExists(t *testing.T) {
 
-	server, err := serverlayer.NewServer("localhost:8083", modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer("localhost:8083", modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -212,7 +212,7 @@ func TestStart_ListenerAlreadyExists(t *testing.T) {
 }
 
 func TestStart_DefaultAddress(t *testing.T) {
-	server, err := serverlayer.NewServer("", modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer("", modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -236,7 +236,7 @@ func TestStart_FailAfterShortWait(t *testing.T) {
 	}
 	defer ln.Close()
 
-	server, err := serverlayer.NewServer(":8081", modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer(":8081", modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -252,7 +252,7 @@ func TestStart_FailAfterShortWait(t *testing.T) {
 }
 
 func TestServer_InitSetup_Idempotent(t *testing.T) {
-	server, err := serverlayer.NewServer(":8080", modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer(":8080", modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -283,7 +283,7 @@ func TestServer_InitSetup_Idempotent(t *testing.T) {
 }
 
 func TestServer_SetListener_AlreadySet(t *testing.T) {
-	server, err := serverlayer.NewServer(":8080", modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer(":8080", modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -310,7 +310,7 @@ func TestServer_SetListener_AlreadySet(t *testing.T) {
 func TestServer_SetupHandler(t *testing.T) {
 	// Setup the server on a test port
 	listenAddr := ":8084" // Use a unique port to avoid conflicts with other tests
-	server, err := serverlayer.NewServer(listenAddr, modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer(listenAddr, modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -376,7 +376,7 @@ func TestServer_SetupRoutes(t *testing.T) {
 
 	// Setup server on a test port
 	listenAddr := ":8085" // Ensure this port is unique and not used by other tests or services
-	server, err := serverlayer.NewServer(listenAddr, modelcontrollers.ControllerCollection{}, nil)
+	server, err := serverlayer.NewServer(listenAddr, modelcontrollers.Collection{}, nil)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -439,7 +439,7 @@ func HttpRequest(method string, url string, body io.Reader) (resp *http.Response
 }
 
 func TestSetupHandler(t *testing.T) {
-	server, err := serverlayer.NewServer(":8086", modelcontrollers.ControllerCollection{}, nil) // Ensure this port is unique and not used by other tests
+	server, err := serverlayer.NewServer(":8086", modelcontrollers.Collection{}, nil) // Ensure this port is unique and not used by other tests
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -484,7 +484,7 @@ func TestSetupHandler(t *testing.T) {
 }
 
 func TestStop(t *testing.T) {
-	server, err := serverlayer.NewServer(":8087", modelcontrollers.ControllerCollection{}, nil) // Ensure this port is unique
+	server, err := serverlayer.NewServer(":8087", modelcontrollers.Collection{}, nil) // Ensure this port is unique
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -525,7 +525,7 @@ func TestServer_FinalizeSetup(t *testing.T) {
 		return mockSwaggerManager, nil
 	}
 
-	server, err := serverlayer.NewServer(":8080", modelcontrollers.ControllerCollection{}, mockFactory)
+	server, err := serverlayer.NewServer(":8080", modelcontrollers.Collection{}, mockFactory)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -559,7 +559,7 @@ func TestServer_SetupHandlerWithMock(t *testing.T) {
 	}
 
 	// Creating server with the mocked SwaggerManager
-	server, err := serverlayer.NewServer(":8080", modelcontrollers.ControllerCollection{}, mockFactory)
+	server, err := serverlayer.NewServer(":8080", modelcontrollers.Collection{}, mockFactory)
 	if err != nil {
 		t.Fatalf("NewServer failed: %v", err)
 	}
@@ -604,7 +604,7 @@ func TestSetupHandlerEmptyMethodPath(t *testing.T) {
 	}
 
 	// Create server instance with the mock
-	server, err := serverlayer.NewServer(":8080", modelcontrollers.ControllerCollection{}, mockFactory)
+	server, err := serverlayer.NewServer(":8080", modelcontrollers.Collection{}, mockFactory)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
@@ -643,7 +643,7 @@ func TestInitSetup_SwaggerFactoryError(t *testing.T) {
 	// Create a new server instance
 	server, err := serverlayer.NewServer(
 		":8080",
-		modelcontrollers.ControllerCollection{},
+		modelcontrollers.Collection{},
 		mockFactory,
 	)
 
@@ -686,7 +686,7 @@ func TestSetupRoutes_HandlerError(t *testing.T) {
 	// Create a server and inject the mock swagger manager
 	server, err := serverlayer.NewServer(
 		":8080",
-		modelcontrollers.ControllerCollection{},
+		modelcontrollers.Collection{},
 		mockFactory,
 	)
 	if err != nil {
@@ -714,7 +714,7 @@ func TestSetupRoutes_HandlerError(t *testing.T) {
 func TestServerInitAfterUnSetup(t *testing.T) {
 	server, err := serverlayer.NewServer(
 		"localhost:8080",
-		modelcontrollers.ControllerCollection{},
+		modelcontrollers.Collection{},
 		nil, // Assuming nil or a mock ISwaggerManager is acceptable for initialization
 	)
 	if err != nil {
@@ -753,7 +753,7 @@ func TestServer_Start_FailsFinalizeSetup(t *testing.T) {
 	// Initialize the server with the mock swagger manager
 	server, err := serverlayer.NewServer(
 		"localhost:8080",
-		modelcontrollers.ControllerCollection{},
+		modelcontrollers.Collection{},
 		mockFactory,
 	)
 	if err != nil {
@@ -783,8 +783,8 @@ func TestServer_StartWithNilServerFactory(t *testing.T) {
 	// Setup
 	server, err := serverlayer.NewServer(
 		"localhost:8080",
-		modelcontrollers.ControllerCollection{}, // Assuming this is correctly initialized
-		nil,                                     // Assuming nil or a mock swaggerFactory is acceptable for initialization
+		modelcontrollers.Collection{}, // Assuming this is correctly initialized
+		nil,                           // Assuming nil or a mock swaggerFactory is acceptable for initialization
 	)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
@@ -824,7 +824,7 @@ func TestServer_StartWithShortDelayedServeFailure(t *testing.T) {
 	// Create the server with a mock server factory function.
 	server, err := serverlayer.NewServer(
 		"localhost:0",
-		modelcontrollers.ControllerCollection{},
+		modelcontrollers.Collection{},
 		nil, // Assuming a mock swaggerFactory or nil is acceptable for initialization.
 	)
 	if err != nil {
@@ -855,7 +855,7 @@ func TestServer_StartWithLongDelayedServeFailure(t *testing.T) {
 	// Create the server with a mock server factory function.
 	server, err := serverlayer.NewServer(
 		"localhost:0",
-		modelcontrollers.ControllerCollection{},
+		modelcontrollers.Collection{},
 		nil, // Assuming a mock swaggerFactory or nil is acceptable for initialization.
 	)
 	if err != nil {
@@ -883,8 +883,8 @@ func TestServer_SetInfo(t *testing.T) {
 	// Initialize the server with minimal setup.
 	server, err := serverlayer.NewServer(
 		"localhost:8080",
-		modelcontrollers.ControllerCollection{}, // Assuming this is correctly initialized or mocked.
-		nil,                                     // Assuming nil or a mock swaggerFactory is acceptable for initialization.
+		modelcontrollers.Collection{}, // Assuming this is correctly initialized or mocked.
+		nil,                           // Assuming nil or a mock swaggerFactory is acceptable for initialization.
 	)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
@@ -921,7 +921,7 @@ func TestServer_SetSwaggerFactory(t *testing.T) {
 	// Create the server with minimal setup.
 	server, err := serverlayer.NewServer(
 		"localhost:8080",
-		modelcontrollers.ControllerCollection{},
+		modelcontrollers.Collection{},
 		nil,
 	)
 	if err != nil {
@@ -959,8 +959,8 @@ func TestServer_StopShutdownFails(t *testing.T) {
 	// Initialize the server, passing any required dependencies
 	server, err := serverlayer.NewServer(
 		"localhost:8080",
-		modelcontrollers.ControllerCollection{}, // Assuming this is correctly initialized or mocked.
-		nil,                                     // Assuming nil or a mock swaggerFactory is acceptable for initialization.
+		modelcontrollers.Collection{}, // Assuming this is correctly initialized or mocked.
+		nil,                           // Assuming nil or a mock swaggerFactory is acceptable for initialization.
 	)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
@@ -997,8 +997,8 @@ func TestServer_UnSetupWhileRunning(t *testing.T) {
 	// Initialize the server, passing any required dependencies
 	server, err := serverlayer.NewServer(
 		"localhost:8080",
-		modelcontrollers.ControllerCollection{}, // Assuming this is correctly initialized or mocked.
-		nil,                                     // Assuming nil or a mock swaggerFactory is acceptable for initialization.
+		modelcontrollers.Collection{}, // Assuming this is correctly initialized or mocked.
+		nil,                           // Assuming nil or a mock swaggerFactory is acceptable for initialization.
 	)
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)

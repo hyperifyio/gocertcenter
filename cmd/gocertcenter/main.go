@@ -32,12 +32,12 @@ func main() {
 
 	listenAddr := fmt.Sprintf(":%s", *listenPort)
 
-	repositoryCollection := memoryRepository.NewCollection()
+	repository := memoryRepository.NewCollection()
 
-	repositoryControllerCollection := modelcontrollers.NewControllerCollection(
-		repositoryCollection.OrganizationRepository,
-		repositoryCollection.CertificateRepository,
-		repositoryCollection.PrivateKeyRepository,
+	repositoryControllerCollection := modelcontrollers.NewCollection(
+		modelcontrollers.NewOrganizationController(repository.Organization),
+		modelcontrollers.NewCertificateController(repository.Certificate),
+		modelcontrollers.NewPrivateKeyController(repository.PrivateKey),
 	)
 
 	server, err := serverlayer.NewServer(listenAddr, *repositoryControllerCollection, nil)

@@ -5,14 +5,17 @@ package mocks
 import (
 	swagger "github.com/davidebianchi/gswagger"
 	"github.com/gorilla/mux"
+	"github.com/hyperifyio/gocertcenter/internal/apitypes"
 	"github.com/stretchr/testify/mock"
 	"net/http"
 )
 
-// MockSwaggerManager defines a mock for the ISwaggerManager interface.
+// MockSwaggerManager defines a mock for apitypes.ISwaggerManager interface.
 type MockSwaggerManager struct {
 	mock.Mock
 }
+
+var _ apitypes.ISwaggerManager = (*MockSwaggerManager)(nil)
 
 // GenerateAndExposeOpenapi mocks the GenerateAndExposeOpenapi method.
 func (m *MockSwaggerManager) GenerateAndExposeOpenapi() error {

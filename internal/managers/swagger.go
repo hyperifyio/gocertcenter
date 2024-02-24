@@ -15,9 +15,12 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/apitypes"
 )
 
+// SwaggerManager implements apitypes.ISwaggerManager
 type SwaggerManager struct {
 	swaggerRouter *swagger.Router[gorilla.HandlerFunc, gorilla.Route]
 }
+
+var _ apitypes.ISwaggerManager = (*SwaggerManager)(nil)
 
 func (r *SwaggerManager) GenerateAndExposeOpenapi() error {
 	return r.swaggerRouter.GenerateAndExposeOpenapi()

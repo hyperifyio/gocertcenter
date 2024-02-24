@@ -6,18 +6,23 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/models"
 )
 
-// MockPrivateKeyService is a mock implementation of models.IPrivateKeyService interface.
-type MockPrivateKeyService struct {
+// MockPrivateKeyController is a mock implementation of models.IPrivateKeyController interface.
+type MockPrivateKeyController struct {
+	UsesPrivateKeyServiceFunc func(service models.IPrivateKeyService) bool
 	// These fields allow you to specify the behavior and output of the mock methods.
 	GetExistingPrivateKeyFunc func(serialNumber models.SerialNumber) (models.IPrivateKey, error)
 	CreatePrivateKeyFunc      func(key models.IPrivateKey) (models.IPrivateKey, error)
 }
 
-var _ models.IPrivateKeyService = (*MockPrivateKeyService)(nil)
+var _ models.IPrivateKeyController = (*MockPrivateKeyController)(nil)
+
+func (m *MockPrivateKeyController) UsesPrivateKeyService(service models.IPrivateKeyService) bool {
+	return m.UsesPrivateKeyServiceFunc(service)
+}
 
 // GetExistingPrivateKey simulates retrieving an existing private key by serial number.
 // It uses a function field to allow custom behavior for each test.
-func (m *MockPrivateKeyService) GetExistingPrivateKey(serialNumber models.SerialNumber) (models.IPrivateKey, error) {
+func (m *MockPrivateKeyController) GetExistingPrivateKey(serialNumber models.SerialNumber) (models.IPrivateKey, error) {
 	if m.GetExistingPrivateKeyFunc != nil {
 		return m.GetExistingPrivateKeyFunc(serialNumber)
 	}
@@ -27,7 +32,7 @@ func (m *MockPrivateKeyService) GetExistingPrivateKey(serialNumber models.Serial
 
 // CreatePrivateKey simulates creating a new private key.
 // It uses a function field to allow custom behavior for each test.
-func (m *MockPrivateKeyService) CreatePrivateKey(key models.IPrivateKey) (models.IPrivateKey, error) {
+func (m *MockPrivateKeyController) CreatePrivateKey(key models.IPrivateKey) (models.IPrivateKey, error) {
 	if m.CreatePrivateKeyFunc != nil {
 		return m.CreatePrivateKeyFunc(key)
 	}

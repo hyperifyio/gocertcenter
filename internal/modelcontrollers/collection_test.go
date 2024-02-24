@@ -3,23 +3,28 @@
 package modelcontrollers_test
 
 import (
+	"testing"
+
 	"github.com/hyperifyio/gocertcenter/internal/mocks"
 	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
-	"testing"
 )
 
-func TestNewControllerCollection(t *testing.T) {
-	mockOrganizationService := &mocks.MockOrganizationService{}
-	mockCertificateService := &mocks.MockCertificateService{}
-	mockPrivateKeyService := &mocks.MockPrivateKeyService{}
+func TestNewCollection(t *testing.T) {
+	mockOrganizationController := &mocks.MockOrganizationController{}
+	mockCertificateController := &mocks.MockCertificateController{}
+	mockPrivateKeyController := &mocks.MockPrivateKeyController{}
 
-	collection := modelcontrollers.NewControllerCollection(mockOrganizationService, mockCertificateService, mockPrivateKeyService)
+	collection := modelcontrollers.NewCollection(mockOrganizationController, mockCertificateController, mockPrivateKeyController)
 
-	if collection.Certificate != mockCertificateService {
+	if collection.Organization != mockOrganizationController {
+		t.Errorf("Organization service was not correctly assigned")
+	}
+
+	if collection.Certificate != mockCertificateController {
 		t.Errorf("Certificate service was not correctly assigned")
 	}
 
-	if collection.PrivateKey != mockPrivateKeyService {
-		t.Errorf("Private Key service was not correctly assigned")
+	if collection.PrivateKey != mockPrivateKeyController {
+		t.Errorf("PrivateKey service was not correctly assigned")
 	}
 }

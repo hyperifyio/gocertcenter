@@ -4,11 +4,15 @@ package managers
 
 import (
 	"crypto/rand"
+	"github.com/hyperifyio/gocertcenter/internal/models"
 	"math/big"
 )
 
+// RandomManager implements models.IRandomManager
 type RandomManager struct {
 }
+
+var _ models.IRandomManager = (*RandomManager)(nil)
 
 func NewRandomManager() *RandomManager {
 	return &RandomManager{}

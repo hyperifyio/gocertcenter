@@ -16,9 +16,10 @@ func TestNewCertificateController(t *testing.T) {
 	mockService := &mocks.MockCertificateService{}
 	controller := modelcontrollers.NewCertificateController(mockService)
 
-	if controller.Service != mockService {
-		t.Fatalf("Expected ICertificateService to be set to mockService, got %v", controller.Service)
+	if !controller.UsesCertificateService(mockService) {
+		t.Fatalf("Expected the certificate controller to use the mockService, got false")
 	}
+
 }
 
 func TestCertificateController_GetExistingCertificate(t *testing.T) {
@@ -28,7 +29,7 @@ func TestCertificateController_GetExistingCertificate(t *testing.T) {
 		&x509.Certificate{SerialNumber: big.NewInt(1234)},
 	)
 	mockService := &mocks.MockCertificateService{
-		GetExistingCertificateFunc: func(serialNumber models.SerialNumber) (*models.Certificate, error) {
+		GetExistingCertificateFunc: func(serialNumber models.SerialNumber) (models.ICertificate, error) {
 			if models.SerialNumberToBigInt(serialNumber).String() == models.SerialNumberToBigInt(expectedCert.GetSerialNumber()).String() {
 				return expectedCert, nil
 			}
@@ -37,7 +38,7 @@ func TestCertificateController_GetExistingCertificate(t *testing.T) {
 	}
 
 	controller := modelcontrollers.NewCertificateController(mockService)
-	cert, err := controller.Service.GetExistingCertificate(big.NewInt(1234))
+	cert, err := controller.GetExistingCertificate(big.NewInt(1234))
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}
@@ -53,13 +54,13 @@ func TestCertificateController_CreateCertificate(t *testing.T) {
 		&x509.Certificate{SerialNumber: big.NewInt(5678)},
 	)
 	mockService := &mocks.MockCertificateService{
-		CreateCertificateFunc: func(certificate *models.Certificate) (*models.Certificate, error) {
+		CreateCertificateFunc: func(certificate models.ICertificate) (models.ICertificate, error) {
 			return certificate, nil // Echo back the input for simplicity
 		},
 	}
 
 	controller := modelcontrollers.NewCertificateController(mockService)
-	createdCert, err := controller.Service.CreateCertificate(newCert)
+	createdCert, err := controller.CreateCertificate(newCert)
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}

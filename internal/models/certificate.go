@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 )
 
-// Certificate model
+// Certificate model implements ICertificate
 type Certificate struct {
 
 	// organization is the organization ID this certificate belongs to
@@ -18,6 +18,9 @@ type Certificate struct {
 	// data is the certificate data
 	certificate *x509.Certificate
 }
+
+// Compile time assertion for implementing the interface
+var _ ICertificate = (*Certificate)(nil)
 
 // NewCertificate creates a certificate model from existing data
 func NewCertificate(

@@ -2,15 +2,20 @@
 
 package mocks
 
-import "net/url"
+import (
+	"github.com/hyperifyio/gocertcenter/internal/apitypes"
+	"net/url"
+)
 
-// MockRequest implements the apiRequests.IRequest interface
+// MockRequest implements the apitypes.IRequest interface
 type MockRequest struct {
 	IsGet  bool
 	Method string
 	URL    *url.URL
 	Vars   map[string]string
 }
+
+var _ apitypes.IRequest = (*MockRequest)(nil)
 
 func (m *MockRequest) IsMethodGet() bool {
 	return m.IsGet

@@ -2,12 +2,17 @@
 
 package mocks
 
-import "math/big"
+import (
+	"github.com/hyperifyio/gocertcenter/internal/models"
+	"math/big"
+)
 
-// MockRandomManager is a mock implementation of IRandomManager for testing.
+// MockRandomManager is a mock implementation of models.IRandomManager for testing.
 type MockRandomManager struct {
 	CreateBigIntFunc func(max *big.Int) (*big.Int, error)
 }
+
+var _ models.IRandomManager = (*MockRandomManager)(nil)
 
 func NewMockRandomManager() *MockRandomManager {
 	return &MockRandomManager{}

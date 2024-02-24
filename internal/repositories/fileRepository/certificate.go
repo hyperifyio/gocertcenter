@@ -4,13 +4,16 @@ package fileRepository
 
 import (
 	"errors"
+
 	"github.com/hyperifyio/gocertcenter/internal/models"
 )
 
-// CertificateRepository is a file based repository
+// CertificateRepository implements models.ICertificateService for a file system
 type CertificateRepository struct {
 	filePath string
 }
+
+var _ models.ICertificateService = (*CertificateRepository)(nil)
 
 // NewCertificateRepository creates a file based repository
 func NewCertificateRepository(filePath string) *CertificateRepository {
@@ -19,10 +22,10 @@ func NewCertificateRepository(filePath string) *CertificateRepository {
 	}
 }
 
-func (r *CertificateRepository) GetExistingCertificate(serialNumber models.SerialNumber) (*models.Certificate, error) {
+func (r *CertificateRepository) GetExistingCertificate(serialNumber models.SerialNumber) (models.ICertificate, error) {
 	return nil, errors.New("certificate not found")
 }
 
-func (r *CertificateRepository) CreateCertificate(certificate *models.Certificate) (*models.Certificate, error) {
+func (r *CertificateRepository) CreateCertificate(certificate models.ICertificate) (models.ICertificate, error) {
 	return nil, errors.New("certificate creation not implemented")
 }

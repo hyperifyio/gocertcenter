@@ -4,16 +4,18 @@ package mocks
 
 import "github.com/hyperifyio/gocertcenter/internal/models"
 
-// MockOrganizationService is a mock implementation of IOrganizationService for testing purposes.
+// MockOrganizationService is a mock implementation of models.IOrganizationService for testing purposes.
 type MockOrganizationService struct {
-	GetExistingOrganizationFunc func(id string) (*models.Organization, error)
-	CreateOrganizationFunc      func(certificate *models.Organization) (*models.Organization, error)
+	GetExistingOrganizationFunc func(id string) (models.IOrganization, error)
+	CreateOrganizationFunc      func(certificate models.IOrganization) (models.IOrganization, error)
 }
 
-func (m *MockOrganizationService) GetExistingOrganization(id string) (*models.Organization, error) {
+var _ models.IOrganizationService = (*MockOrganizationService)(nil)
+
+func (m *MockOrganizationService) GetExistingOrganization(id string) (models.IOrganization, error) {
 	return m.GetExistingOrganizationFunc(id)
 }
 
-func (m *MockOrganizationService) CreateOrganization(certificate *models.Organization) (*models.Organization, error) {
+func (m *MockOrganizationService) CreateOrganization(certificate models.IOrganization) (models.IOrganization, error) {
 	return m.CreateOrganizationFunc(certificate)
 }

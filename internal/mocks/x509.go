@@ -4,16 +4,19 @@ package mocks
 
 import (
 	"crypto/x509"
-	"github.com/hyperifyio/gocertcenter/internal/models"
 	"io"
+
+	"github.com/hyperifyio/gocertcenter/internal/models"
 )
 
-// MockCertificateManager is a mock implementation of ICertificateManager for testing.
+// MockCertificateManager is a mock implementation of models.ICertificateManager for testing.
 type MockCertificateManager struct {
 	RandomManager         models.IRandomManager
 	CreateCertificateFunc func(rand io.Reader, template, parent *x509.Certificate, publicKey, privateKey any) ([]byte, error)
 	ParseCertificateFunc  func(certBytes []byte) (*x509.Certificate, error)
 }
+
+var _ models.ICertificateManager = (*MockCertificateManager)(nil)
 
 func NewMockCertificateManager() MockCertificateManager {
 	return MockCertificateManager{

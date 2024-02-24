@@ -9,13 +9,15 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockServer is a mock implementation of the IServer interface for testing purposes.
+// MockServer is a mock implementation of apitypes.IServer interface for testing purposes.
 type MockServer struct {
 	mock.Mock
 	Address string
 	URL     string
 	Info    *openapi3.Info
 }
+
+var _ apitypes.IServer = (*MockServer)(nil)
 
 func (m *MockServer) IsStarted() bool {
 	args := m.Called()

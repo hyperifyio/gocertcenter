@@ -13,7 +13,7 @@ import (
 	"fmt"
 )
 
-// PrivateKey model
+// PrivateKey model implements IPrivateKey
 type PrivateKey struct {
 
 	// serialNumber of the certificate this key belongs to
@@ -26,6 +26,9 @@ type PrivateKey struct {
 	data any
 }
 
+// Compile time assertion for implementing the interface
+var _ IPrivateKey = (*PrivateKey)(nil)
+
 // NewPrivateKey creates a private key model from existing data
 func NewPrivateKey(
 	serialNumber SerialNumber,
@@ -37,59 +40,6 @@ func NewPrivateKey(
 		data:         data,
 		keyType:      keyType,
 	}
-}
-
-// GeneratePrivateKey creates a new private key of type keyType
-func GeneratePrivateKey(
-	serialNumber SerialNumber,
-	keyType KeyType,
-	rsaBits int,
-) (*PrivateKey, error) {
-	var key any
-	var err error
-	switch keyType {
-	case RSA:
-		key, err = rsa.GenerateKey(rand.Reader, rsaBits)
-	case ECDSA_P224:
-		key, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
-	case ECDSA_P256:
-		key, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	case ECDSA_P384:
-		key, err = ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	case ECDSA_P521:
-		key, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
-	case Ed25519:
-		_, key, err = ed25519.GenerateKey(rand.Reader)
-	default:
-		err = errors.New(fmt.Sprintf("keyType is unsupported: %s", keyType.String()))
-	}
-	if err != nil {
-		return nil, err
-	}
-	return NewPrivateKey(serialNumber, keyType, key), nil
-}
-
-// GenerateRSAPrivateKey creates a new private key of type keyType
-func GenerateRSAPrivateKey(
-	serialNumber SerialNumber,
-	rsaBits int,
-) (*PrivateKey, error) {
-	return GeneratePrivateKey(serialNumber, RSA, rsaBits)
-}
-
-// GenerateECDSAPrivateKey creates a new private key of type keyType
-func GenerateECDSAPrivateKey(
-	serialNumber SerialNumber,
-	keyType KeyType,
-) (*PrivateKey, error) {
-	return GeneratePrivateKey(serialNumber, keyType, 2048)
-}
-
-// GenerateEd25519PrivateKey creates a new private key of type keyType
-func GenerateEd25519PrivateKey(
-	serialNumber SerialNumber,
-) (*PrivateKey, error) {
-	return GeneratePrivateKey(serialNumber, Ed25519, 2048)
 }
 
 func (k *PrivateKey) GetSerialNumber() SerialNumber {
@@ -128,4 +78,57 @@ func (k *PrivateKey) CreateCertificate(
 		return nil, fmt.Errorf("failed to parse certificate after creating it: %w", err)
 	}
 	return cert, nil
+}
+
+// GeneratePrivateKey creates a new private key of type keyType
+func GeneratePrivateKey(
+	serialNumber SerialNumber,
+	keyType KeyType,
+	rsaBits int,
+) (IPrivateKey, error) {
+	var key any
+	var err error
+	switch keyType {
+	case RSA:
+		key, err = rsa.GenerateKey(rand.Reader, rsaBits)
+	case ECDSA_P224:
+		key, err = ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
+	case ECDSA_P256:
+		key, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	case ECDSA_P384:
+		key, err = ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	case ECDSA_P521:
+		key, err = ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	case Ed25519:
+		_, key, err = ed25519.GenerateKey(rand.Reader)
+	default:
+		err = errors.New(fmt.Sprintf("keyType is unsupported: %s", keyType.String()))
+	}
+	if err != nil {
+		return nil, err
+	}
+	return NewPrivateKey(serialNumber, keyType, key), nil
+}
+
+// GenerateRSAPrivateKey creates a new private key of type keyType
+func GenerateRSAPrivateKey(
+	serialNumber SerialNumber,
+	rsaBits int,
+) (IPrivateKey, error) {
+	return GeneratePrivateKey(serialNumber, RSA, rsaBits)
+}
+
+// GenerateECDSAPrivateKey creates a new private key of type keyType
+func GenerateECDSAPrivateKey(
+	serialNumber SerialNumber,
+	keyType KeyType,
+) (IPrivateKey, error) {
+	return GeneratePrivateKey(serialNumber, keyType, 2048)
+}
+
+// GenerateEd25519PrivateKey creates a new private key of type keyType
+func GenerateEd25519PrivateKey(
+	serialNumber SerialNumber,
+) (IPrivateKey, error) {
+	return GeneratePrivateKey(serialNumber, Ed25519, 2048)
 }
