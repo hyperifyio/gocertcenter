@@ -13,7 +13,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/apitypes"
 	"github.com/hyperifyio/gocertcenter/internal/mocks"
 	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
-	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryRepository"
+	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryrepository"
 	"github.com/hyperifyio/gocertcenter/internal/serverlayer"
 	"github.com/stretchr/testify/mock"
 	"io"
@@ -41,7 +41,7 @@ func TestServer_StartStop(t *testing.T) {
 
 	listenAddr := "localhost:8080"
 
-	repositoryCollection := memoryRepository.NewCollection()
+	repositoryCollection := memoryrepository.NewCollection()
 
 	repositoryControllerCollection := modelcontrollers.NewCollection(
 		modelcontrollers.NewOrganizationController(repositoryCollection.Organization),

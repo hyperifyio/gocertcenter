@@ -1,6 +1,6 @@
 // Copyright (c) 2024. Heusala Group <info@hg.fi>. All rights reserved.
 
-package fileRepository
+package filerepository
 
 import (
 	"errors"

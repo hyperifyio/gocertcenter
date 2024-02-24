@@ -8,7 +8,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/api"
 	"github.com/hyperifyio/gocertcenter/internal/mainutils"
 	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
-	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryRepository"
+	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryrepository"
 	"github.com/hyperifyio/gocertcenter/internal/serverlayer"
 	"log"
 	"os"
@@ -32,7 +32,7 @@ func main() {
 
 	listenAddr := fmt.Sprintf(":%s", *listenPort)
 
-	repository := memoryRepository.NewCollection()
+	repository := memoryrepository.NewCollection()
 
 	repositoryControllerCollection := modelcontrollers.NewCollection(
 		modelcontrollers.NewOrganizationController(repository.Organization),
