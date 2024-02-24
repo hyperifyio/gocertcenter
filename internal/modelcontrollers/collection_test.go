@@ -3,6 +3,7 @@
 package modelcontrollers_test
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/hyperifyio/gocertcenter/internal/mocks"
@@ -10,21 +11,15 @@ import (
 )
 
 func TestNewCollection(t *testing.T) {
-	mockOrganizationController := &mocks.MockOrganizationController{}
-	mockCertificateController := &mocks.MockCertificateController{}
-	mockPrivateKeyController := &mocks.MockPrivateKeyController{}
+	mockOrganizationController := new(mocks.MockOrganizationController)
+	mockCertificateController := new(mocks.MockCertificateController)
+	mockPrivateKeyController := new(mocks.MockPrivateKeyController)
 
 	collection := modelcontrollers.NewCollection(mockOrganizationController, mockCertificateController, mockPrivateKeyController)
 
-	if collection.Organization != mockOrganizationController {
-		t.Errorf("Organization service was not correctly assigned")
-	}
-
-	if collection.Certificate != mockCertificateController {
-		t.Errorf("Certificate service was not correctly assigned")
-	}
-
-	if collection.PrivateKey != mockPrivateKeyController {
-		t.Errorf("PrivateKey service was not correctly assigned")
-	}
+	// Use assert.Equal to check if the services were correctly assigned.
+	// It's more concise and automatically handles the error message.
+	assert.Equal(t, mockOrganizationController, collection.Organization, "Organization service was not correctly assigned")
+	assert.Equal(t, mockCertificateController, collection.Certificate, "Certificate service was not correctly assigned")
+	assert.Equal(t, mockPrivateKeyController, collection.PrivateKey, "PrivateKey service was not correctly assigned")
 }

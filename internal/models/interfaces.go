@@ -31,44 +31,6 @@ type IOrganization interface {
 
 	// GetNames returns the full name of the organization including department
 	GetNames() []string
-
-	// NewRootCertificate creates a new root CA certificate
-	NewRootCertificate(
-		manager ICertificateManager,
-		commonName string, // The name of the root CA
-		privateKey IPrivateKey, // Private key for self signing
-		expiration time.Duration,
-	) (ICertificate, error)
-
-	// NewIntermediateCertificate creates a new intermediate CA certificate
-	NewIntermediateCertificate(
-		manager ICertificateManager,
-		commonName string, // commonName The name of the intermediate CA
-		serialNumber ISerialNumber, // serialNumber Serial Number of the intermediate certificate
-		parentCertificate ICertificate, // parentCertificate The parent certificate, typically the root CA
-		parentPrivateKey IPrivateKey, // parentPrivateKey Private key of the parent
-		expiration time.Duration, // The expiration duration
-	) (ICertificate, error)
-
-	// NewServerCertificate creates a new server certificate
-	NewServerCertificate(
-		manager ICertificateManager,
-		serialNumber ISerialNumber, // Serial Number of the server certificate
-		parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
-		privateKey IPrivateKey, // Private key of the parent
-		dnsNames []string, // List of domain names the certificate is valid for
-		expiration time.Duration,
-	) (ICertificate, error)
-
-	// NewClientCertificate creates a new client certificate
-	NewClientCertificate(
-		manager ICertificateManager,
-		commonName string, // The name of the client
-		serialNumber ISerialNumber, // Serial Number of the client certificate
-		parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
-		privateKey IPrivateKey, // Private key of the parent
-		expiration time.Duration,
-	) (ICertificate, error)
 }
 
 // ICertificate describes an interface for Certificate model
@@ -176,32 +138,68 @@ type IPrivateKeyService interface {
 	CreatePrivateKey(key IPrivateKey) (IPrivateKey, error)
 }
 
-// IOrganizationController defines the interface for organization storage operations,
-// facilitating the abstraction of data access mechanisms. By declaring this
-// interface within the controller package, it supports easy substitution of its
-// implementation, thereby promoting loose coupling between the application's
-// business logic and its data layer.
+// IOrganizationController defines the interface for organization operations
 type IOrganizationController interface {
 
 	// UsesOrganizationService returns true if this controller is using the
-	// specified service. We're intentionally not returning a reference to the
-	// service because we want to keep all the control inside the controller
+	// specified data layer service. We're intentionally not returning a
+	// reference to the service because we want to keep all the control inside
+	// the controller
 	UsesOrganizationService(service IOrganizationService) bool
 
 	GetExistingOrganization(id string) (IOrganization, error)
 	CreateOrganization(certificate IOrganization) (IOrganization, error)
+
+	// NewRootCertificate creates a new root CA certificate
+	NewRootCertificate(
+		o IOrganization,
+		manager ICertificateManager,
+		commonName string, // The name of the root CA
+		privateKey IPrivateKey, // Private key for self signing
+		expiration time.Duration,
+	) (ICertificate, error)
+
+	// NewIntermediateCertificate creates a new intermediate CA certificate
+	NewIntermediateCertificate(
+		o IOrganization,
+		manager ICertificateManager,
+		commonName string, // commonName The name of the intermediate CA
+		serialNumber ISerialNumber, // serialNumber Serial Number of the intermediate certificate
+		parentCertificate ICertificate, // parentCertificate The parent certificate, typically the root CA
+		parentPrivateKey IPrivateKey, // parentPrivateKey Private key of the parent
+		expiration time.Duration, // The expiration duration
+	) (ICertificate, error)
+
+	// NewServerCertificate creates a new server certificate
+	NewServerCertificate(
+		o IOrganization,
+		manager ICertificateManager,
+		serialNumber ISerialNumber, // Serial Number of the server certificate
+		parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
+		privateKey IPrivateKey, // Private key of the parent
+		dnsNames []string, // List of domain names the certificate is valid for
+		expiration time.Duration,
+	) (ICertificate, error)
+
+	// NewClientCertificate creates a new client certificate
+	NewClientCertificate(
+		o IOrganization,
+		manager ICertificateManager,
+		commonName string, // The name of the client
+		serialNumber ISerialNumber, // Serial Number of the client certificate
+		parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
+		privateKey IPrivateKey, // Private key of the parent
+		expiration time.Duration,
+	) (ICertificate, error)
 }
 
-// ICertificateController defines the interface for certificate storage operations,
-// facilitating the abstraction of data access mechanisms. By declaring this
-// interface within the controller package, it supports easy substitution of its
-// implementation, thereby promoting loose coupling between the application's
-// business logic and its data layer.
+// ICertificateController defines the interface for certificate operations
 type ICertificateController interface {
 
 	// UsesCertificateService returns true if this controller is using the
-	// specified service. We're intentionally not returning a reference to the
-	// service because we want to keep all the control inside the controller
+	// specified data layer service. We're intentionally not returning a
+	// reference to the service because we want to keep all the control inside
+	// the controller
 	UsesCertificateService(service ICertificateService) bool
 
 	GetExistingCertificate(
@@ -211,16 +209,13 @@ type ICertificateController interface {
 	CreateCertificate(certificate ICertificate) (ICertificate, error)
 }
 
-// IPrivateKeyController defines the interface for key storage operations,
-// facilitating the abstraction of data access mechanisms. By declaring this
-// interface within the controller package, it supports easy substitution of its
-// implementation, thereby promoting loose coupling between the application's
-// business logic and its data layer.
+// IPrivateKeyController defines the interface for private key operations
 type IPrivateKeyController interface {
 
 	// UsesPrivateKeyService returns true if this controller is using the
-	// specified service. We're intentionally not returning a reference to the
-	// service because we want to keep all the control inside the controller
+	// specified data layer service. We're intentionally not returning a
+	// reference to the service because we want to keep all the control inside
+	// the controller
 	UsesPrivateKeyService(service IPrivateKeyService) bool
 
 	// GetExistingPrivateKey only returns public properties of the private key
