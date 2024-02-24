@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hyperifyio/gocertcenter/internal/managers"
+	"github.com/hyperifyio/gocertcenter/internal/modelutils"
 	"io"
 	"testing"
 	"time"
@@ -102,8 +103,8 @@ func TestOrganizationController_NewRootCertificate(t *testing.T) {
 
 	org := models.NewOrganization("orgID", []string{"Test Org"})
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.GenerateSerialNumber(randomManager)
-	privateKey, err := models.GenerateRSAPrivateKey(serialNumber, 2048)
+	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
+	privateKey, err := modelutils.GenerateRSAPrivateKey(serialNumber, 2048)
 	if err != nil {
 		t.Fatalf("GenerateRSAPrivateKey failed: %v", err)
 	}
@@ -137,8 +138,8 @@ func TestOrganizationController_NewRootCertificate_CreateCertificateError(t *tes
 	}
 
 	org := models.NewOrganization("orgID", []string{"Test Org"})
-	serialNumber, _ := models.GenerateSerialNumber(&mocks.MockRandomManager{})
-	privateKey, _ := models.GenerateRSAPrivateKey(serialNumber, 2048)
+	serialNumber, _ := modelutils.GenerateSerialNumber(&mocks.MockRandomManager{})
+	privateKey, _ := modelutils.GenerateRSAPrivateKey(serialNumber, 2048)
 
 	_, err := controller.NewRootCertificate(org, mockManager, "Test Root CA", privateKey, 365*24*time.Hour)
 	if err == nil {
@@ -156,11 +157,11 @@ func TestOrganizationController_NewIntermediateCertificate(t *testing.T) {
 	certManager := managers.NewCertificateManager(managers.NewRandomManager())
 
 	randomManager := managers.NewRandomManager()
-	parentSerialNumber, _ := models.GenerateSerialNumber(randomManager)
-	parentPrivateKey, _ := models.GenerateRSAPrivateKey(parentSerialNumber, 2048)
+	parentSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
+	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(parentSerialNumber, 2048)
 	parentCert, _ := controller.NewRootCertificate(org, certManager, "Parent Root CA", parentPrivateKey, 365*24*time.Hour)
 
-	intermediateSerialNumber, _ := models.GenerateSerialNumber(randomManager)
+	intermediateSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 	intermediateCert, err := controller.NewIntermediateCertificate(org, certManager, "Intermediate CA", intermediateSerialNumber, parentCert, parentPrivateKey, 365*24*time.Hour)
 	if err != nil {
 		t.Fatalf("NewIntermediateCertificate failed: %v", err)
@@ -192,7 +193,7 @@ func TestOrganizationController_NewIntermediateCertificate_Error(t *testing.T) {
 	}
 
 	org := models.NewOrganization("orgID", []string{"Test Org"})
-	serialNumber, _ := models.GenerateSerialNumber(&mocks.MockRandomManager{})
+	serialNumber, _ := modelutils.GenerateSerialNumber(&mocks.MockRandomManager{})
 	parentCertificate := &models.Certificate{} // Mock or prepare a parent certificate as needed
 	privateKey := &models.PrivateKey{}         // Mock or prepare a private key as needed
 
@@ -211,11 +212,11 @@ func TestOrganizationController_NewServerCertificate(t *testing.T) {
 
 	randomManager := managers.NewRandomManager()
 
-	parentSerialNumber, _ := models.GenerateSerialNumber(randomManager)
-	parentPrivateKey, _ := models.GenerateRSAPrivateKey(parentSerialNumber, 2048)
+	parentSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
+	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(parentSerialNumber, 2048)
 	parentCert, _ := controller.NewRootCertificate(org, certManager, "Parent CA", parentPrivateKey, 365*24*time.Hour)
 
-	serverSerialNumber, _ := models.GenerateSerialNumber(randomManager)
+	serverSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 	dnsNames := []string{"www.example.com", "example.com"}
 	serverCert, err := controller.NewServerCertificate(org, certManager, serverSerialNumber, parentCert, parentPrivateKey, dnsNames, 365*24*time.Hour)
 	if err != nil {
@@ -241,7 +242,7 @@ func TestOrganizationController_NewServerCertificate_Error(t *testing.T) {
 	}
 
 	org := models.NewOrganization("serverOrgID", []string{"Server Test Org"})
-	serialNumber, _ := models.GenerateSerialNumber(&mocks.MockRandomManager{})
+	serialNumber, _ := modelutils.GenerateSerialNumber(&mocks.MockRandomManager{})
 	parentCertificate := &models.Certificate{} // Prepare a mock parent certificate
 	privateKey := &models.PrivateKey{}         // Prepare a mock private key
 	dnsNames := []string{"www.example.org"}
@@ -262,11 +263,11 @@ func TestOrganizationController_NewClientCertificate(t *testing.T) {
 	randomManager := managers.NewRandomManager()
 
 	org := models.NewOrganization("clientOrgID", []string{"Client Test Org"})
-	parentSerialNumber, _ := models.GenerateSerialNumber(randomManager)
-	parentPrivateKey, _ := models.GenerateRSAPrivateKey(parentSerialNumber, 2048)
+	parentSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
+	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(parentSerialNumber, 2048)
 	parentCert, _ := controller.NewRootCertificate(org, certManager, "Parent CA", parentPrivateKey, 365*24*time.Hour)
 
-	clientSerialNumber, _ := models.GenerateSerialNumber(randomManager)
+	clientSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 	clientCert, err := controller.NewClientCertificate(org, certManager, "Client", clientSerialNumber, parentCert, parentPrivateKey, 365*24*time.Hour)
 	if err != nil {
 		t.Fatalf("NewClientCertificate failed: %v", err)
@@ -288,7 +289,7 @@ func TestOrganizationController_NewClientCertificate_Error(t *testing.T) {
 	}
 
 	org := models.NewOrganization("clientOrgID", []string{"Client Test Org"})
-	serialNumber, _ := models.GenerateSerialNumber(&mocks.MockRandomManager{})
+	serialNumber, _ := modelutils.GenerateSerialNumber(&mocks.MockRandomManager{})
 	parentCertificate := &models.Certificate{} // Prepare a mock parent certificate
 	privateKey := &models.PrivateKey{}         // Prepare a mock private key
 

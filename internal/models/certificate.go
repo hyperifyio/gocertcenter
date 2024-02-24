@@ -123,15 +123,12 @@ func (c *Certificate) GetCertificate() *x509.Certificate {
 }
 
 func (c *Certificate) GetPEM() []byte {
-
 	// Convert the certificate to a PEM block
 	pemBlock := &pem.Block{
 		Type:  "CERTIFICATE",
 		Bytes: c.certificate.Raw,
 	}
-
 	// Encode the PEM block to memory
 	pemBytes := pem.EncodeToMemory(pemBlock)
-
 	return pemBytes
 }

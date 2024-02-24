@@ -68,3 +68,17 @@ func TestKeyType_IsEd25519(t *testing.T) {
 		t.Errorf("RSA.IsEd25519() = true, want false")
 	}
 }
+
+func TestKeyType_String_DefaultCase(t *testing.T) {
+	// Define a KeyType value that is outside the range of defined constants
+	undefinedKeyType := models.KeyType(999)
+	expected := "KeyType(999)"
+
+	// Call the String method on the undefined KeyType
+	result := undefinedKeyType.String()
+
+	// Assert that the result matches the expected output for the default case
+	if result != expected {
+		t.Errorf("Unexpected default string for undefined KeyType. Got: %v, Want: %v", result, expected)
+	}
+}

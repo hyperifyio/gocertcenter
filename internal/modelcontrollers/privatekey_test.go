@@ -7,6 +7,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/mocks"
 	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
 	"github.com/hyperifyio/gocertcenter/internal/models"
+	"github.com/hyperifyio/gocertcenter/internal/modelutils"
 	"testing"
 )
 
@@ -23,7 +24,7 @@ func TestPrivateKeyController_GetExistingPrivateKey(t *testing.T) {
 
 	randomManager := managers.NewRandomManager()
 
-	serialNumber, err := models.GenerateSerialNumber(randomManager)
+	serialNumber, err := modelutils.GenerateSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}

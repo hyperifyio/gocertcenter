@@ -31,11 +31,3 @@ func (s *SerialNumber) Sign() int {
 func NewSerialNumber(value *big.Int) ISerialNumber {
 	return &SerialNumber{value: value}
 }
-
-func GenerateSerialNumber(randomManager IRandomManager) (ISerialNumber, error) {
-	value, err := randomManager.CreateBigInt(new(big.Int).Lsh(big.NewInt(1), 128))
-	if err != nil {
-		return NewSerialNumber(nil), err
-	}
-	return NewSerialNumber(value), nil
-}

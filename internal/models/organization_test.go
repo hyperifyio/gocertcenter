@@ -61,3 +61,33 @@ func TestOrganization_GetNames(t *testing.T) {
 		t.Errorf("GetNames() got = %v, want = %v", gotNames, names)
 	}
 }
+
+func TestOrganization_GetDTO(t *testing.T) {
+	orgID := "org123"
+	names := []string{"Test Org", "Test Org Department"}
+	org := models.NewOrganization(orgID, names)
+
+	dto := org.GetDTO()
+
+	// Verify ID
+	if dto.ID != orgID {
+		t.Errorf("GetDTO().ID = %s, want %s", dto.ID, orgID)
+	}
+
+	// Verify Name
+	expectedName := names[0] // GetName returns the first name in the slice
+	if dto.Name != expectedName {
+		t.Errorf("GetDTO().Name = %s, want %s", dto.Name, expectedName)
+	}
+
+	// Verify AllNames
+	if len(dto.AllNames) != len(names) {
+		t.Fatalf("GetDTO().AllNames returned %d names; want %d", len(dto.AllNames), len(names))
+	}
+
+	for i, name := range dto.AllNames {
+		if name != names[i] {
+			t.Errorf("GetDTO().AllNames[%d] = %s, want %s", i, name, names[i])
+		}
+	}
+}
