@@ -13,14 +13,14 @@ import (
 
 func TestOrganizationRepository_CreateAndGetOrganization(t *testing.T) {
 	repo := memoryrepository.NewOrganizationRepository()
-	mockCert := new(mocks.MockOrganization)
+	mockOrg := new(mocks.MockOrganization)
 	id := "orgId"
 
 	// Setting up expectations
-	mockCert.On("GetID").Return(id)
+	mockOrg.On("GetID").Return(id)
 
 	// Test CreateOrganization
-	_, err := repo.CreateOrganization(mockCert)
+	_, err := repo.CreateOrganization(mockOrg)
 	assert.NoError(t, err)
 
 	// Test GetExistingOrganization success
@@ -29,7 +29,7 @@ func TestOrganizationRepository_CreateAndGetOrganization(t *testing.T) {
 	assert.NotNil(t, foundCert)
 
 	// Verify expectations were met
-	mockCert.AssertExpectations(t)
+	mockOrg.AssertExpectations(t)
 }
 
 func TestOrganizationRepository_GetExistingOrganizationNotFound(t *testing.T) {

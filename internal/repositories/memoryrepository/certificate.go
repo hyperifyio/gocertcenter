@@ -11,7 +11,7 @@ import (
 // CertificateRepository implements models.ICertificateService in a memory
 // @implements models.ICertificateService
 type CertificateRepository struct {
-	certificates map[models.SerialNumber]models.ICertificate
+	certificates map[models.ISerialNumber]models.ICertificate
 }
 
 // Compile time assertion for implementing the interface
@@ -20,11 +20,15 @@ var _ models.ICertificateService = (*CertificateRepository)(nil)
 // NewCertificateRepository creates a memory based repository for certificates
 func NewCertificateRepository() *CertificateRepository {
 	return &CertificateRepository{
-		certificates: make(map[models.SerialNumber]models.ICertificate),
+		certificates: make(map[models.ISerialNumber]models.ICertificate),
 	}
 }
 
-func (r *CertificateRepository) GetExistingCertificate(serialNumber models.SerialNumber) (models.ICertificate, error) {
+func (r *CertificateRepository) GetExistingCertificate(
+	orgId string,
+	signedBy models.ISerialNumber,
+	serialNumber models.ISerialNumber,
+) (models.ICertificate, error) {
 	if certificate, exists := r.certificates[serialNumber]; exists {
 		return certificate, nil
 	}

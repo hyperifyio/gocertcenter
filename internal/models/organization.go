@@ -5,6 +5,7 @@ package models
 import (
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"github.com/hyperifyio/gocertcenter/internal/dtos"
 	"time"
 )
 
@@ -26,6 +27,14 @@ func NewOrganization(
 		id:    id,
 		names: names,
 	}
+}
+
+func (o *Organization) GetDTO() dtos.OrganizationDTO {
+	return dtos.NewOrganizationDTO(
+		o.GetID(),
+		o.GetName(),
+		o.GetNames(),
+	)
 }
 
 // GetID returns unique identifier for this organization
@@ -58,7 +67,7 @@ func (o *Organization) NewRootCertificate(
 	serialNumber := privateKey.GetSerialNumber()
 
 	certificateTemplate := x509.Certificate{
-		SerialNumber: serialNumber,
+		SerialNumber: serialNumber.Value(),
 		Subject: pkix.Name{
 			Organization: o.GetNames(),
 			CommonName:   commonName,
@@ -83,14 +92,14 @@ func (o *Organization) NewRootCertificate(
 func (o *Organization) NewIntermediateCertificate(
 	manager ICertificateManager,
 	commonName string, // commonName The name of the intermediate CA
-	serialNumber SerialNumber, // serialNumber Serial Number of the intermediate certificate
+	serialNumber ISerialNumber, // serialNumber Serial Number of the intermediate certificate
 	parentCertificate ICertificate, // parentCertificate The parent certificate, typically the root CA
 	parentPrivateKey IPrivateKey, // parentPrivateKey Private key of the parent
 	expiration time.Duration, // The expiration duration
 ) (ICertificate, error) {
 
 	certificateTemplate := x509.Certificate{
-		SerialNumber: serialNumber,
+		SerialNumber: serialNumber.Value(),
 		Subject: pkix.Name{
 			Organization: o.GetNames(),
 			CommonName:   commonName,
@@ -120,7 +129,7 @@ func (o *Organization) NewIntermediateCertificate(
 // NewServerCertificate creates a new server certificate
 func (o *Organization) NewServerCertificate(
 	manager ICertificateManager,
-	serialNumber SerialNumber, // Serial Number of the server certificate
+	serialNumber ISerialNumber, // Serial Number of the server certificate
 	parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
 	privateKey IPrivateKey, // Private key of the parent
 	dnsNames []string, // List of domain names the certificate is valid for
@@ -128,7 +137,7 @@ func (o *Organization) NewServerCertificate(
 ) (ICertificate, error) {
 
 	certificateTemplate := x509.Certificate{
-		SerialNumber: serialNumber,
+		SerialNumber: serialNumber.Value(),
 		Subject: pkix.Name{
 			Organization: o.GetNames(),
 			CommonName:   dnsNames[0],
@@ -155,14 +164,14 @@ func (o *Organization) NewServerCertificate(
 func (o *Organization) NewClientCertificate(
 	manager ICertificateManager,
 	commonName string, // The name of the client
-	serialNumber SerialNumber, // Serial Number of the client certificate
+	serialNumber ISerialNumber, // Serial Number of the client certificate
 	parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
 	privateKey IPrivateKey, // Private key of the parent
 	expiration time.Duration,
 ) (ICertificate, error) {
 
 	certificateTemplate := x509.Certificate{
-		SerialNumber: serialNumber,
+		SerialNumber: serialNumber.Value(),
 		Subject: pkix.Name{
 			Organization: o.GetNames(),
 			CommonName:   commonName,

@@ -8,14 +8,21 @@ import (
 
 // MockCertificateService is a mock implementation of models.ICertificateService for testing purposes.
 type MockCertificateService struct {
-	GetExistingCertificateFunc func(serialNumber models.SerialNumber) (models.ICertificate, error)
-	CreateCertificateFunc      func(certificate models.ICertificate) (models.ICertificate, error)
+	GetExistingCertificateFunc func(
+		orgId string,
+		signedBy models.ISerialNumber,
+		serialNumber models.ISerialNumber) (models.ICertificate, error)
+	CreateCertificateFunc func(certificate models.ICertificate) (models.ICertificate, error)
 }
 
 var _ models.ICertificateService = (*MockCertificateService)(nil)
 
-func (m *MockCertificateService) GetExistingCertificate(serialNumber models.SerialNumber) (models.ICertificate, error) {
-	return m.GetExistingCertificateFunc(serialNumber)
+func (m *MockCertificateService) GetExistingCertificate(
+	orgId string,
+	signedBy models.ISerialNumber,
+	serialNumber models.ISerialNumber,
+) (models.ICertificate, error) {
+	return m.GetExistingCertificateFunc(orgId, signedBy, serialNumber)
 }
 
 func (m *MockCertificateService) CreateCertificate(certificate models.ICertificate) (models.ICertificate, error) {

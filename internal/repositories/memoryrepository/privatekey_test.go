@@ -18,7 +18,7 @@ import (
 func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 	repo := memoryrepository.NewPrivateKeyRepository()
 	mockKey := new(mocks.MockPrivateKey)
-	serialNumber := models.SerialNumber(big.NewInt(123))
+	serialNumber := models.NewSerialNumber(big.NewInt(123))
 
 	// Setting up the mock to return the serial number when GetSerialNumber is called
 	mockKey.On("GetSerialNumber").Return(serialNumber)
@@ -39,7 +39,7 @@ func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 // TestPrivateKeyRepository_GetExistingPrivateKeyNotFound tests retrieving a private key that does not exist
 func TestPrivateKeyRepository_GetExistingPrivateKeyNotFound(t *testing.T) {
 	repo := memoryrepository.NewPrivateKeyRepository()
-	serialNumber := models.SerialNumber(big.NewInt(456))
+	serialNumber := models.NewSerialNumber(big.NewInt(456))
 
 	// Test GetExistingPrivateKey for a non-existent key
 	_, err := repo.GetExistingPrivateKey(serialNumber)

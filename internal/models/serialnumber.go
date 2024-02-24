@@ -6,17 +6,36 @@ import (
 	"math/big"
 )
 
-type SerialNumber *big.Int
-
-func NewSerialNumber(randomManager IRandomManager) (SerialNumber, error) {
-	serialNumber, err := randomManager.CreateBigInt(new(big.Int).Lsh(big.NewInt(1), 128))
-	if err != nil {
-		return nil, err
-	}
-	return serialNumber, nil
+type SerialNumber struct {
+	value *big.Int
 }
 
-func SerialNumberToBigInt(s SerialNumber) *big.Int {
-	bigInt := (*big.Int)(s)
-	return bigInt
+var _ ISerialNumber = (*SerialNumber)(nil)
+
+func (s *SerialNumber) String() string {
+	return s.value.String()
+}
+
+func (s *SerialNumber) Value() *big.Int {
+	return s.value
+}
+
+func (s *SerialNumber) Cmp(s2 ISerialNumber) int {
+	return s.value.Cmp(s2.Value())
+}
+
+func (s *SerialNumber) Sign() int {
+	return s.value.Sign()
+}
+
+func NewSerialNumber(value *big.Int) ISerialNumber {
+	return &SerialNumber{value: value}
+}
+
+func GenerateSerialNumber(randomManager IRandomManager) (ISerialNumber, error) {
+	value, err := randomManager.CreateBigInt(new(big.Int).Lsh(big.NewInt(1), 128))
+	if err != nil {
+		return NewSerialNumber(nil), err
+	}
+	return NewSerialNumber(value), nil
 }

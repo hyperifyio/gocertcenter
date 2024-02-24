@@ -11,13 +11,14 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"github.com/hyperifyio/gocertcenter/internal/dtos"
 )
 
 // PrivateKey model implements IPrivateKey
 type PrivateKey struct {
 
 	// serialNumber of the certificate this key belongs to
-	serialNumber SerialNumber
+	serialNumber ISerialNumber
 
 	// The type of the key
 	keyType KeyType
@@ -31,7 +32,7 @@ var _ IPrivateKey = (*PrivateKey)(nil)
 
 // NewPrivateKey creates a private key model from existing data
 func NewPrivateKey(
-	serialNumber SerialNumber,
+	serialNumber ISerialNumber,
 	keyType KeyType,
 	data any,
 ) *PrivateKey {
@@ -42,7 +43,15 @@ func NewPrivateKey(
 	}
 }
 
-func (k *PrivateKey) GetSerialNumber() SerialNumber {
+func (k *PrivateKey) GetDTO() dtos.PrivateKeyDTO {
+	return dtos.NewPrivateKeyDTO(
+		k.serialNumber.String(),
+		k.keyType.String(),
+		"",
+	)
+}
+
+func (k *PrivateKey) GetSerialNumber() ISerialNumber {
 	return k.serialNumber
 }
 
@@ -82,7 +91,7 @@ func (k *PrivateKey) CreateCertificate(
 
 // GeneratePrivateKey creates a new private key of type keyType
 func GeneratePrivateKey(
-	serialNumber SerialNumber,
+	serialNumber ISerialNumber,
 	keyType KeyType,
 	rsaBits int,
 ) (IPrivateKey, error) {
@@ -112,7 +121,7 @@ func GeneratePrivateKey(
 
 // GenerateRSAPrivateKey creates a new private key of type keyType
 func GenerateRSAPrivateKey(
-	serialNumber SerialNumber,
+	serialNumber ISerialNumber,
 	rsaBits int,
 ) (IPrivateKey, error) {
 	return GeneratePrivateKey(serialNumber, RSA, rsaBits)
@@ -120,7 +129,7 @@ func GenerateRSAPrivateKey(
 
 // GenerateECDSAPrivateKey creates a new private key of type keyType
 func GenerateECDSAPrivateKey(
-	serialNumber SerialNumber,
+	serialNumber ISerialNumber,
 	keyType KeyType,
 ) (IPrivateKey, error) {
 	return GeneratePrivateKey(serialNumber, keyType, 2048)
@@ -128,7 +137,7 @@ func GenerateECDSAPrivateKey(
 
 // GenerateEd25519PrivateKey creates a new private key of type keyType
 func GenerateEd25519PrivateKey(
-	serialNumber SerialNumber,
+	serialNumber ISerialNumber,
 ) (IPrivateKey, error) {
 	return GeneratePrivateKey(serialNumber, Ed25519, 2048)
 }

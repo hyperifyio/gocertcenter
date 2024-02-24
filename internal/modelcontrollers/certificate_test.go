@@ -25,12 +25,14 @@ func TestNewCertificateController(t *testing.T) {
 func TestCertificateController_GetExistingCertificate(t *testing.T) {
 	expectedCert := models.NewCertificate(
 		"TestOrg",
-		big.NewInt(1234),
+		models.NewSerialNumber(big.NewInt(1234)),
 		&x509.Certificate{SerialNumber: big.NewInt(1234)},
 	)
 	mockService := &mocks.MockCertificateService{
-		GetExistingCertificateFunc: func(serialNumber models.SerialNumber) (models.ICertificate, error) {
-			if models.SerialNumberToBigInt(serialNumber).String() == models.SerialNumberToBigInt(expectedCert.GetSerialNumber()).String() {
+		GetExistingCertificateFunc: func(orgId string,
+			signedBy models.ISerialNumber,
+			serialNumber models.ISerialNumber) (models.ICertificate, error) {
+			if serialNumber.Cmp(expectedCert.GetSerialNumber()) == 0 {
 				return expectedCert, nil
 			}
 			return nil, nil // Simplified; in a real test, handle not found or error scenarios
@@ -38,11 +40,15 @@ func TestCertificateController_GetExistingCertificate(t *testing.T) {
 	}
 
 	controller := modelcontrollers.NewCertificateController(mockService)
-	cert, err := controller.GetExistingCertificate(big.NewInt(1234))
+	cert, err := controller.GetExistingCertificate(
+		"TestOrg",
+		models.NewSerialNumber(big.NewInt(1234)),
+		models.NewSerialNumber(big.NewInt(1234)),
+	)
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}
-	if models.SerialNumberToBigInt(cert.GetSerialNumber()).String() != models.SerialNumberToBigInt(expectedCert.GetSerialNumber()).String() {
+	if cert.GetSerialNumber().String() != expectedCert.GetSerialNumber().String() {
 		t.Errorf("Expected certificate serial number %v, got %v", expectedCert.GetSerialNumber(), cert.GetSerialNumber())
 	}
 }
@@ -50,7 +56,7 @@ func TestCertificateController_GetExistingCertificate(t *testing.T) {
 func TestCertificateController_CreateCertificate(t *testing.T) {
 	newCert := models.NewCertificate(
 		"NewOrg",
-		big.NewInt(5678),
+		models.NewSerialNumber(big.NewInt(5678)),
 		&x509.Certificate{SerialNumber: big.NewInt(5678)},
 	)
 	mockService := &mocks.MockCertificateService{
@@ -64,7 +70,7 @@ func TestCertificateController_CreateCertificate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}
-	if models.SerialNumberToBigInt(createdCert.GetSerialNumber()).String() != models.SerialNumberToBigInt(newCert.GetSerialNumber()).String() {
+	if createdCert.GetSerialNumber().String() != newCert.GetSerialNumber().String() {
 		t.Errorf("Expected certificate serial number %v, got %v", newCert.GetSerialNumber(), createdCert.GetSerialNumber())
 	}
 }

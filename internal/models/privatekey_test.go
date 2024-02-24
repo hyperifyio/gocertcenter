@@ -29,14 +29,14 @@ const InvalidKeyType = 999 // A value not represented in the KeyType enum
 // TestNewPrivateKey verifies the NewPrivateKey function correctly initializes a PrivateKey instance.
 func TestNewPrivateKey(t *testing.T) {
 	// Mock data for initialization
-	serialNumber := big.NewInt(123) // Assuming SerialNumber is of type *big.Int
+	serialNumber := models.NewSerialNumber(big.NewInt(123)) // Assuming SerialNumber is of type *big.Int
 	keyType := mockKeyType
 	mockData := "mockPrivateKeyData" // Example mock data, could be any type
 
 	// Call the function under test
 	privateKey := models.NewPrivateKey(serialNumber, keyType, mockData)
 
-	bigIntSSerialNumber := (*big.Int)(privateKey.GetSerialNumber())
+	bigIntSSerialNumber := privateKey.GetSerialNumber()
 
 	// Verify the PrivateKey fields are correctly assigned
 	if bigIntSSerialNumber.Cmp(serialNumber) != 0 {
@@ -56,7 +56,7 @@ func TestNewPrivateKey(t *testing.T) {
 func TestGeneratePrivateKey(t *testing.T) {
 
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 
 	keyTypes := []models.KeyType{models.RSA, models.ECDSA_P224, models.ECDSA_P256, models.ECDSA_P384, models.ECDSA_P521, models.Ed25519}
 	for _, kt := range keyTypes {
@@ -100,7 +100,7 @@ func TestGeneratePrivateKey(t *testing.T) {
 
 func TestGeneratePrivateKey_InvalidKeyType(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 	_, err := models.GeneratePrivateKey(serialNumber, InvalidKeyType, 2048) // Using the invalid KeyType here
 	if err == nil {
 		t.Fatal("Expected GeneratePrivateKey to return an error for an invalid keyType, but it did not")
@@ -109,7 +109,7 @@ func TestGeneratePrivateKey_InvalidKeyType(t *testing.T) {
 
 func TestGenerateRSAPrivateKey(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 	rsaBits := 2048
 
 	privateKey, err := models.GenerateRSAPrivateKey(serialNumber, rsaBits)
@@ -129,7 +129,7 @@ func TestGenerateRSAPrivateKey(t *testing.T) {
 // TestGenerateECDSAPrivateKey checks if a new ECDSA private key is generated without error
 func TestGenerateECDSAPrivateKey(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, err := models.NewSerialNumber(randomManager)
+	serialNumber, err := models.GenerateSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Failed to generate serial number: %v", err)
 	}
@@ -148,7 +148,7 @@ func TestGenerateECDSAPrivateKey(t *testing.T) {
 
 func TestGenerateEd25519PrivateKey(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 
 	privateKey, err := models.GenerateEd25519PrivateKey(serialNumber)
 	if err != nil {
@@ -166,7 +166,7 @@ func TestGenerateEd25519PrivateKey(t *testing.T) {
 // TestPrivateKey_GetSerialNumber verifies that GetSerialNumber returns the correct serial number
 func TestPrivateKey_GetSerialNumber(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	expectedSerialNumber, _ := models.NewSerialNumber(randomManager)
+	expectedSerialNumber, _ := models.GenerateSerialNumber(randomManager)
 	privateKey := models.NewPrivateKey(
 		expectedSerialNumber,
 		0,
@@ -175,9 +175,7 @@ func TestPrivateKey_GetSerialNumber(t *testing.T) {
 
 	actualSerialNumber := privateKey.GetSerialNumber()
 
-	bigIntSSerialNumber := (*big.Int)(actualSerialNumber)
-
-	if bigIntSSerialNumber.Cmp((*big.Int)(expectedSerialNumber)) != 0 {
+	if actualSerialNumber.Cmp(expectedSerialNumber) != 0 {
 		t.Errorf("Expected serial number %v, got %v", expectedSerialNumber, actualSerialNumber)
 	}
 }
@@ -185,7 +183,7 @@ func TestPrivateKey_GetSerialNumber(t *testing.T) {
 // TestPrivateKey_GetPublicKey checks if GetPublicKey returns a valid public key from the private key
 func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 	key, _ := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	privateKey := models.NewPrivateKey(serialNumber, models.ECDSA_P384, key)
 
@@ -202,7 +200,7 @@ func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
 // TestPrivateKey_GetPublicKey_Ed25519 checks if GetPublicKey returns a valid public key from the private key
 func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 	privateKey, err := models.GenerateEd25519PrivateKey(serialNumber)
 	if err != nil {
 		t.Fatalf("Could not generate private key: %v", err)
@@ -222,7 +220,7 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 // TestPrivateKey_CreateCertificate tests the certificate creation functionality
 func TestPrivateKey_CreateCertificate(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 	privateKey, _ := models.GenerateECDSAPrivateKey(serialNumber, models.ECDSA_P384)
 
 	template := &x509.Certificate{
@@ -260,7 +258,7 @@ func TestPrivateKey_CreateCertificate_Success(t *testing.T) {
 
 	randomManager := managers.NewRandomManager()
 
-	serialNumber, err := models.NewSerialNumber(randomManager)
+	serialNumber, err := models.GenerateSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Failed to generate serial number: %v", err)
 	}
@@ -287,7 +285,7 @@ func TestPrivateKey_CreateCertificate_Success(t *testing.T) {
 func TestPrivateKey_CreateCertificate_Errors(t *testing.T) {
 	// Generate a private key for the test
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 	privateKey, _ := models.GenerateECDSAPrivateKey(serialNumber, models.ECDSA_P384)
 
 	// Create an invalid template by setting invalid values
@@ -313,7 +311,7 @@ func TestPrivateKey_CreateCertificate_Failure(t *testing.T) {
 	}
 
 	randomManager := managers.NewRandomManager()
-	serialNumber, err := models.NewSerialNumber(randomManager)
+	serialNumber, err := models.GenerateSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Failed to generate serial number: %v", err)
 	}
@@ -340,7 +338,7 @@ func TestPrivateKey_CreateCertificate_ParseFailure(t *testing.T) {
 	}
 
 	randomManager := managers.NewRandomManager()
-	serialNumber, err := models.NewSerialNumber(randomManager)
+	serialNumber, err := models.GenerateSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Failed to generate serial number: %v", err)
 	}
@@ -357,7 +355,7 @@ func TestPrivateKey_CreateCertificate_ParseFailure(t *testing.T) {
 
 func TestPrivateKey_GetPublicKey_NilCase(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, _ := models.NewSerialNumber(randomManager)
+	serialNumber, _ := models.GenerateSerialNumber(randomManager)
 	unsupportedKeyType := "unsupported key type" // Simulate incorrect initialization
 
 	privateKey := models.NewPrivateKey(serialNumber, mockKeyType, unsupportedKeyType)

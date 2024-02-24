@@ -23,7 +23,7 @@ func TestPrivateKeyController_GetExistingPrivateKey(t *testing.T) {
 
 	randomManager := managers.NewRandomManager()
 
-	serialNumber, err := models.NewSerialNumber(randomManager)
+	serialNumber, err := models.GenerateSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}
@@ -31,7 +31,7 @@ func TestPrivateKeyController_GetExistingPrivateKey(t *testing.T) {
 	expectedKey := &models.PrivateKey{ /* Initialized fields */ }
 
 	mockService := &mocks.MockPrivateKeyService{
-		GetExistingPrivateKeyFunc: func(serialNumber models.SerialNumber) (models.IPrivateKey, error) {
+		GetExistingPrivateKeyFunc: func(serialNumber models.ISerialNumber) (models.IPrivateKey, error) {
 			return expectedKey, nil
 		},
 	}

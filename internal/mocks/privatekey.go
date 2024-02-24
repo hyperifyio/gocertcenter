@@ -4,6 +4,7 @@ package mocks
 
 import (
 	"crypto/x509"
+	"github.com/hyperifyio/gocertcenter/internal/dtos"
 	"github.com/hyperifyio/gocertcenter/internal/models"
 	"github.com/stretchr/testify/mock"
 )
@@ -13,9 +14,16 @@ type MockPrivateKey struct {
 	mock.Mock
 }
 
-func (m *MockPrivateKey) GetSerialNumber() models.SerialNumber {
+var _ models.IPrivateKey = (*MockPrivateKey)(nil)
+
+func (m *MockPrivateKey) GetDTO() dtos.PrivateKeyDTO {
 	args := m.Called()
-	return args.Get(0).(models.SerialNumber)
+	return args.Get(0).(dtos.PrivateKeyDTO)
+}
+
+func (m *MockPrivateKey) GetSerialNumber() models.ISerialNumber {
+	args := m.Called()
+	return args.Get(0).(models.ISerialNumber)
 }
 
 func (m *MockPrivateKey) GetKeyType() models.KeyType {

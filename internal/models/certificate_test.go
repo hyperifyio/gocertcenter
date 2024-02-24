@@ -31,16 +31,16 @@ func newMockX509Certificate(isCA bool, organization []string, serialNumber *big.
 
 func TestNewCertificate(t *testing.T) {
 	orgID := "Org123"
-	signedBy := big.NewInt(2)
+	signedBy := models.NewSerialNumber(big.NewInt(2))
 	certData := newMockX509Certificate(true, []string{"Test Org"}, nil)
 
 	cert := models.NewCertificate(orgID, signedBy, certData)
 	if cert.GetOrganizationID() != orgID {
 		t.Errorf("GetOrganizationID() = %v, want %v", cert.GetOrganizationID(), orgID)
 	}
-	bigIntCertSignedBy := (*big.Int)(cert.GetSignedBy())
+	certSignedBy := cert.GetSignedBy()
 
-	if bigIntCertSignedBy.Cmp(signedBy) != 0 {
+	if certSignedBy.Cmp(signedBy) != 0 {
 		t.Errorf("GetSignedBy() = %v, want %v", cert.GetSignedBy(), signedBy)
 	}
 	if !cert.IsCA() {
@@ -52,12 +52,12 @@ func TestNewCertificate(t *testing.T) {
 }
 
 func TestCertificate_IsCA(t *testing.T) {
-	caCert := models.NewCertificate("OrgCA", big.NewInt(1), newMockX509Certificate(true, []string{"CA Org"}, nil))
+	caCert := models.NewCertificate("OrgCA", models.NewSerialNumber(big.NewInt(1)), newMockX509Certificate(true, []string{"CA Org"}, nil))
 	if !caCert.IsCA() {
 		t.Error("IsCA() should return true for CA certificates")
 	}
 
-	nonCaCert := models.NewCertificate("OrgNonCA", big.NewInt(2), newMockX509Certificate(false, []string{"Non-CA Org"}, nil))
+	nonCaCert := models.NewCertificate("OrgNonCA", models.NewSerialNumber(big.NewInt(2)), newMockX509Certificate(false, []string{"Non-CA Org"}, nil))
 	if nonCaCert.IsCA() {
 		t.Error("IsCA() should return false for non-CA certificates")
 	}
@@ -65,17 +65,21 @@ func TestCertificate_IsCA(t *testing.T) {
 
 func TestCertificate_GetSerialNumber(t *testing.T) {
 	expectedSerial := big.NewInt(123)
-	cert := models.NewCertificate("Org123", big.NewInt(2), newMockX509Certificate(false, []string{"Test Org"}, expectedSerial))
-	bigIntCertSignedBy := (*big.Int)(cert.GetSerialNumber())
+	cert := models.NewCertificate(
+		"Org123",
+		models.NewSerialNumber(big.NewInt(2)),
+		newMockX509Certificate(false, []string{"Test Org"}, expectedSerial),
+	)
+	bigIntCertSignedBy := cert.GetSerialNumber()
 
-	if bigIntCertSignedBy.Cmp(expectedSerial) != 0 {
-		t.Errorf("GetSerialNumber() = %v, want %v", cert.GetSerialNumber(), expectedSerial)
+	if bigIntCertSignedBy.Value().Cmp(expectedSerial) != 0 {
+		t.Errorf("GetSerialNumber() = %v, want %v", cert.GetSerialNumber().Value(), expectedSerial)
 	}
 }
 
 func TestCertificate_GetOrganizationID(t *testing.T) {
 	expectedOrgID := "Org123"
-	cert := models.NewCertificate(expectedOrgID, big.NewInt(1), newMockX509Certificate(false, []string{"Test Org"}, nil))
+	cert := models.NewCertificate(expectedOrgID, models.NewSerialNumber(big.NewInt(1)), newMockX509Certificate(false, []string{"Test Org"}, nil))
 	if cert.GetOrganizationID() != expectedOrgID {
 		t.Errorf("GetOrganizationID() = %v, want %v", cert.GetOrganizationID(), expectedOrgID)
 	}
@@ -83,19 +87,19 @@ func TestCertificate_GetOrganizationID(t *testing.T) {
 
 func TestCertificate_GetOrganizationName(t *testing.T) {
 	expectedOrgName := "PrimaryOrg"
-	cert := models.NewCertificate("Org123", big.NewInt(1), newMockX509Certificate(false, []string{expectedOrgName}, nil))
+	cert := models.NewCertificate("Org123", models.NewSerialNumber(big.NewInt(1)), newMockX509Certificate(false, []string{expectedOrgName}, nil))
 	if cert.GetOrganizationName() != expectedOrgName {
 		t.Errorf("GetOrganizationName() = %v, want %v", cert.GetOrganizationName(), expectedOrgName)
 	}
 
 	// Test with no organization names
-	emptyStringCert := models.NewCertificate("EmptyOrg", big.NewInt(1), newMockX509Certificate(false, []string{""}, nil))
+	emptyStringCert := models.NewCertificate("EmptyOrg", models.NewSerialNumber(big.NewInt(1)), newMockX509Certificate(false, []string{""}, nil))
 	if emptyStringCert.GetOrganizationName() != "" {
 		t.Errorf("GetOrganizationName() should return an empty string when no organization names are present, got %v", emptyStringCert.GetOrganizationName())
 	}
 
 	// Test with empty organization array
-	emptyCert := models.NewCertificate("EmptyOrg", big.NewInt(1), newMockX509Certificate(false, []string{}, nil))
+	emptyCert := models.NewCertificate("EmptyOrg", models.NewSerialNumber(big.NewInt(1)), newMockX509Certificate(false, []string{}, nil))
 	if emptyCert.GetOrganizationName() != "" {
 		t.Errorf("GetOrganizationName() should return an empty string when no organization names are present, got %v", emptyCert.GetOrganizationName())
 	}
@@ -106,7 +110,7 @@ func TestCertificate_GetOrganization(t *testing.T) {
 	certData := newMockX509Certificate(false, []string{""}, nil)
 	certData.Subject.Organization = expectedOrgs
 
-	cert := models.NewCertificate("Org123", big.NewInt(2), certData)
+	cert := models.NewCertificate("Org123", models.NewSerialNumber(big.NewInt(2)), certData)
 
 	orgs := cert.GetOrganization()
 	if len(orgs) != len(expectedOrgs) {
@@ -121,10 +125,10 @@ func TestCertificate_GetOrganization(t *testing.T) {
 }
 
 func TestCertificate_GetSignedBy(t *testing.T) {
-	expectedSignedBy := big.NewInt(999)
+	expectedSignedBy := models.NewSerialNumber(big.NewInt(999))
 	cert := models.NewCertificate("Org123", expectedSignedBy, newMockX509Certificate(false, []string{"Test Org"}, nil))
 
-	bigIntSSerialNumber := (*big.Int)(cert.GetSignedBy())
+	bigIntSSerialNumber := cert.GetSignedBy()
 
 	if bigIntSSerialNumber.Cmp(expectedSignedBy) != 0 {
 		t.Errorf("GetSignedBy() = %v, want %v", cert.GetSignedBy(), expectedSignedBy)
@@ -133,7 +137,7 @@ func TestCertificate_GetSignedBy(t *testing.T) {
 
 func TestCertificate_GetCertificate(t *testing.T) {
 	expectedCert := newMockX509Certificate(true, []string{"Acme Co"}, nil)
-	cert := models.NewCertificate("Acme123", big.NewInt(2), expectedCert)
+	cert := models.NewCertificate("Acme123", models.NewSerialNumber(big.NewInt(2)), expectedCert)
 
 	if cert.GetCertificate() != expectedCert {
 		t.Error("GetCertificate did not return the expected *x509.Certificate")

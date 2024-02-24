@@ -4,13 +4,24 @@ package models
 
 import (
 	"crypto/x509"
+	"github.com/hyperifyio/gocertcenter/internal/dtos"
 	"io"
 	"math/big"
 	"time"
 )
 
+type ISerialNumber interface {
+	String() string
+	Value() *big.Int
+	Cmp(s2 ISerialNumber) int
+	Sign() int
+}
+
 // IOrganization describes an interface for Organization model
 type IOrganization interface {
+
+	// GetDTO returns a data transfer object
+	GetDTO() dtos.OrganizationDTO
 
 	// GetID returns unique identifier for this organization
 	GetID() string
@@ -33,7 +44,7 @@ type IOrganization interface {
 	NewIntermediateCertificate(
 		manager ICertificateManager,
 		commonName string, // commonName The name of the intermediate CA
-		serialNumber SerialNumber, // serialNumber Serial Number of the intermediate certificate
+		serialNumber ISerialNumber, // serialNumber Serial Number of the intermediate certificate
 		parentCertificate ICertificate, // parentCertificate The parent certificate, typically the root CA
 		parentPrivateKey IPrivateKey, // parentPrivateKey Private key of the parent
 		expiration time.Duration, // The expiration duration
@@ -42,7 +53,7 @@ type IOrganization interface {
 	// NewServerCertificate creates a new server certificate
 	NewServerCertificate(
 		manager ICertificateManager,
-		serialNumber SerialNumber, // Serial Number of the server certificate
+		serialNumber ISerialNumber, // Serial Number of the server certificate
 		parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
 		privateKey IPrivateKey, // Private key of the parent
 		dnsNames []string, // List of domain names the certificate is valid for
@@ -53,7 +64,7 @@ type IOrganization interface {
 	NewClientCertificate(
 		manager ICertificateManager,
 		commonName string, // The name of the client
-		serialNumber SerialNumber, // Serial Number of the client certificate
+		serialNumber ISerialNumber, // Serial Number of the client certificate
 		parentCertificate ICertificate, // The parent certificate, typically the intermediate or root certificate
 		privateKey IPrivateKey, // Private key of the parent
 		expiration time.Duration,
@@ -62,18 +73,53 @@ type IOrganization interface {
 
 // ICertificate describes an interface for Certificate model
 type ICertificate interface {
+
+	// GetDTO returns a data transfer object
+	GetDTO() dtos.CertificateDTO
+
+	GetCommonName() string
+
+	// IsCA -
 	IsCA() bool
-	GetSerialNumber() SerialNumber
+
+	// IsSelfSigned -
+	IsSelfSigned() bool
+
+	// IsRootCertificate - A root certificate is a top-level CA certificate used
+	// to sign other certificates and is self-signed.
+	IsRootCertificate() bool
+
+	// IsIntermediateCertificate - An intermediate certificate is typically a CA
+	// certificate but not the root CA. It can sign other certificates but is
+	// itself signed by another CA.
+	IsIntermediateCertificate() bool
+
+	// IsServerCertificate - A server certificate is used to identify a server
+	// to a client. It's typically not a CA certificate (IsCA is false), and it
+	// has specific extended key usages.
+	IsServerCertificate() bool
+
+	// IsClientCertificate - A client certificate is used to identify a client
+	// to a server. Similar to server certificates, these are not CA
+	// certificates and have specific extended key usages.
+	IsClientCertificate() bool
+
+	GetSerialNumber() ISerialNumber
 	GetOrganizationID() string
 	GetOrganizationName() string
 	GetOrganization() []string
-	GetSignedBy() SerialNumber
+	GetSignedBy() ISerialNumber
 	GetCertificate() *x509.Certificate
+	GetPEM() []byte
 }
 
 // IPrivateKey describes an interface for PrivateKey model
 type IPrivateKey interface {
-	GetSerialNumber() SerialNumber
+
+	// GetDTO returns a data transfer object
+	GetDTO() dtos.PrivateKeyDTO
+
+	GetSerialNumber() ISerialNumber
 	GetKeyType() KeyType
 	GetPublicKey() any
 	CreateCertificate(
@@ -110,7 +156,11 @@ type IOrganizationService interface {
 // interface it supports easy substitution of its implementation, thereby
 // promoting loose coupling between the application's business logic and its data layer.
 type ICertificateService interface {
-	GetExistingCertificate(serialNumber SerialNumber) (ICertificate, error)
+	GetExistingCertificate(
+		orgId string,
+		signedBy ISerialNumber,
+		serialNumber ISerialNumber,
+	) (ICertificate, error)
 	CreateCertificate(certificate ICertificate) (ICertificate, error)
 }
 
@@ -122,7 +172,7 @@ type ICertificateService interface {
 type IPrivateKeyService interface {
 
 	// GetExistingPrivateKey only returns public properties of the private key
-	GetExistingPrivateKey(serialNumber SerialNumber) (IPrivateKey, error)
+	GetExistingPrivateKey(serialNumber ISerialNumber) (IPrivateKey, error)
 	CreatePrivateKey(key IPrivateKey) (IPrivateKey, error)
 }
 
@@ -154,7 +204,10 @@ type ICertificateController interface {
 	// service because we want to keep all the control inside the controller
 	UsesCertificateService(service ICertificateService) bool
 
-	GetExistingCertificate(serialNumber SerialNumber) (ICertificate, error)
+	GetExistingCertificate(
+		orgId string,
+		signedBy ISerialNumber,
+		serialNumber ISerialNumber) (ICertificate, error)
 	CreateCertificate(certificate ICertificate) (ICertificate, error)
 }
 
@@ -171,6 +224,6 @@ type IPrivateKeyController interface {
 	UsesPrivateKeyService(service IPrivateKeyService) bool
 
 	// GetExistingPrivateKey only returns public properties of the private key
-	GetExistingPrivateKey(serialNumber SerialNumber) (IPrivateKey, error)
+	GetExistingPrivateKey(serialNumber ISerialNumber) (IPrivateKey, error)
 	CreatePrivateKey(key IPrivateKey) (IPrivateKey, error)
 }

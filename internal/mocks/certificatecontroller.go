@@ -9,8 +9,11 @@ import (
 // MockCertificateController is a mock implementation of models.ICertificateController for testing purposes.
 type MockCertificateController struct {
 	UsesCertificateServiceFunc func(service models.ICertificateService) bool
-	GetExistingCertificateFunc func(serialNumber models.SerialNumber) (models.ICertificate, error)
-	CreateCertificateFunc      func(certificate models.ICertificate) (models.ICertificate, error)
+	GetExistingCertificateFunc func(
+		orgId string,
+		signedBy models.ISerialNumber,
+		serialNumber models.ISerialNumber) (models.ICertificate, error)
+	CreateCertificateFunc func(certificate models.ICertificate) (models.ICertificate, error)
 }
 
 var _ models.ICertificateController = (*MockCertificateController)(nil)
@@ -19,8 +22,11 @@ func (m *MockCertificateController) UsesCertificateService(service models.ICerti
 	return m.UsesCertificateServiceFunc(service)
 }
 
-func (m *MockCertificateController) GetExistingCertificate(serialNumber models.SerialNumber) (models.ICertificate, error) {
-	return m.GetExistingCertificateFunc(serialNumber)
+func (m *MockCertificateController) GetExistingCertificate(
+	orgId string,
+	signedBy models.ISerialNumber,
+	serialNumber models.ISerialNumber) (models.ICertificate, error) {
+	return m.GetExistingCertificateFunc(orgId, signedBy, serialNumber)
 }
 
 func (m *MockCertificateController) CreateCertificate(certificate models.ICertificate) (models.ICertificate, error) {

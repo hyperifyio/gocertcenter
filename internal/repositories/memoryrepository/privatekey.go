@@ -11,7 +11,7 @@ import (
 // PrivateKeyRepository implements models.IPrivateKeyService in a memory
 // @implements models.IPrivateKeyService
 type PrivateKeyRepository struct {
-	keys map[models.SerialNumber]models.IPrivateKey
+	keys map[models.ISerialNumber]models.IPrivateKey
 }
 
 // Compile time assertion for implementing the interface
@@ -20,11 +20,11 @@ var _ models.IPrivateKeyService = (*PrivateKeyRepository)(nil)
 // NewPrivateKeyRepository is a memory based repository for private keys
 func NewPrivateKeyRepository() *PrivateKeyRepository {
 	return &PrivateKeyRepository{
-		keys: make(map[models.SerialNumber]models.IPrivateKey),
+		keys: make(map[models.ISerialNumber]models.IPrivateKey),
 	}
 }
 
-func (r *PrivateKeyRepository) GetExistingPrivateKey(serialNumber models.SerialNumber) (models.IPrivateKey, error) {
+func (r *PrivateKeyRepository) GetExistingPrivateKey(serialNumber models.ISerialNumber) (models.IPrivateKey, error) {
 	if key, exists := r.keys[serialNumber]; exists {
 		return key, nil
 	}

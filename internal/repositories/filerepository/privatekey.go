@@ -23,7 +23,7 @@ func (r *PrivateKeyRepository) GetFilePath() string {
 }
 
 func (r *PrivateKeyRepository) GetExistingPrivateKey(
-	serialNumber models.SerialNumber,
+	serialNumber models.ISerialNumber,
 ) (models.IPrivateKey, error) {
 	return models.NewPrivateKey(serialNumber, models.ECDSA_P384, nil), nil
 }

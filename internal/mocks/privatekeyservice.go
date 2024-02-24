@@ -9,7 +9,7 @@ import (
 // MockPrivateKeyService is a mock implementation of models.IPrivateKeyService interface.
 type MockPrivateKeyService struct {
 	// These fields allow you to specify the behavior and output of the mock methods.
-	GetExistingPrivateKeyFunc func(serialNumber models.SerialNumber) (models.IPrivateKey, error)
+	GetExistingPrivateKeyFunc func(serialNumber models.ISerialNumber) (models.IPrivateKey, error)
 	CreatePrivateKeyFunc      func(key models.IPrivateKey) (models.IPrivateKey, error)
 }
 
@@ -17,7 +17,7 @@ var _ models.IPrivateKeyService = (*MockPrivateKeyService)(nil)
 
 // GetExistingPrivateKey simulates retrieving an existing private key by serial number.
 // It uses a function field to allow custom behavior for each test.
-func (m *MockPrivateKeyService) GetExistingPrivateKey(serialNumber models.SerialNumber) (models.IPrivateKey, error) {
+func (m *MockPrivateKeyService) GetExistingPrivateKey(serialNumber models.ISerialNumber) (models.IPrivateKey, error) {
 	if m.GetExistingPrivateKeyFunc != nil {
 		return m.GetExistingPrivateKeyFunc(serialNumber)
 	}

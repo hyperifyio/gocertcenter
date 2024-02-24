@@ -11,20 +11,19 @@ import (
 	"testing"
 )
 
-// TestNewSerialNumber checks if NewSerialNumber returns a non-nil, positive
+// TestNewSerialNumber checks if GenerateSerialNumber returns a non-nil, positive
 // serial number and does not return an error.
 func TestNewSerialNumber(t *testing.T) {
 	randomManager := managers.NewRandomManager()
-	serialNumber, err := models.NewSerialNumber(randomManager)
+	serialNumber, err := models.GenerateSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 	if serialNumber == nil {
 		t.Fatalf("Expected serial number to be non-nil")
 	}
-	bigIntSerialNumber := (*big.Int)(serialNumber)
-	if bigIntSerialNumber.Sign() != 1 {
-		t.Fatalf("Expected serial number to be positive, got %s", bigIntSerialNumber)
+	if serialNumber.Sign() != 1 {
+		t.Fatalf("Expected serial number to be positive, got %s", serialNumber.String())
 	}
 }
 
@@ -35,12 +34,11 @@ func TestNewSerialNumberUniqueness(t *testing.T) {
 	seen := make(map[string]bool)
 	count := 100 // Number of serial numbers to generate for the test
 	for i := 0; i < count; i++ {
-		serialNumber, err := models.NewSerialNumber(randomManager)
+		serialNumber, err := models.GenerateSerialNumber(randomManager)
 		if err != nil {
 			t.Fatalf("Expected no error, got %v", err)
 		}
-		bigIntSerialNumber := (*big.Int)(serialNumber)
-		serialStr := bigIntSerialNumber.String()
+		serialStr := serialNumber.String()
 		if seen[serialStr] {
 			t.Fatalf("Duplicate serial number found: %s", serialStr)
 		}
@@ -55,15 +53,13 @@ func TestNewSerialNumberWithMock(t *testing.T) {
 		},
 	}
 
-	serialNumber, err := models.NewSerialNumber(mockRandomManager)
+	serialNumber, err := models.GenerateSerialNumber(mockRandomManager)
 	if err != nil {
-		t.Fatalf("NewSerialNumber failed: %v", err)
+		t.Fatalf("GenerateSerialNumber failed: %v", err)
 	}
 
-	bigIntSSerialNumber := (*big.Int)(serialNumber)
-
 	expected := big.NewInt(12345)
-	if bigIntSSerialNumber.Cmp(expected) != 0 {
+	if serialNumber.Value().Cmp(expected) != 0 {
 		t.Errorf("Expected serial number %v, got %v", expected, serialNumber)
 	}
 }
@@ -75,22 +71,19 @@ func TestNewSerialNumberWithErrors(t *testing.T) {
 		},
 	}
 
-	_, err := models.NewSerialNumber(mockRandomManager)
+	_, err := models.GenerateSerialNumber(mockRandomManager)
 	if err == nil {
-		t.Fatalf("Expected NewSerialNumber() to fail, did not fail")
+		t.Fatalf("Expected GenerateSerialNumber() to fail, did not fail")
 	}
 }
 
 func TestSerialNumberToBigInt(t *testing.T) {
 	// Setup: Create a new serial number directly for testing purposes
 	expectedBigInt := big.NewInt(1234567890) // Example serial number
-	var serialNumber models.SerialNumber = expectedBigInt
-
-	// Execute: Convert SerialNumber to *big.Int
-	resultBigInt := models.SerialNumberToBigInt(serialNumber)
+	serialNumber := models.NewSerialNumber(expectedBigInt)
 
 	// Verify: The result should be equal to the initial *big.Int used to create SerialNumber
-	if resultBigInt.Cmp(expectedBigInt) != 0 {
-		t.Errorf("SerialNumberToBigInt did not return the expected *big.Int value. Expected: %v, Got: %v", expectedBigInt, resultBigInt)
+	if serialNumber.Value().Cmp(expectedBigInt) != 0 {
+		t.Errorf("SerialNumberToBigInt did not return the expected *big.Int value. Expected: %s, Got: %s", expectedBigInt.String(), serialNumber.String())
 	}
 }
