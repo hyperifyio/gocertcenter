@@ -40,12 +40,21 @@ func main() {
 		repositoryCollection.PrivateKeyRepository,
 	)
 
-	server := serverlayer.NewServer(listenAddr, *repositoryControllerCollection)
+	server, err := serverlayer.NewServer(listenAddr, *repositoryControllerCollection, nil)
+	if err != nil {
+		log.Fatalf("[main]: Failed to create the server: %v", err)
+	}
 
-	server.SetupRoutes(api.GetRoutes())
+	server.SetInfo(api.GetInfo())
+
+	if err := server.SetupRoutes(api.GetRoutes()); err != nil {
+		log.Fatalf("[main]: Failed to setup routes: %v", err)
+	}
 
 	shutdownHandler := func() error {
-		server.Stop()
+		if err := server.Stop(); err != nil {
+			log.Printf("[main]: Failed to stop server: %v", err)
+		}
 		return nil
 	}
 

@@ -1,16 +1,18 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 package api
 
 import (
+	"net/http"
+
 	"github.com/getkin/kin-openapi/openapi3"
+
 	"github.com/hyperifyio/gocertcenter"
 	"github.com/hyperifyio/gocertcenter/internal/api/indexapi"
 	"github.com/hyperifyio/gocertcenter/internal/apitypes"
-	"net/http"
 )
 
-func GetOpenApiInfo() *openapi3.Info {
+func GetInfo() *openapi3.Info {
 	return &openapi3.Info{
 		Title:   gocertcenter.Name,
 		Version: gocertcenter.Version,

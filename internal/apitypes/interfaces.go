@@ -3,9 +3,31 @@
 package apitypes
 
 import (
-	swagger "github.com/davidebianchi/gswagger"
+	"context"
+	"hash"
+	"net"
+	"net/http"
 	"net/url"
+
+	swagger "github.com/davidebianchi/gswagger"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/gorilla/mux"
 )
+
+type ISwaggerManager interface {
+	GenerateAndExposeOpenapi() error
+
+	AddRoute(method string, path string, handler http.HandlerFunc, schema swagger.Definitions) (*mux.Route, error)
+}
+
+// NewSwaggerManagerFunc is a factory function for ISwaggerManager instances
+type NewSwaggerManagerFunc func(
+	router *mux.Router,
+	context *context.Context,
+	url string,
+	description string,
+	info *openapi3.Info,
+) (ISwaggerManager, error)
 
 // Route represents a single API route
 type Route struct {
@@ -40,10 +62,10 @@ type IServer interface {
 	// InitSetup can be called to initialize default values before calling
 	// other Setup methods. This is not normally required, since it is called in
 	// the NewServer()
-	InitSetup()
+	InitSetup() error
 
 	// SetupRoutes can be called to configure route handlers from an array
-	SetupRoutes(routes []Route)
+	SetupRoutes(routes []Route) error
 
 	// SetupHandler can be called to configure single route handler
 	SetupHandler(
@@ -51,7 +73,7 @@ type IServer interface {
 		path string,
 		apiHandler RequestHandlerFunc,
 		definitions swagger.Definitions,
-	)
+	) error
 
 	// SetupNotFoundHandler can be used to configure the Not Found error handler
 	SetupNotFoundHandler(handler RequestHandlerFunc)
@@ -80,3 +102,16 @@ type IRequest interface {
 
 // RequestHandlerFunc defines the type for handlers in this API.
 type RequestHandlerFunc func(IResponse, IRequest, IServer)
+
+type IServerManager interface {
+	Serve(l net.Listener) error
+	Shutdown() error
+}
+
+// NewServerManagerFunc is a factory function for IServerManager instances
+type NewServerManagerFunc func(
+	address string,
+	handler *mux.Router,
+) IServerManager
+
+type Hash64FactoryFunc func() hash.Hash64

@@ -4,6 +4,7 @@ package mocks
 
 import (
 	swagger "github.com/davidebianchi/gswagger"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/hyperifyio/gocertcenter/internal/apitypes"
 	"github.com/stretchr/testify/mock"
 )
@@ -13,6 +14,7 @@ type MockServer struct {
 	mock.Mock
 	Address string
 	URL     string
+	Info    *openapi3.Info
 }
 
 func (m *MockServer) IsStarted() bool {
@@ -26,6 +28,16 @@ func (m *MockServer) GetAddress() string {
 	return args.String(0)
 }
 
+func (m *MockServer) SetInfo(info *openapi3.Info) {
+	m.Called(info)
+}
+
+func (m *MockServer) GetInfo() *openapi3.Info {
+	args := m.Called()
+	info, _ := args.Get(0).(*openapi3.Info)
+	return info
+}
+
 // GetURL returns a mock server URL.
 func (m *MockServer) GetURL() string {
 	args := m.Called()
@@ -33,13 +45,15 @@ func (m *MockServer) GetURL() string {
 }
 
 // InitSetup simulates starting the server. It doesn't do anything in the mock.
-func (m *MockServer) InitSetup() {
-	m.Called()
+func (m *MockServer) InitSetup() error {
+	args := m.Called()
+	return args.Error(0)
 }
 
 // SetupRoutes simulates setting up routes. It doesn't do anything in the mock.
-func (m *MockServer) SetupRoutes(routes []apitypes.Route) {
-	m.Called(routes)
+func (m *MockServer) SetupRoutes(routes []apitypes.Route) error {
+	args := m.Called(routes)
+	return args.Error(0)
 }
 
 // SetupHandler simulates setting up routes. It doesn't do anything in the mock.
@@ -48,8 +62,9 @@ func (m *MockServer) SetupHandler(
 	path string,
 	apiHandler apitypes.RequestHandlerFunc,
 	definitions swagger.Definitions,
-) {
-	m.Called(method, path, apiHandler, definitions)
+) error {
+	args := m.Called(method, path, apiHandler, definitions)
+	return args.Error(0)
 }
 
 func (m *MockServer) SetupNotFoundHandler(
@@ -88,6 +103,11 @@ func NewMockServer() *MockServer {
 	mockServer.On("IsStarted").Return(false)
 	mockServer.On("GetAddress").Return(":8080")
 	mockServer.On("GetURL").Return("http://localhost:8080")
+	mockServer.On("GetInfo").Return(&openapi3.Info{
+		Title:   "Mock title",
+		Version: "0.0.0",
+	})
+	mockServer.On("SetInfo").Return(nil)
 	mockServer.On("InitSetup").Return(nil)
 	mockServer.On("SetupRoutes").Return(nil)
 	mockServer.On("SetupHandler").Return(nil)
