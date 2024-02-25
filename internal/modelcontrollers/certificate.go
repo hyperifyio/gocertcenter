@@ -21,11 +21,8 @@ func (r *CertificateController) UsesCertificateService(service models.ICertifica
 	return r.repository == service
 }
 
-func (r *CertificateController) GetExistingCertificate(
-	orgId string,
-	signedBy models.ISerialNumber,
-	serialNumber models.ISerialNumber) (models.ICertificate, error) {
-	return r.repository.GetExistingCertificate(orgId, signedBy, serialNumber)
+func (r *CertificateController) GetExistingCertificate(organization string, certificates []models.ISerialNumber) (models.ICertificate, error) {
+	return r.repository.GetExistingCertificate(organization, certificates)
 }
 
 func (r *CertificateController) CreateCertificate(certificate models.ICertificate) (models.ICertificate, error) {

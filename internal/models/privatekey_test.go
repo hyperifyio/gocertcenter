@@ -26,12 +26,13 @@ const mockKeyType models.KeyType = 0
 // TestNewPrivateKey verifies the NewPrivateKey function correctly initializes a PrivateKey instance.
 func TestNewPrivateKey(t *testing.T) {
 	// Mock data for initialization
+	organization := "testOrg"
 	serialNumber := models.NewSerialNumber(big.NewInt(123)) // Assuming SerialNumber is of type *big.Int
 	keyType := mockKeyType
 	mockData := "mockPrivateKeyData" // Example mock data, could be any type
 
 	// Call the function under test
-	privateKey := models.NewPrivateKey(serialNumber, keyType, mockData)
+	privateKey := models.NewPrivateKey(organization, []models.ISerialNumber{serialNumber}, keyType, mockData)
 
 	bigIntSSerialNumber := privateKey.GetSerialNumber()
 
@@ -52,9 +53,12 @@ func TestNewPrivateKey(t *testing.T) {
 
 // TestPrivateKey_CreateCertificate tests the certificate creation functionality
 func TestPrivateKey_CreateCertificate(t *testing.T) {
+
+	organization := "testOrg"
+
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
-	privateKey, _ := modelutils.GenerateECDSAPrivateKey(serialNumber, models.ECDSA_P384)
+	privateKey, _ := modelutils.GenerateECDSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, models.ECDSA_P384)
 
 	template := &x509.Certificate{
 		SerialNumber: big.NewInt(1),
@@ -77,6 +81,9 @@ func TestPrivateKey_CreateCertificate(t *testing.T) {
 }
 
 func TestPrivateKey_CreateCertificate_Success(t *testing.T) {
+
+	organization := "testOrg"
+
 	// Set up the mock certificate manager with successful responses
 	mockManager := &mocks.MockCertificateManager{
 		CreateCertificateFunc: func(rand io.Reader, template, parent *x509.Certificate, publicKey, privateKey any) ([]byte, error) {
@@ -97,7 +104,7 @@ func TestPrivateKey_CreateCertificate_Success(t *testing.T) {
 	}
 
 	// Set up a PrivateKey instance for testing
-	privateKey, err := modelutils.GenerateECDSAPrivateKey(serialNumber, models.ECDSA_P256)
+	privateKey, err := modelutils.GenerateECDSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, models.ECDSA_P256)
 	if err != nil {
 		t.Fatalf("Failed to generate private key: %v", err)
 	}
@@ -116,10 +123,13 @@ func TestPrivateKey_CreateCertificate_Success(t *testing.T) {
 }
 
 func TestPrivateKey_CreateCertificate_Errors(t *testing.T) {
+
+	organization := "testOrg"
+
 	// Generate a private key for the test
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
-	privateKey, _ := modelutils.GenerateECDSAPrivateKey(serialNumber, models.ECDSA_P384)
+	privateKey, _ := modelutils.GenerateECDSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, models.ECDSA_P384)
 
 	// Create an invalid template by setting invalid values
 	invalidTemplate := &x509.Certificate{
@@ -135,6 +145,9 @@ func TestPrivateKey_CreateCertificate_Errors(t *testing.T) {
 }
 
 func TestPrivateKey_CreateCertificate_Failure(t *testing.T) {
+
+	organization := "testOrg"
+
 	// Set up the mock certificate manager to simulate an error in certificate creation
 	mockManager := &mocks.MockCertificateManager{
 		CreateCertificateFunc: func(rand io.Reader, template, parent *x509.Certificate, publicKey, privateKey any) ([]byte, error) {
@@ -149,7 +162,7 @@ func TestPrivateKey_CreateCertificate_Failure(t *testing.T) {
 		t.Fatalf("Failed to generate serial number: %v", err)
 	}
 
-	privateKey, _ := modelutils.GenerateECDSAPrivateKey(serialNumber, models.ECDSA_P256)
+	privateKey, _ := modelutils.GenerateECDSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, models.ECDSA_P256)
 	template := &x509.Certificate{ /* Fill in required fields for the template */ }
 	parent := &x509.Certificate{ /* Optionally, fill in fields for the parent certificate */ }
 
@@ -160,6 +173,7 @@ func TestPrivateKey_CreateCertificate_Failure(t *testing.T) {
 }
 
 func TestPrivateKey_CreateCertificate_ParseFailure(t *testing.T) {
+	organization := "testOrg"
 	// Simulate successful creation but failure in parsing
 	mockManager := &mocks.MockCertificateManager{
 		CreateCertificateFunc: func(rand io.Reader, template, parent *x509.Certificate, publicKey, privateKey any) ([]byte, error) {
@@ -176,7 +190,7 @@ func TestPrivateKey_CreateCertificate_ParseFailure(t *testing.T) {
 		t.Fatalf("Failed to generate serial number: %v", err)
 	}
 
-	privateKey, _ := modelutils.GenerateECDSAPrivateKey(serialNumber, models.ECDSA_P256)
+	privateKey, _ := modelutils.GenerateECDSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, models.ECDSA_P256)
 	template := &x509.Certificate{ /* Fill in required fields for the template */ }
 	parent := &x509.Certificate{ /* Optionally, fill in fields for the parent certificate */ }
 
@@ -187,11 +201,12 @@ func TestPrivateKey_CreateCertificate_ParseFailure(t *testing.T) {
 }
 
 func TestPrivateKey_GetPublicKey_NilCase(t *testing.T) {
+	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 	unsupportedKeyType := "unsupported key type" // Simulate incorrect initialization
 
-	privateKey := models.NewPrivateKey(serialNumber, mockKeyType, unsupportedKeyType)
+	privateKey := models.NewPrivateKey(organization, []models.ISerialNumber{serialNumber}, mockKeyType, unsupportedKeyType)
 	publicKey := privateKey.GetPublicKey()
 
 	if publicKey != nil {
@@ -201,11 +216,12 @@ func TestPrivateKey_GetPublicKey_NilCase(t *testing.T) {
 
 func TestPrivateKey_GetDTO(t *testing.T) {
 	// Setup
+	organization := "testOrg"
 	serialNumber := models.NewSerialNumber(big.NewInt(123))
 	keyType := models.RSA            // Using RSA as an example
 	mockData := "mockPrivateKeyData" // Placeholder for private key data, could be any type
 
-	privateKey := models.NewPrivateKey(serialNumber, keyType, mockData)
+	privateKey := models.NewPrivateKey(organization, []models.ISerialNumber{serialNumber}, keyType, mockData)
 
 	// Act
 	dto := privateKey.GetDTO()
@@ -229,6 +245,8 @@ func TestPrivateKey_GetDTO(t *testing.T) {
 }
 
 func TestPrivateKey_GetPublicKey_RSA(t *testing.T) {
+	organization := "testOrg"
+
 	// Generate an RSA private key
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -236,7 +254,7 @@ func TestPrivateKey_GetPublicKey_RSA(t *testing.T) {
 	}
 
 	// Create a PrivateKey instance with the RSA private key
-	privateKey := models.NewPrivateKey(models.NewSerialNumber(big.NewInt(1)), models.RSA, rsaPrivKey)
+	privateKey := models.NewPrivateKey(organization, []models.ISerialNumber{models.NewSerialNumber(big.NewInt(1))}, models.RSA, rsaPrivKey)
 
 	// Get the public key from the PrivateKey instance
 	publicKey := privateKey.GetPublicKey()
@@ -255,13 +273,15 @@ func TestPrivateKey_GetPublicKey_RSA(t *testing.T) {
 
 func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 	// Generate an Ed25519 private key
+	organization := "testOrg"
+
 	_, ed25519PrivKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		t.Fatalf("Failed to generate Ed25519 private key: %v", err)
 	}
 
 	// Create a PrivateKey instance with the Ed25519 private key
-	privateKey := models.NewPrivateKey(models.NewSerialNumber(big.NewInt(1)), models.Ed25519, ed25519PrivKey)
+	privateKey := models.NewPrivateKey(organization, []models.ISerialNumber{models.NewSerialNumber(big.NewInt(1))}, models.Ed25519, ed25519PrivKey)
 
 	// Get the public key from the PrivateKey instance
 	publicKey := privateKey.GetPublicKey()

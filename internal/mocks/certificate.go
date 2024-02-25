@@ -46,6 +46,11 @@ func (m *MockCertificate) GetOrganization() []string {
 	return args.Get(0).([]string)
 }
 
+func (m *MockCertificate) GetParents() []models.ISerialNumber {
+	args := m.Called()
+	return args.Get(0).([]models.ISerialNumber)
+}
+
 func (m *MockCertificate) GetSignedBy() models.ISerialNumber {
 	args := m.Called()
 	return args.Get(0).(models.ISerialNumber)

@@ -16,8 +16,11 @@ import (
 // PrivateKey model implements IPrivateKey
 type PrivateKey struct {
 
-	// serialNumber of the certificate this key belongs to
-	serialNumber ISerialNumber
+	// organization is the organization this key belongs to
+	organization string
+
+	// certificates is the path to the certificate as serial numbers from root certificate
+	certificates []ISerialNumber
 
 	// The type of the key
 	keyType KeyType
@@ -31,14 +34,32 @@ var _ IPrivateKey = (*PrivateKey)(nil)
 
 func (k *PrivateKey) GetDTO() dtos.PrivateKeyDTO {
 	return dtos.NewPrivateKeyDTO(
-		k.serialNumber.String(),
+		k.GetSerialNumber().String(),
 		k.keyType.String(),
 		"",
 	)
 }
 
 func (k *PrivateKey) GetSerialNumber() ISerialNumber {
-	return k.serialNumber
+	if len(k.certificates) <= 0 {
+		return nil
+	}
+	return k.certificates[len(k.certificates)-1]
+}
+
+func (k *PrivateKey) GetParents() []ISerialNumber {
+	if len(k.certificates) <= 1 {
+		return []ISerialNumber{}
+	}
+	return k.certificates[:len(k.certificates)-1]
+}
+
+func (k *PrivateKey) GetCertificates() []ISerialNumber {
+	return k.certificates
+}
+
+func (k *PrivateKey) GetOrganizationID() string {
+	return k.organization
 }
 
 func (k *PrivateKey) GetKeyType() KeyType {
@@ -69,7 +90,6 @@ func (k *PrivateKey) CreateCertificate(
 	}
 	cert, err := manager.ParseCertificate(bytes)
 	if err != nil {
-		// FIXME: Add tests for this scope
 		return nil, fmt.Errorf("failed to parse certificate after creating it: %w", err)
 	}
 	return cert, nil
@@ -77,13 +97,15 @@ func (k *PrivateKey) CreateCertificate(
 
 // NewPrivateKey creates a private key model from existing data
 func NewPrivateKey(
-	serialNumber ISerialNumber,
+	organization string,
+	certificates []ISerialNumber,
 	keyType KeyType,
 	data any,
 ) *PrivateKey {
 	return &PrivateKey{
-		serialNumber: serialNumber,
+		certificates: certificates,
 		data:         data,
 		keyType:      keyType,
+		organization: organization,
 	}
 }

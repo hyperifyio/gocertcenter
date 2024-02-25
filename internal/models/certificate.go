@@ -15,8 +15,8 @@ type Certificate struct {
 	// organization is the organization ID this certificate belongs to
 	organization string
 
-	// signedBy is the serial number of the certificate this certificate was signed by
-	signedBy ISerialNumber
+	// parents is all parent certificates in the chain
+	parents []ISerialNumber
 
 	// data is the certificate data
 	certificate *x509.Certificate
@@ -28,20 +28,26 @@ var _ ICertificate = (*Certificate)(nil)
 // NewCertificate creates a certificate model from existing data
 func NewCertificate(
 	organization string,
-	signedBy ISerialNumber,
+	parents []ISerialNumber,
 	certificate *x509.Certificate,
 ) *Certificate {
 	return &Certificate{
 		organization: organization,
-		signedBy:     signedBy,
+		parents:      parents,
 		certificate:  certificate,
 	}
 }
 
 func (c *Certificate) GetDTO() dtos.CertificateDTO {
+	parents := c.GetParents()
+	strings := make([]string, len(parents))
+	for i, p := range parents {
+		strings[i] = p.String()
+	}
 	return dtos.NewCertificateDTO(
 		c.GetCommonName(),
 		c.GetSerialNumber().String(),
+		strings,
 		c.GetSignedBy().String(),
 		c.GetOrganizationName(),
 		c.IsCA(),
@@ -98,6 +104,10 @@ func (c *Certificate) GetOrganizationID() string {
 	return c.organization
 }
 
+func (c *Certificate) GetParents() []ISerialNumber {
+	return c.parents
+}
+
 func (c *Certificate) GetCommonName() string {
 	return c.certificate.Subject.CommonName
 }
@@ -115,7 +125,11 @@ func (c *Certificate) GetOrganization() []string {
 }
 
 func (c *Certificate) GetSignedBy() ISerialNumber {
-	return c.signedBy
+	if len(c.parents) >= 1 {
+		return c.parents[len(c.parents)-1]
+	} else {
+		return c.GetSerialNumber()
+	}
 }
 
 func (c *Certificate) GetCertificate() *x509.Certificate {

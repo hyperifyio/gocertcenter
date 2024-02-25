@@ -3,8 +3,7 @@
 package filerepository
 
 import (
-	"errors"
-
+	"fmt"
 	"github.com/hyperifyio/gocertcenter/internal/models"
 )
 
@@ -23,9 +22,24 @@ func NewOrganizationRepository(filePath string) *OrganizationRepository {
 }
 
 func (r *OrganizationRepository) GetExistingOrganization(id string) (models.IOrganization, error) {
-	return nil, errors.New("organization not found")
+	fileName := GetOrganizationJsonPath(r.filePath, id)
+	dto, err := ReadOrganizationJsonFile(fileName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read saved organization '%s': %w", id, err)
+	}
+	model := models.NewOrganization(
+		dto.ID,
+		dto.AllNames,
+	)
+	return model, nil
 }
 
 func (r *OrganizationRepository) CreateOrganization(organization models.IOrganization) (models.IOrganization, error) {
-	return nil, errors.New("organization creation not implemented")
+	id := organization.GetID()
+	fileName := GetOrganizationJsonPath(r.filePath, id)
+	err := SaveOrganizationJsonFile(fileName, organization.GetDTO())
+	if err != nil {
+		return nil, fmt.Errorf("organization creation failed: %w", err)
+	}
+	return r.GetExistingOrganization(id)
 }

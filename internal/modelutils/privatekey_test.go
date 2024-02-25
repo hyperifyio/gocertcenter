@@ -18,13 +18,14 @@ import (
 const InvalidKeyType = 999 // A value not represented in the KeyType enum
 
 func TestGeneratePrivateKey(t *testing.T) {
+	organization := "testOrg"
 
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 
 	keyTypes := []models.KeyType{models.RSA, models.ECDSA_P224, models.ECDSA_P256, models.ECDSA_P384, models.ECDSA_P521, models.Ed25519}
 	for _, kt := range keyTypes {
-		privateKey, err := modelutils.GeneratePrivateKey(serialNumber, kt, 2048) // RSA bits size is only relevant for RSA keys
+		privateKey, err := modelutils.GeneratePrivateKey(organization, []models.ISerialNumber{serialNumber}, kt, 2048) // RSA bits size is only relevant for RSA keys
 		if err != nil {
 			t.Fatalf("Failed to generate private key for %v: %v", kt, err)
 		}
@@ -63,20 +64,22 @@ func TestGeneratePrivateKey(t *testing.T) {
 }
 
 func TestGeneratePrivateKey_InvalidKeyType(t *testing.T) {
+	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
-	_, err := modelutils.GeneratePrivateKey(serialNumber, InvalidKeyType, 2048) // Using the invalid KeyType here
+	_, err := modelutils.GeneratePrivateKey(organization, []models.ISerialNumber{serialNumber}, InvalidKeyType, 2048) // Using the invalid KeyType here
 	if err == nil {
 		t.Fatal("Expected GeneratePrivateKey to return an error for an invalid keyType, but it did not")
 	}
 }
 
 func TestGenerateRSAPrivateKey(t *testing.T) {
+	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 	rsaBits := 2048
 
-	privateKey, err := modelutils.GenerateRSAPrivateKey(serialNumber, rsaBits)
+	privateKey, err := modelutils.GenerateRSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, rsaBits)
 	if err != nil {
 		t.Fatalf("Failed to generate RSA private key: %v", err)
 	}
@@ -92,13 +95,14 @@ func TestGenerateRSAPrivateKey(t *testing.T) {
 
 // TestGenerateECDSAPrivateKey checks if a new ECDSA private key is generated without error
 func TestGenerateECDSAPrivateKey(t *testing.T) {
+	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, err := modelutils.GenerateSerialNumber(randomManager)
 	if err != nil {
 		t.Fatalf("Failed to generate serial number: %v", err)
 	}
 
-	privateKey, err := modelutils.GenerateECDSAPrivateKey(serialNumber, models.ECDSA_P384)
+	privateKey, err := modelutils.GenerateECDSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, models.ECDSA_P384)
 	if err != nil {
 		t.Fatalf("Failed to generate private key: %v", err)
 	}
@@ -111,10 +115,11 @@ func TestGenerateECDSAPrivateKey(t *testing.T) {
 }
 
 func TestGenerateEd25519PrivateKey(t *testing.T) {
+	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 
-	privateKey, err := modelutils.GenerateEd25519PrivateKey(serialNumber)
+	privateKey, err := modelutils.GenerateEd25519PrivateKey(organization, []models.ISerialNumber{serialNumber})
 	if err != nil {
 		t.Fatalf("Failed to generate Ed25519 private key: %v", err)
 	}
@@ -129,10 +134,11 @@ func TestGenerateEd25519PrivateKey(t *testing.T) {
 
 // TestPrivateKey_GetSerialNumber verifies that GetSerialNumber returns the correct serial number
 func TestPrivateKey_GetSerialNumber(t *testing.T) {
+	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	expectedSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 	privateKey := models.NewPrivateKey(
-		expectedSerialNumber,
+		organization, []models.ISerialNumber{expectedSerialNumber},
 		0,
 		nil,
 	)
@@ -146,10 +152,11 @@ func TestPrivateKey_GetSerialNumber(t *testing.T) {
 
 // TestPrivateKey_GetPublicKey checks if GetPublicKey returns a valid public key from the private key
 func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
+	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
 	key, _ := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	privateKey := models.NewPrivateKey(serialNumber, models.ECDSA_P384, key)
+	privateKey := models.NewPrivateKey(organization, []models.ISerialNumber{serialNumber}, models.ECDSA_P384, key)
 
 	publicKeyAny := privateKey.GetPublicKey()
 	publicKey, ok := publicKeyAny.(*ecdsa.PublicKey) // Type assertion
@@ -163,9 +170,10 @@ func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
 
 // TestPrivateKey_GetPublicKey_Ed25519 checks if GetPublicKey returns a valid public key from the private key
 func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
+	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
-	privateKey, err := modelutils.GenerateEd25519PrivateKey(serialNumber)
+	privateKey, err := modelutils.GenerateEd25519PrivateKey(organization, []models.ISerialNumber{serialNumber})
 	if err != nil {
 		t.Fatalf("Could not generate private key: %v", err)
 	}

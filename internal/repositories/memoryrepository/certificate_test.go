@@ -15,6 +15,7 @@ import (
 )
 
 func TestCertificateRepository_CreateAndGetCertificate(t *testing.T) {
+	organization := "testOrg"
 	repo := memoryrepository.NewCertificateRepository()
 	mockCert := new(mocks.MockCertificate)
 	signedBy := models.NewSerialNumber(big.NewInt(345))
@@ -22,13 +23,15 @@ func TestCertificateRepository_CreateAndGetCertificate(t *testing.T) {
 
 	// Setting up expectations
 	mockCert.On("GetSerialNumber").Return(serialNumber)
+	mockCert.On("GetOrganizationID").Return(organization)
+	mockCert.On("GetParents").Return([]models.ISerialNumber{signedBy})
 
 	// Test CreateCertificate
 	_, err := repo.CreateCertificate(mockCert)
 	assert.NoError(t, err)
 
 	// Test GetExistingCertificate success
-	foundCert, err := repo.GetExistingCertificate("testOrg", signedBy, serialNumber)
+	foundCert, err := repo.GetExistingCertificate(organization, []models.ISerialNumber{signedBy, serialNumber})
 	assert.NoError(t, err)
 	assert.NotNil(t, foundCert)
 
@@ -42,7 +45,7 @@ func TestCertificateRepository_GetExistingCertificateNotFound(t *testing.T) {
 	serialNumber := models.NewSerialNumber(big.NewInt(999))
 
 	// Test GetExistingCertificate for a non-existent certificate
-	_, err := repo.GetExistingCertificate("testorg", signedBy, serialNumber)
+	_, err := repo.GetExistingCertificate("testorg", []models.ISerialNumber{signedBy, serialNumber})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "certificate not found")
 }

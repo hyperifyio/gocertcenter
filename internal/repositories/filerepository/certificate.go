@@ -23,31 +23,32 @@ func NewCertificateRepository(filePath string) *CertificateRepository {
 }
 
 func (r *CertificateRepository) GetExistingCertificate(
-	orgId string,
-	signedBy models.ISerialNumber,
-	serialNumber models.ISerialNumber,
+	organization string,
+	certificates []models.ISerialNumber,
 ) (models.ICertificate, error) {
-	fileName := r.getCertificateLocation(orgId, signedBy, serialNumber)
-	cert, err := readCertificateFile(fileName)
+
+	if len(certificates) <= 0 {
+		return nil, errors.New("no certificate serial numbers provided")
+	}
+
+	fileName := GetCertificatePemPath(r.filePath, organization, certificates)
+	cert, err := ReadCertificateFile(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read certificate: %w", err)
 	}
-	return models.NewCertificate(orgId, signedBy, cert), nil
+
+	return models.NewCertificate(organization, certificates[:len(certificates)-1], cert), nil
 }
 
 func (r *CertificateRepository) CreateCertificate(certificate models.ICertificate) (models.ICertificate, error) {
-	fileName := r.getCertificateLocation(certificate.GetOrganizationID(), certificate.GetSignedBy(), certificate.GetSerialNumber())
-	err := saveCertificateFile(fileName, certificate.GetCertificate())
+	fileName := GetCertificatePemPath(
+		r.filePath,
+		certificate.GetOrganizationID(),
+		append(certificate.GetParents(), certificate.GetSerialNumber()),
+	)
+	err := SaveCertificateFile(fileName, certificate.GetCertificate())
 	if err != nil {
 		return nil, fmt.Errorf("failed to save certificate: %w", err)
 	}
 	return nil, errors.New("certificate creation not implemented")
-}
-
-func (r *CertificateRepository) getCertificateLocation(
-	orgId string,
-	signedBy models.ISerialNumber,
-	serialNumber models.ISerialNumber,
-) string {
-	return fmt.Sprintf("%s/organizations/%s/certificates/%s/certificates/%s/cert.pem", r.filePath, orgId, signedBy.String(), serialNumber.String())
 }

@@ -25,15 +25,16 @@ func TestNewCertificateController(t *testing.T) {
 func TestCertificateController_GetExistingCertificate(t *testing.T) {
 	expectedCert := models.NewCertificate(
 		"TestOrg",
-		models.NewSerialNumber(big.NewInt(1234)),
+		[]models.ISerialNumber{models.NewSerialNumber(big.NewInt(4567))},
 		&x509.Certificate{SerialNumber: big.NewInt(1234)},
 	)
 	mockService := &mocks.MockCertificateService{
-		GetExistingCertificateFunc: func(orgId string,
-			signedBy models.ISerialNumber,
-			serialNumber models.ISerialNumber) (models.ICertificate, error) {
-			if serialNumber.Cmp(expectedCert.GetSerialNumber()) == 0 {
-				return expectedCert, nil
+		GetExistingCertificateFunc: func(organization string, certificates []models.ISerialNumber) (models.ICertificate, error) {
+			if (len(certificates)) >= 1 {
+				serialNumber := certificates[len(certificates)-1]
+				if serialNumber.Cmp(expectedCert.GetSerialNumber()) == 0 {
+					return expectedCert, nil
+				}
 			}
 			return nil, nil // Simplified; in a real test, handle not found or error scenarios
 		},
@@ -42,8 +43,10 @@ func TestCertificateController_GetExistingCertificate(t *testing.T) {
 	controller := modelcontrollers.NewCertificateController(mockService)
 	cert, err := controller.GetExistingCertificate(
 		"TestOrg",
-		models.NewSerialNumber(big.NewInt(1234)),
-		models.NewSerialNumber(big.NewInt(1234)),
+		[]models.ISerialNumber{
+			models.NewSerialNumber(big.NewInt(4567)),
+			models.NewSerialNumber(big.NewInt(1234)),
+		},
 	)
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
@@ -56,7 +59,7 @@ func TestCertificateController_GetExistingCertificate(t *testing.T) {
 func TestCertificateController_CreateCertificate(t *testing.T) {
 	newCert := models.NewCertificate(
 		"NewOrg",
-		models.NewSerialNumber(big.NewInt(5678)),
+		[]models.ISerialNumber{models.NewSerialNumber(big.NewInt(4567))},
 		&x509.Certificate{SerialNumber: big.NewInt(5678)},
 	)
 	mockService := &mocks.MockCertificateService{

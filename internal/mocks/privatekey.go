@@ -21,9 +21,24 @@ func (m *MockPrivateKey) GetDTO() dtos.PrivateKeyDTO {
 	return args.Get(0).(dtos.PrivateKeyDTO)
 }
 
+func (m *MockPrivateKey) GetOrganizationID() string {
+	args := m.Called()
+	return args.Get(0).(string)
+}
+
 func (m *MockPrivateKey) GetSerialNumber() models.ISerialNumber {
 	args := m.Called()
 	return args.Get(0).(models.ISerialNumber)
+}
+
+func (m *MockPrivateKey) GetParents() []models.ISerialNumber {
+	args := m.Called()
+	return args.Get(0).([]models.ISerialNumber)
+}
+
+func (m *MockPrivateKey) GetCertificates() []models.ISerialNumber {
+	args := m.Called()
+	return args.Get(0).([]models.ISerialNumber)
 }
 
 func (m *MockPrivateKey) GetKeyType() models.KeyType {

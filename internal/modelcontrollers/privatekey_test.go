@@ -29,16 +29,19 @@ func TestPrivateKeyController_GetExistingPrivateKey(t *testing.T) {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}
 
+	organization := "testOrg"
+	certificates := []models.ISerialNumber{serialNumber}
+
 	expectedKey := &models.PrivateKey{ /* Initialized fields */ }
 
 	mockService := &mocks.MockPrivateKeyService{
-		GetExistingPrivateKeyFunc: func(serialNumber models.ISerialNumber) (models.IPrivateKey, error) {
+		GetExistingPrivateKeyFunc: func(organization string, certificates []models.ISerialNumber) (models.IPrivateKey, error) {
 			return expectedKey, nil
 		},
 	}
 
 	controller := modelcontrollers.NewPrivateKeyController(mockService)
-	key, err := controller.GetExistingPrivateKey(serialNumber)
+	key, err := controller.GetExistingPrivateKey(organization, certificates)
 	if err != nil {
 		t.Fatalf("Did not expect an error, got %v", err)
 	}

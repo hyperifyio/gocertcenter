@@ -10,9 +10,8 @@ import (
 type MockCertificateController struct {
 	UsesCertificateServiceFunc func(service models.ICertificateService) bool
 	GetExistingCertificateFunc func(
-		orgId string,
-		signedBy models.ISerialNumber,
-		serialNumber models.ISerialNumber) (models.ICertificate, error)
+		organization string,
+		certificates []models.ISerialNumber) (models.ICertificate, error)
 	CreateCertificateFunc func(certificate models.ICertificate) (models.ICertificate, error)
 }
 
@@ -23,10 +22,9 @@ func (m *MockCertificateController) UsesCertificateService(service models.ICerti
 }
 
 func (m *MockCertificateController) GetExistingCertificate(
-	orgId string,
-	signedBy models.ISerialNumber,
-	serialNumber models.ISerialNumber) (models.ICertificate, error) {
-	return m.GetExistingCertificateFunc(orgId, signedBy, serialNumber)
+	organization string,
+	certificates []models.ISerialNumber) (models.ICertificate, error) {
+	return m.GetExistingCertificateFunc(organization, certificates)
 }
 
 func (m *MockCertificateController) CreateCertificate(certificate models.ICertificate) (models.ICertificate, error) {

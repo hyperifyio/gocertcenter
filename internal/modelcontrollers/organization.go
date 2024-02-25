@@ -64,7 +64,7 @@ func (r *OrganizationController) NewRootCertificate(
 		return nil, err
 	}
 
-	return models.NewCertificate(o.GetID(), serialNumber, cert), nil
+	return models.NewCertificate(o.GetID(), []models.ISerialNumber{}, cert), nil
 }
 
 // NewIntermediateCertificate creates a new intermediate CA certificate
@@ -103,7 +103,7 @@ func (r *OrganizationController) NewIntermediateCertificate(
 		return nil, err
 	}
 
-	return models.NewCertificate(o.GetID(), parentCertificate.GetSerialNumber(), cert), nil
+	return models.NewCertificate(o.GetID(), parentCertificate.GetParents(), cert), nil
 }
 
 // NewServerCertificate creates a new server certificate
@@ -138,7 +138,7 @@ func (r *OrganizationController) NewServerCertificate(
 		return nil, err
 	}
 
-	return models.NewCertificate(o.GetID(), parentCertificate.GetSerialNumber(), cert), nil
+	return models.NewCertificate(o.GetID(), append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()), cert), nil
 }
 
 // NewClientCertificate creates a new client certificate
@@ -172,7 +172,7 @@ func (r *OrganizationController) NewClientCertificate(
 		return nil, err
 	}
 
-	return models.NewCertificate(o.GetID(), parentCertificate.GetSerialNumber(), cert), nil
+	return models.NewCertificate(o.GetID(), append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()), cert), nil
 }
 
 // NewOrganizationController creates a new instance of OrganizationController

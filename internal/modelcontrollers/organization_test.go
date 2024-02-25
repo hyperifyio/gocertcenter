@@ -100,11 +100,12 @@ func TestOrganizationController_NewRootCertificate(t *testing.T) {
 
 	mockService := &mocks.MockOrganizationService{}
 	controller := modelcontrollers.NewOrganizationController(mockService)
+	organization := "orgID"
 
-	org := models.NewOrganization("orgID", []string{"Test Org"})
+	org := models.NewOrganization(organization, []string{"Test Org"})
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
-	privateKey, err := modelutils.GenerateRSAPrivateKey(serialNumber, 2048)
+	privateKey, err := modelutils.GenerateRSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, 2048)
 	if err != nil {
 		t.Fatalf("GenerateRSAPrivateKey failed: %v", err)
 	}
@@ -130,6 +131,7 @@ func TestOrganizationController_NewRootCertificate(t *testing.T) {
 func TestOrganizationController_NewRootCertificate_CreateCertificateError(t *testing.T) {
 	mockService := &mocks.MockOrganizationService{}
 	controller := modelcontrollers.NewOrganizationController(mockService)
+	organization := "orgID"
 
 	mockManager := &mocks.MockCertificateManager{
 		CreateCertificateFunc: func(rand io.Reader, template, parent *x509.Certificate, publicKey, privateKey any) ([]byte, error) {
@@ -137,9 +139,9 @@ func TestOrganizationController_NewRootCertificate_CreateCertificateError(t *tes
 		},
 	}
 
-	org := models.NewOrganization("orgID", []string{"Test Org"})
+	org := models.NewOrganization(organization, []string{"Test Org"})
 	serialNumber, _ := modelutils.GenerateSerialNumber(&mocks.MockRandomManager{})
-	privateKey, _ := modelutils.GenerateRSAPrivateKey(serialNumber, 2048)
+	privateKey, _ := modelutils.GenerateRSAPrivateKey(organization, []models.ISerialNumber{serialNumber}, 2048)
 
 	_, err := controller.NewRootCertificate(org, mockManager, "Test Root CA", privateKey, 365*24*time.Hour)
 	if err == nil {
@@ -152,13 +154,14 @@ func TestOrganizationController_NewIntermediateCertificate(t *testing.T) {
 	mockService := &mocks.MockOrganizationService{}
 	controller := modelcontrollers.NewOrganizationController(mockService)
 
+	organization := "intermediateOrgID"
 	org := models.NewOrganization("intermediateOrgID", []string{"Intermediate Test Org"})
 
 	certManager := managers.NewCertificateManager(managers.NewRandomManager())
 
 	randomManager := managers.NewRandomManager()
 	parentSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
-	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(parentSerialNumber, 2048)
+	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(organization, []models.ISerialNumber{parentSerialNumber}, 2048)
 	parentCert, _ := controller.NewRootCertificate(org, certManager, "Parent Root CA", parentPrivateKey, 365*24*time.Hour)
 
 	intermediateSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
@@ -207,13 +210,14 @@ func TestOrganizationController_NewServerCertificate(t *testing.T) {
 	mockService := &mocks.MockOrganizationService{}
 	controller := modelcontrollers.NewOrganizationController(mockService)
 
-	org := models.NewOrganization("serverOrgID", []string{"Server Test Org"})
+	organization := "serverOrgID"
+	org := models.NewOrganization(organization, []string{"Server Test Org"})
 	certManager := managers.NewCertificateManager(managers.NewRandomManager())
 
 	randomManager := managers.NewRandomManager()
 
 	parentSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
-	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(parentSerialNumber, 2048)
+	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(organization, []models.ISerialNumber{parentSerialNumber}, 2048)
 	parentCert, _ := controller.NewRootCertificate(org, certManager, "Parent CA", parentPrivateKey, 365*24*time.Hour)
 
 	serverSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
@@ -262,9 +266,11 @@ func TestOrganizationController_NewClientCertificate(t *testing.T) {
 
 	randomManager := managers.NewRandomManager()
 
-	org := models.NewOrganization("clientOrgID", []string{"Client Test Org"})
+	organization := "clientOrgID"
+
+	org := models.NewOrganization(organization, []string{"Client Test Org"})
 	parentSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)
-	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(parentSerialNumber, 2048)
+	parentPrivateKey, _ := modelutils.GenerateRSAPrivateKey(organization, []models.ISerialNumber{parentSerialNumber}, 2048)
 	parentCert, _ := controller.NewRootCertificate(org, certManager, "Parent CA", parentPrivateKey, 365*24*time.Hour)
 
 	clientSerialNumber, _ := modelutils.GenerateSerialNumber(randomManager)

@@ -15,7 +15,8 @@ import (
 
 // GeneratePrivateKey creates a new private key of type models.KeyType
 func GeneratePrivateKey(
-	serialNumber models.ISerialNumber,
+	organization string,
+	certificates []models.ISerialNumber,
 	keyType models.KeyType,
 	rsaBits int,
 ) (models.IPrivateKey, error) {
@@ -40,28 +41,31 @@ func GeneratePrivateKey(
 	if err != nil {
 		return nil, err
 	}
-	return models.NewPrivateKey(serialNumber, keyType, key), nil
+	return models.NewPrivateKey(organization, certificates, keyType, key), nil
 }
 
 // GenerateRSAPrivateKey creates a new private key of type models.RSA
 func GenerateRSAPrivateKey(
-	serialNumber models.ISerialNumber,
+	organization string,
+	certificates []models.ISerialNumber,
 	rsaBits int,
 ) (models.IPrivateKey, error) {
-	return GeneratePrivateKey(serialNumber, models.RSA, rsaBits)
+	return GeneratePrivateKey(organization, certificates, models.RSA, rsaBits)
 }
 
 // GenerateECDSAPrivateKey creates a new private key of type models.KeyType
 func GenerateECDSAPrivateKey(
-	serialNumber models.ISerialNumber,
+	organization string,
+	certificates []models.ISerialNumber,
 	keyType models.KeyType,
 ) (models.IPrivateKey, error) {
-	return GeneratePrivateKey(serialNumber, keyType, 2048)
+	return GeneratePrivateKey(organization, certificates, keyType, 2048)
 }
 
 // GenerateEd25519PrivateKey creates a new private key of type models.Ed25519
 func GenerateEd25519PrivateKey(
-	serialNumber models.ISerialNumber,
+	organization string,
+	certificates []models.ISerialNumber,
 ) (models.IPrivateKey, error) {
-	return GeneratePrivateKey(serialNumber, models.Ed25519, 2048)
+	return GeneratePrivateKey(organization, certificates, models.Ed25519, 2048)
 }

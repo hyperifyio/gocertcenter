@@ -66,6 +66,9 @@ type ICertificate interface {
 	// certificates and have specific extended key usages.
 	IsClientCertificate() bool
 
+	// GetParents returns all parent certificate serial numbers
+	GetParents() []ISerialNumber
+
 	GetSerialNumber() ISerialNumber
 	GetOrganizationID() string
 	GetOrganizationName() string
@@ -80,6 +83,15 @@ type IPrivateKey interface {
 
 	// GetDTO returns a data transfer object
 	GetDTO() dtos.PrivateKeyDTO
+
+	// GetOrganizationID returns the organization this key belongs to
+	GetOrganizationID() string
+
+	// GetParents returns all parent certificate serial numbers
+	GetParents() []ISerialNumber
+
+	// GetCertificates returns all serial numbers from root certificate to this one
+	GetCertificates() []ISerialNumber
 
 	GetSerialNumber() ISerialNumber
 	GetKeyType() KeyType
@@ -109,7 +121,7 @@ type ICertificateManager interface {
 // promoting loose coupling between the application's business logic and its
 // data layer.
 type IOrganizationService interface {
-	GetExistingOrganization(id string) (IOrganization, error)
+	GetExistingOrganization(organization string) (IOrganization, error)
 	CreateOrganization(certificate IOrganization) (IOrganization, error)
 }
 
@@ -118,11 +130,7 @@ type IOrganizationService interface {
 // interface it supports easy substitution of its implementation, thereby
 // promoting loose coupling between the application's business logic and its data layer.
 type ICertificateService interface {
-	GetExistingCertificate(
-		orgId string,
-		signedBy ISerialNumber,
-		serialNumber ISerialNumber,
-	) (ICertificate, error)
+	GetExistingCertificate(organization string, certificates []ISerialNumber) (ICertificate, error)
 	CreateCertificate(certificate ICertificate) (ICertificate, error)
 }
 
@@ -134,7 +142,7 @@ type ICertificateService interface {
 type IPrivateKeyService interface {
 
 	// GetExistingPrivateKey only returns public properties of the private key
-	GetExistingPrivateKey(serialNumber ISerialNumber) (IPrivateKey, error)
+	GetExistingPrivateKey(organization string, certificates []ISerialNumber) (IPrivateKey, error)
 	CreatePrivateKey(key IPrivateKey) (IPrivateKey, error)
 }
 
@@ -147,7 +155,9 @@ type IOrganizationController interface {
 	// the controller
 	UsesOrganizationService(service IOrganizationService) bool
 
-	GetExistingOrganization(id string) (IOrganization, error)
+	GetExistingOrganization(organization string) (IOrganization, error)
+
+	// CreateOrganization creates a new organization
 	CreateOrganization(certificate IOrganization) (IOrganization, error)
 
 	// NewRootCertificate creates a new root CA certificate
@@ -202,10 +212,8 @@ type ICertificateController interface {
 	// the controller
 	UsesCertificateService(service ICertificateService) bool
 
-	GetExistingCertificate(
-		orgId string,
-		signedBy ISerialNumber,
-		serialNumber ISerialNumber) (ICertificate, error)
+	GetExistingCertificate(organization string, certificates []ISerialNumber) (ICertificate, error)
+
 	CreateCertificate(certificate ICertificate) (ICertificate, error)
 }
 
@@ -219,6 +227,7 @@ type IPrivateKeyController interface {
 	UsesPrivateKeyService(service IPrivateKeyService) bool
 
 	// GetExistingPrivateKey only returns public properties of the private key
-	GetExistingPrivateKey(serialNumber ISerialNumber) (IPrivateKey, error)
+	GetExistingPrivateKey(organization string, certificates []ISerialNumber) (IPrivateKey, error)
+
 	CreatePrivateKey(key IPrivateKey) (IPrivateKey, error)
 }

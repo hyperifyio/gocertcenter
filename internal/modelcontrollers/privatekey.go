@@ -21,8 +21,8 @@ func (r *PrivateKeyController) UsesPrivateKeyService(service models.IPrivateKeyS
 	return r.repository == service
 }
 
-func (r *PrivateKeyController) GetExistingPrivateKey(serialNumber models.ISerialNumber) (models.IPrivateKey, error) {
-	return r.repository.GetExistingPrivateKey(serialNumber)
+func (r *PrivateKeyController) GetExistingPrivateKey(organization string, certificates []models.ISerialNumber) (models.IPrivateKey, error) {
+	return r.repository.GetExistingPrivateKey(organization, certificates)
 }
 
 func (r *PrivateKeyController) CreatePrivateKey(key models.IPrivateKey) (models.IPrivateKey, error) {
