@@ -5,16 +5,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/hyperifyio/gocertcenter/internal/api"
-	"github.com/hyperifyio/gocertcenter/internal/mainutils"
-	"github.com/hyperifyio/gocertcenter/internal/modelcontrollers"
-	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryrepository"
-	"github.com/hyperifyio/gocertcenter/internal/serverlayer"
 	"log"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryrepository"
+
+	"github.com/hyperifyio/gocertcenter/internal/common/mainutils"
 )
 
 var (
@@ -34,20 +33,20 @@ func main() {
 
 	repository := memoryrepository.NewCollection()
 
-	repositoryControllerCollection := modelcontrollers.NewCollection(
-		modelcontrollers.NewOrganizationController(repository.Organization),
-		modelcontrollers.NewCertificateController(repository.Certificate),
-		modelcontrollers.NewPrivateKeyController(repository.PrivateKey),
+	repositoryControllerCollection := appcontrollers.NewCollection(
+		appcontrollers.NewOrganizationController(repository.Organization),
+		appcontrollers.NewCertificateController(repository.Certificate),
+		appcontrollers.NewPrivateKeyController(repository.PrivateKey),
 	)
 
-	server, err := serverlayer.NewServer(listenAddr, *repositoryControllerCollection, nil)
+	server, err := apiserver.NewServer(listenAddr, *repositoryControllerCollection, nil)
 	if err != nil {
 		log.Fatalf("[main]: Failed to create the server: %v", err)
 	}
 
-	server.SetInfo(api.GetInfo())
+	server.SetInfo(appendpoints.GetInfo())
 
-	if err := server.SetupRoutes(api.GetRoutes()); err != nil {
+	if err := server.SetupRoutes(appendpoints.GetRoutes()); err != nil {
 		log.Fatalf("[main]: Failed to setup routes: %v", err)
 	}
 

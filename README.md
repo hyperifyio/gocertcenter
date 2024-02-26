@@ -73,6 +73,68 @@ projects, whether for on-premise use or as a part of our SaaS offering at
 
 Available from http://localhost:8080/documentation/json
 
+## Development
+
+### Internal Go modules
+
+#### `./internal/app/` - Internal modules for application business
+
+| Module            | Description                                                                 | Depends on                               |
+|-------------------|-----------------------------------------------------------------------------|------------------------------------------|
+| `appendpoints`    | Application end-point implementations (the main package)                    | `appmodels`, `appdtos`, `appcontrollers` |
+| `appcontrollers`  | Controllers for application logic                                           | `appmodels`, `appdtos`, `apputils`       |
+| `apprepositories` | Repository implementations for storing application state (the main package) | `appmodels`, `appdtos`, `apputils`       |
+| `apputils`        | Lower level utilities for application logic                                 | `appmodels`, `appdtos`                   |
+| `appmodels`       | Models for application state                                                | -                                        |
+| `appdtos`         | DTOs for transferring application state                                     | -                                        |
+| `appmocks`        | Mocks for testing application components                                    |                                          |
+
+#### `./internal/app/apprepositories/` - Internal modules for storing application state
+
+| Module               | Description                                                                 |
+|----------------------|-----------------------------------------------------------------------------|
+| `memoryrepository`   | Memory based volatile repository for storing application data               |
+| `filerepository`     | File based persistent repository for storing application data               |
+
+#### `./internal/app/appendpoints/` - Internal modules for REST API end-points
+
+| Module            | Description                                              |
+|-------------------|----------------------------------------------------------|
+| `appendpoints`    | Application end-point implementations (the main package) |
+| `indexendpoint`   | Index end-point implementation                           |
+
+#### `./internal/common/` - Internal modules for other common 3rd party dependencies
+
+| Module         | Description                                                        |
+|----------------|--------------------------------------------------------------------|
+| `hashutils`    | Hashing utils                                                      |
+| `mainutils`    | Main utils, eg. environment handling                               |
+| `commonmocks`  | Mocks for testing                                                  |
+| `managers`     | Managers to decouple 3rd party dependencies from application logic |
+
+#### `./internal/common/api/` -- Internal modules for the REST API framework
+
+| Module         | Description                           |
+|----------------|---------------------------------------|
+| `apidtos`      | Common REST API DTOs (like ErrorDTO)  |
+| `apierrors`    | Common REST API error handlers        |
+| `apimocks`     | Common REST API Mocks                 |
+| `apirequests`  | Common REST API request models        |
+| `apiresponses` | Common REST API response models       |
+| `apiserver`    | Common REST API server implementation |
+| `apitypes`     | Common REST API interfaces and types  |
+
+### Application Design
+
+#### Controllers
+
+| Module                             | Description                    | Child controllers                                 | Parent relations                                    |
+|------------------------------------|--------------------------------|---------------------------------------------------|-----------------------------------------------------|
+| `ApplicationController`            | Controls application model     | `[]OrganizationController`                        |                                                     |
+| `OrganizationController`           | Controls an organization model | `[]CertificateController`                         | `ApplicationController`                             |
+| `CertificateController`            | Controls a certificate model   | `[]CertificateController`, `PrivateKeyController` | `OrganizationController` or `CertificateController` |
+| `PrivateKeyController`             | Controls a private key model   |                                                   | `CertificateController`                             |
+
 ## License
 
 CMM is available under the Functional Source License, Version 1.1, MIT Future 
