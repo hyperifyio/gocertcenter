@@ -8,9 +8,6 @@ type Organization struct {
 	names []string
 }
 
-// Compile time assertion for implementing the interface
-var _ IOrganization = (*Organization)(nil)
-
 // GetID returns unique identifier for this organization
 func (o *Organization) GetID() string {
 	return o.id
@@ -43,3 +40,6 @@ func NewOrganization(
 		names: names,
 	}
 }
+
+// Compile time assertion for implementing the interface
+var _ IOrganization = (*Organization)(nil)

@@ -7,8 +7,14 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
+	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
+	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
@@ -190,4 +196,84 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 	if len(publicKey) != ed25519.PublicKeySize {
 		t.Fatalf("Expected Ed25519 public key size of %d, got %d", ed25519.PublicKeySize, len(publicKey))
 	}
+}
+
+func TestMarshalPrivateKeyAsPEM_RSA(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	assert.NoError(t, err)
+
+	expectedPEMBytes := []byte("rsa private key pem")
+	mockManager.On("MarshalPKCS1PrivateKey", privateKey).Return(expectedPEMBytes)
+
+	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
+	assert.NoError(t, err)
+	assert.Contains(t, string(pemBytes), "RSA PRIVATE KEY")
+}
+
+func TestMarshalPrivateKeyAsPEM_Ed25519(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	assert.NoError(t, err)
+
+	expectedPEMBytes := []byte("ed25519 private key pem")
+	mockManager.On("MarshalPKCS8PrivateKey", privateKey).Return(expectedPEMBytes, nil)
+
+	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
+	assert.NoError(t, err)
+	assert.NotNil(t, pemBytes)
+
+	// Further validate the output is in proper PEM format. This checks if the output
+	// starts with the expected PEM header for a PRIVATE KEY.
+	expectedPEMHeader := "-----BEGIN PRIVATE KEY-----"
+	if !strings.HasPrefix(string(pemBytes), expectedPEMHeader) {
+		t.Errorf("PEM does not start with expected header %q", expectedPEMHeader)
+	}
+
+}
+
+func TestMarshalPrivateKeyAsPEM_UnsupportedKeyType(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	unsupportedKeyType := "unsupported key" // Use a simple string to represent an unsupported key type
+
+	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, unsupportedKeyType)
+	assert.Error(t, err)
+	assert.Nil(t, pemBytes)
+}
+
+func TestMarshalPrivateKeyAsPEM_ECDSA(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	assert.NoError(t, err)
+
+	expectedPEMBytes := []byte("ecdsa private key pem")
+	mockManager.On("MarshalECPrivateKey", privateKey).Return(expectedPEMBytes, nil)
+
+	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
+	assert.NoError(t, err)
+	assert.NotNil(t, pemBytes)
+
+	// Further validate the output is in proper PEM format. This checks if the output
+	// starts with the expected PEM header for a PRIVATE KEY.
+	expectedPEMHeader := "-----BEGIN EC PRIVATE KEY-----"
+	if !strings.HasPrefix(string(pemBytes), expectedPEMHeader) {
+		t.Errorf("PEM does not start with expected header %q\nreceived: %q", expectedPEMHeader, string(pemBytes))
+	}
+}
+
+// Additional tests for error scenarios, e.g., when the underlying manager methods return errors
+func TestMarshalPrivateKeyAsPEM_ECDSAError(t *testing.T) {
+
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	assert.NoError(t, err)
+	assert.NotNil(t, privateKey)
+
+	mockManager := new(commonmocks.MockCertificateManager)
+	mockManager.On("MarshalECPrivateKey", privateKey).Return(nil, fmt.Errorf("mock error"))
+
+	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, &privateKey)
+
+	assert.Error(t, err)
+	assert.Nil(t, pemBytes)
+
 }

@@ -24,9 +24,6 @@ type PrivateKey struct {
 	data any
 }
 
-// Compile time assertion for implementing the interface
-var _ IPrivateKey = (*PrivateKey)(nil)
-
 func (k *PrivateKey) GetSerialNumber() ISerialNumber {
 	if len(k.certificates) <= 0 {
 		return nil
@@ -77,6 +74,10 @@ func (k *PrivateKey) GetPublicKey() any {
 }
 
 // NewPrivateKey creates a private key model from existing data
+//   - organization is the organization
+//   - certificates is the parent certificate serial numbers owning this key
+//   - keyType is the private key type
+//   - data is the private key data
 func NewPrivateKey(
 	organization string,
 	certificates []ISerialNumber,
@@ -90,3 +91,6 @@ func NewPrivateKey(
 		organization: organization,
 	}
 }
+
+// Compile time assertion for implementing the interface
+var _ IPrivateKey = (*PrivateKey)(nil)

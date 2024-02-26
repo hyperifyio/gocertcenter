@@ -103,30 +103,39 @@ func MarshalPrivateKeyAsPEM(
 	switch typedKey := data.(type) {
 
 	case *rsa.PrivateKey:
-		pemBlock = &pem.Block{Type: "RSA PRIVATE KEY", Bytes: manager.MarshalPKCS1PrivateKey(typedKey)}
+		rsaBytes := manager.MarshalPKCS1PrivateKey(typedKey)
+		if rsaBytes == nil {
+			return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: rsa: failed to marshal RSA private key: got nil")
+		}
+		pemBlock = &pem.Block{Type: "RSA PRIVATE KEY", Bytes: rsaBytes}
 
 	case *ecdsa.PrivateKey:
 		ecBytes, err := manager.MarshalECPrivateKey(typedKey)
 		if err != nil {
-			return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: failed to marshal ECDSA private key: %w", err)
+			return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: ecdsa: failed to marshal ECDSA private key: %w", err)
+		}
+		if ecBytes == nil {
+			return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: ecdsa: failed to marshal ECDSA private key: got nil")
 		}
 		pemBlock = &pem.Block{Type: "EC PRIVATE KEY", Bytes: ecBytes}
 
 	case ed25519.PrivateKey:
 		edBytes, err := manager.MarshalPKCS8PrivateKey(typedKey)
 		if err != nil {
-			return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: failed to marshal Ed25519 private key to PKCS#8: %w", err)
+			return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: ed25519: failed to marshal Ed25519 private key to PKCS#8: %w", err)
 		}
-		pemBlock = &pem.Block{
-			Type:  "PRIVATE KEY",
-			Bytes: edBytes,
+		if edBytes == nil {
+			return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: ed25519: failed to marshal ECDSA private key: got nil")
 		}
+		pemBlock = &pem.Block{Type: "PRIVATE KEY", Bytes: edBytes}
 
 	default:
 		return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: unsupported private key type")
 	}
 
 	pemData := pem.EncodeToMemory(pemBlock)
-
+	if pemData == nil {
+		return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: could not encode to PEM")
+	}
 	return pemData, nil
 }

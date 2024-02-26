@@ -20,9 +20,6 @@ type Certificate struct {
 	certificate *x509.Certificate
 }
 
-// Compile time assertion for implementing the interface
-var _ ICertificate = (*Certificate)(nil)
-
 // NewCertificate creates a certificate model from existing data
 func NewCertificate(
 	organization string,
@@ -83,9 +80,12 @@ func (c *Certificate) GetOrganizationID() string {
 
 func (c *Certificate) GetParents() []ISerialNumber {
 	originalSlice := c.parents
-	sliceCopy := make([]ISerialNumber, len(originalSlice))
-	copy(sliceCopy, originalSlice)
-	return sliceCopy
+	if originalSlice == nil {
+		return make([]ISerialNumber, 0)
+	}
+	newSlice := make([]ISerialNumber, len(originalSlice))
+	copy(newSlice, originalSlice)
+	return newSlice
 }
 
 func (c *Certificate) GetCommonName() string {
@@ -110,11 +110,13 @@ func (c *Certificate) GetOrganization() []string {
 func (c *Certificate) GetSignedBy() ISerialNumber {
 	if len(c.parents) >= 1 {
 		return c.parents[len(c.parents)-1]
-	} else {
-		return c.GetSerialNumber()
 	}
+	return c.GetSerialNumber()
 }
 
 func (c *Certificate) GetCertificate() *x509.Certificate {
 	return c.certificate
 }
+
+// Compile time assertion for implementing the interface
+var _ ICertificate = (*Certificate)(nil)

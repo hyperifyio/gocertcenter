@@ -3,7 +3,9 @@
 package appmodels_test
 
 import (
+	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
 	"math/big"
@@ -120,5 +122,114 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 	// Verify the public key corresponds to the private key
 	if !ed25519.Verify(ed25519PubKey, []byte("test message"), ed25519.Sign(ed25519PrivKey, []byte("test message"))) {
 		t.Errorf("Public key does not verify signature made with private key")
+	}
+}
+
+func TestPrivateKey_Methods(t *testing.T) {
+	organization := "testOrg"
+	serialNumbers := []appmodels.ISerialNumber{
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		appmodels.NewSerialNumber(big.NewInt(2)),
+		appmodels.NewSerialNumber(big.NewInt(3)),
+	}
+	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("Failed to generate RSA private key: %v", err)
+	}
+	privateKey := appmodels.NewPrivateKey(organization, serialNumbers, appmodels.RSA_2048, rsaPrivKey)
+
+	// Test GetParents
+	expectedParents := serialNumbers[:len(serialNumbers)-1]
+	parents := privateKey.GetParents()
+	if len(parents) != len(expectedParents) {
+		t.Errorf("Expected %d parent serial numbers, got %d", len(expectedParents), len(parents))
+	}
+	for i, sn := range parents {
+		if sn.String() != expectedParents[i].String() {
+			t.Errorf("Expected serial number %s, got %s at index %d", expectedParents[i].String(), sn.String(), i)
+		}
+	}
+
+	// Test GetCertificates
+	expectedCertificates := serialNumbers
+	certificates := privateKey.GetCertificates()
+	if len(certificates) != len(expectedCertificates) {
+		t.Errorf("Expected %d certificates, got %d", len(expectedCertificates), len(certificates))
+	}
+	for i, sn := range certificates {
+		if sn.String() != expectedCertificates[i].String() {
+			t.Errorf("Expected serial number %s, got %s at index %d", expectedCertificates[i].String(), sn.String(), i)
+		}
+	}
+
+	// Test GetOrganizationID
+	if gotOrgID := privateKey.GetOrganizationID(); gotOrgID != organization {
+		t.Errorf("Expected organization ID %s, got %s", organization, gotOrgID)
+	}
+
+	// Test GetPrivateKey
+	if gotPrivKey := privateKey.GetPrivateKey(); gotPrivKey != rsaPrivKey {
+		t.Errorf("Expected private key %v, got %v", rsaPrivKey, gotPrivKey)
+	}
+}
+
+func TestPrivateKey_GetParents_WithSingleSerialNumber(t *testing.T) {
+	organization := "rootOrg"
+	// Simulate root certificate with only one serial number
+	serialNumbers := []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}
+	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("Failed to generate RSA private key: %v", err)
+	}
+	privateKey := appmodels.NewPrivateKey(organization, serialNumbers, appmodels.RSA_2048, rsaPrivKey)
+
+	// Test GetParents when certificates slice has only one serial number
+	parents := privateKey.GetParents()
+	if len(parents) != 0 {
+		t.Errorf("Expected 0 parent serial numbers for a root certificate, got %d", len(parents))
+	}
+}
+
+func TestPrivateKey_GetSerialNumber_WithZeroCertificates(t *testing.T) {
+	organization := "testOrg"
+	// Create a PrivateKey instance with no certificates
+	privateKey := appmodels.NewPrivateKey(organization, []appmodels.ISerialNumber{}, appmodels.RSA_2048, "mockData")
+
+	// Test GetSerialNumber when certificates slice is empty
+	serialNumber := privateKey.GetSerialNumber()
+	if serialNumber != nil {
+		t.Errorf("Expected nil serial number for PrivateKey with zero certificates, got %v", serialNumber)
+	}
+}
+
+func TestPrivateKey_GetPublicKey_ECDSA(t *testing.T) {
+	organization := "testOrg"
+
+	// Generate an ECDSA private key
+	ecdsaPrivKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("Failed to generate ECDSA private key: %v", err)
+	}
+
+	// Create a PrivateKey instance with the ECDSA private key
+	privateKey := appmodels.NewPrivateKey(
+		organization,
+		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
+		appmodels.ECDSA_P256, // Assuming you have a KeyType for ECDSA_P256
+		ecdsaPrivKey,
+	)
+
+	// Get the public key from the PrivateKey instance
+	publicKey := privateKey.GetPublicKey()
+
+	// Type assert the returned public key to *ecdsa.PublicKey
+	ecdsaPubKey, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		t.Fatalf("Expected public key type *ecdsa.PublicKey, got %T", publicKey)
+	}
+
+	// Verify the public key corresponds to the private key
+	if ecdsaPubKey.X.Cmp(ecdsaPrivKey.X) != 0 || ecdsaPubKey.Y.Cmp(ecdsaPrivKey.Y) != 0 {
+		t.Errorf("Public key does not match private key")
 	}
 }

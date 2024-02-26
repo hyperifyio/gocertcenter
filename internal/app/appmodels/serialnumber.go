@@ -10,8 +10,6 @@ type SerialNumber struct {
 	value *big.Int
 }
 
-var _ ISerialNumber = (*SerialNumber)(nil)
-
 func (s *SerialNumber) String() string {
 	return s.value.String()
 }
@@ -31,3 +29,5 @@ func (s *SerialNumber) Sign() int {
 func NewSerialNumber(value *big.Int) ISerialNumber {
 	return &SerialNumber{value: value}
 }
+
+var _ ISerialNumber = (*SerialNumber)(nil)

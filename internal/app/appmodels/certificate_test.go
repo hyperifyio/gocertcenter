@@ -482,3 +482,87 @@ func TestCertificate_GetCommonName(t *testing.T) {
 		})
 	}
 }
+
+func TestCertificate_GetParents(t *testing.T) {
+	// Setup
+	parentSerialNumbers := []appmodels.ISerialNumber{
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		appmodels.NewSerialNumber(big.NewInt(2)),
+	}
+	cert := appmodels.NewCertificate("Org123", parentSerialNumbers, newMockX509Certificate(false, []string{"Test Org"}, big.NewInt(123)))
+
+	// Act
+	returnedParents := cert.GetParents()
+
+	// Assert that returnedParents is a correct copy of parentSerialNumbers
+	if len(returnedParents) != len(parentSerialNumbers) {
+		t.Fatalf("GetParents returned %d parents; want %d", len(returnedParents), len(parentSerialNumbers))
+	}
+
+	for i, serialNumber := range returnedParents {
+		if serialNumber.String() != parentSerialNumbers[i].String() {
+			t.Errorf("Parent serial number at index %d = %v, want %v", i, serialNumber.String(), parentSerialNumbers[i].String())
+		}
+	}
+
+	// Modify returned slice to test if original slice is unaffected
+	if len(returnedParents) > 0 {
+		returnedParents[0] = appmodels.NewSerialNumber(big.NewInt(999)) // Change first element
+		if cert.GetParents()[0].String() == "999" {
+			t.Error("Modifying the returned slice from GetParents should not affect the original parents slice")
+		}
+	}
+}
+
+func TestCertificate_GetParents_Incomplete(t *testing.T) {
+
+	// Setup
+	cert := &appmodels.Certificate{}
+
+	// Act
+	returnedParents := cert.GetParents()
+
+	// Assert that returnedParents is a correct copy of parentSerialNumbers
+	if len(returnedParents) != 0 {
+		t.Fatalf("GetParents returned %d parents; want 0", len(returnedParents))
+	}
+
+}
+
+func TestCertificate_GetSignedBy_WithParents(t *testing.T) {
+
+	// Setup a certificate with parents
+	parentSerialNumbers := []appmodels.ISerialNumber{
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		appmodels.NewSerialNumber(big.NewInt(2)), // This should be returned by GetSignedBy
+	}
+	cert := appmodels.NewCertificate("Org123", parentSerialNumbers, newMockX509Certificate(false, []string{"Test Org"}, big.NewInt(3)))
+
+	// Act and assert
+	signedBy := cert.GetSignedBy()
+	if signedBy.String() != "2" {
+		t.Errorf("GetSignedBy() returned %v; want %v", signedBy.String(), "2")
+	}
+}
+
+func TestCertificate_GetSignedBy_WithoutParents(t *testing.T) {
+
+	// Setup a certificate without parents
+	ownSerialNumber := big.NewInt(3)
+
+	cert := appmodels.NewCertificate(
+		"Org123",
+		[]appmodels.ISerialNumber{},
+		newMockX509Certificate(
+			false,
+			[]string{"Test Org"},
+			ownSerialNumber,
+		),
+	)
+
+	// Act and assert
+	signedBy := cert.GetSignedBy()
+	if signedBy.String() != ownSerialNumber.String() {
+		t.Errorf("GetSignedBy() returned %v; want %v", signedBy.String(), ownSerialNumber.String())
+	}
+}

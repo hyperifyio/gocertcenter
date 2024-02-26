@@ -10,9 +10,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hyperifyio/gocertcenter/internal/common/managers"
+
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
-	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
 // CreateSignedCertificate creates a new certificate signed by a root or
@@ -159,7 +160,7 @@ func NewIntermediateCertificate(
 		return nil, fmt.Errorf("NewIntermediateCertificate: failed: %w", err)
 	}
 
-	return appmodels.NewCertificate(organization.GetID(), parentCertificate.GetParents(), cert), nil
+	return appmodels.NewCertificate(organization.GetID(), append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()), cert), nil
 
 }
 
