@@ -16,7 +16,15 @@ type HttpServerManager struct {
 	server *http.Server
 }
 
-var _ IServerManager = (*HttpServerManager)(nil)
+func (s *HttpServerManager) Serve(l net.Listener) error {
+	return s.server.Serve(l)
+}
+
+func (s *HttpServerManager) Shutdown() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	return s.server.Shutdown(ctx)
+}
 
 func NewHttpServerManager(
 	address string,
@@ -28,12 +36,4 @@ func NewHttpServerManager(
 	}}
 }
 
-func (s *HttpServerManager) Serve(l net.Listener) error {
-	return s.server.Serve(l)
-}
-
-func (s *HttpServerManager) Shutdown() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	return s.server.Shutdown(ctx)
-}
+var _ IServerManager = (*HttpServerManager)(nil)

@@ -17,8 +17,6 @@ type CertificateManager struct {
 	randomManager IRandomManager
 }
 
-var _ ICertificateManager = (*CertificateManager)(nil)
-
 func (m CertificateManager) GetRandomManager() IRandomManager {
 	return m.randomManager
 }
@@ -49,3 +47,5 @@ func NewCertificateManager(randomManager IRandomManager) CertificateManager {
 	}
 	return CertificateManager{randomManager}
 }
+
+var _ ICertificateManager = (*CertificateManager)(nil)

@@ -18,8 +18,6 @@ type SwaggerManager struct {
 	swaggerRouter *swagger.Router[gorilla.HandlerFunc, gorilla.Route]
 }
 
-var _ ISwaggerManager = (*SwaggerManager)(nil)
-
 func (r *SwaggerManager) GenerateAndExposeOpenapi() error {
 	return r.swaggerRouter.GenerateAndExposeOpenapi()
 }
@@ -64,3 +62,5 @@ func NewSwaggerManager(
 	}
 	return manager, nil
 }
+
+var _ ISwaggerManager = (*SwaggerManager)(nil)

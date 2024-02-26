@@ -31,6 +31,10 @@ func CreateSignedCertificate(
 	signingPrivateKey any,
 ) (*x509.Certificate, error) {
 
+	if manager == nil {
+		return nil, fmt.Errorf("CreateSignedCertificate: manager: must be defined")
+	}
+
 	bytes, err := manager.CreateCertificate(
 		rand.Reader,
 		template,
@@ -114,10 +118,6 @@ func NewIntermediateCertificate(
 		return nil, fmt.Errorf("NewIntermediateCertificate: organization: must be defined")
 	}
 
-	if expiration == 0 {
-		return nil, fmt.Errorf("NewIntermediateCertificate: expiration: must not be 0")
-	}
-
 	if parentCertificate == nil {
 		return nil, fmt.Errorf("NewIntermediateCertificate: parentCertificate: must be defined")
 	}
@@ -198,10 +198,6 @@ func NewServerCertificate(
 		return nil, fmt.Errorf("NewServerCertificate: organization: must be defined")
 	}
 
-	if expiration == 0 {
-		return nil, fmt.Errorf("NewServerCertificate: expiration: must not be 0")
-	}
-
 	if parentCertificate == nil {
 		return nil, fmt.Errorf("NewServerCertificate: parentCertificate: must be defined")
 	}
@@ -280,10 +276,6 @@ func NewClientCertificate(
 		return nil, fmt.Errorf("NewClientCertificate: organization: must be defined")
 	}
 
-	if expiration == 0 {
-		return nil, fmt.Errorf("NewClientCertificate: expiration: must not be 0")
-	}
-
 	if parentCertificate == nil {
 		return nil, fmt.Errorf("NewClientCertificate: parentCertificate: must be defined")
 	}
@@ -352,10 +344,6 @@ func NewRootCertificate(
 
 	if organization == nil {
 		return nil, fmt.Errorf("NewRootCertificate: organization: must be defined")
-	}
-
-	if expiration == 0 {
-		return nil, fmt.Errorf("NewRootCertificate: expiration: must not be 0")
 	}
 
 	if privateKey == nil {

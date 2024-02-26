@@ -11,12 +11,13 @@ import (
 type RandomManager struct {
 }
 
-var _ IRandomManager = (*RandomManager)(nil)
+// CreateBigInt wraps up a call to rand.Int with rand.Reader
+func (r *RandomManager) CreateBigInt(max *big.Int) (*big.Int, error) {
+	return rand.Int(rand.Reader, max)
+}
 
 func NewRandomManager() *RandomManager {
 	return &RandomManager{}
 }
 
-func (r *RandomManager) CreateBigInt(max *big.Int) (*big.Int, error) {
-	return rand.Int(rand.Reader, max)
-}
+var _ IRandomManager = (*RandomManager)(nil)

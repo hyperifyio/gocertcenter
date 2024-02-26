@@ -8,7 +8,9 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"math/big"
+	"strings"
 	"testing"
 	"time"
 
@@ -152,7 +154,7 @@ func TestCreateSignedCertificate(t *testing.T) {
 	mockManager := new(commonmocks.MockCertificateManager)
 	template := &x509.Certificate{}
 	signingCert := &x509.Certificate{}
-	publicKey, privateKey := "publicKey", "privateKey" // Simplified for example
+	publicKey, privateKey := "publicKey", "privateKey"
 
 	// Setup mock expectations
 	certBytes := []byte("mockCertBytes")
@@ -168,6 +170,18 @@ func TestCreateSignedCertificate(t *testing.T) {
 	if cert.SerialNumber.Cmp(big.NewInt(1234)) != 0 {
 		t.Errorf("Expected serial number 1234, got %v", cert.SerialNumber)
 	}
+}
+
+func TestCreateSignedCertificate_NilManager(t *testing.T) {
+	_, err := apputils.CreateSignedCertificate(
+		nil, // manager is nil
+		&x509.Certificate{},
+		&x509.Certificate{},
+		"publicKey",
+		"privateKey",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "manager: must be defined")
 }
 
 func TestNewIntermediateCertificate(t *testing.T) {
@@ -377,4 +391,566 @@ func TestNewRootCertificate_Success(t *testing.T) {
 	assert.NotNil(t, cert)
 	assert.Equal(t, expectedCert, cert.GetCertificate(), "The generated certificate should match the expected certificate")
 	mockManager.AssertExpectations(t)
+}
+
+func TestCreateSignedCertificate_CreateCertificateFails(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+
+	expectedError := fmt.Errorf("create certificate error")
+
+	// Ensure you return nil for the byte slice when simulating a failure
+	mockManager.On("CreateCertificate", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, expectedError)
+
+	template := &x509.Certificate{}
+
+	_, err := apputils.CreateSignedCertificate(
+		mockManager,
+		template,
+		template, // signingCertificate
+		nil,
+		nil,
+	)
+
+	// The focus is on error handling, so check that an error was returned and matches the expected error
+	if err == nil {
+		t.Fatal("Expected an error, but got nil")
+	}
+	if !strings.Contains(err.Error(), expectedError.Error()) {
+		t.Errorf("Expected error to contain %q, got %q", expectedError.Error(), err.Error())
+	}
+
+	// Verify that the mock expectations were met
+	mockManager.AssertExpectations(t)
+}
+
+func TestCreateSignedCertificate_ParseCertificateFails(t *testing.T) {
+	// Create a mock certificate manager
+	mockManager := new(commonmocks.MockCertificateManager)
+
+	// Setup the mock to return success for CreateCertificate but fail for ParseCertificate
+	certBytes := []byte("dummy certificate bytes")
+	parseError := fmt.Errorf("parse certificate error")
+	mockManager.On("CreateCertificate", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(certBytes, nil)
+	mockManager.On("ParseCertificate", certBytes).Return(nil, parseError)
+
+	// Call CreateSignedCertificate with dummy arguments
+	_, err := apputils.CreateSignedCertificate(
+		mockManager,
+		&x509.Certificate{}, // template
+		&x509.Certificate{}, // signingCertificate
+		nil,                 // signingPublicKey
+		nil,                 // signingPrivateKey
+	)
+
+	// Verify that the error is what we expect
+	if err == nil {
+		t.Fatalf("Expected an error, but got nil")
+	}
+
+	// Check if the error message matches the expected error
+	if !strings.Contains(err.Error(), parseError.Error()) {
+		t.Errorf("Expected error message to contain %q, got %q", parseError.Error(), err.Error())
+	}
+}
+
+func TestNewIntermediateCertificate_NilManager(t *testing.T) {
+	_, err := apputils.NewIntermediateCertificate(
+		nil, // manager is nil
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Intermediate CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "manager: must be defined")
+}
+
+func TestNewIntermediateCertificate_NilSerialNumber(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewIntermediateCertificate(
+		mockManager,
+		nil, // serialNumber is nil
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Intermediate CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "serialNumber: must be defined")
+}
+
+func TestNewIntermediateCertificate_NilOrganization(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewIntermediateCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		nil, // organization is nil
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Intermediate CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "organization: must be defined")
+}
+
+func TestNewIntermediateCertificate_NilParentCertificate(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewIntermediateCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		nil, // parentCertificate is nil
+		&appmocks.MockPrivateKey{},
+		"Intermediate CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "parentCertificate: must be defined")
+}
+
+func TestNewIntermediateCertificate_NilParentPrivateKey(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewIntermediateCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		nil, // parentPrivateKey is nil
+		"Intermediate CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "parentPrivateKey: must be defined")
+}
+
+func TestNewIntermediateCertificate_EmptyCommonName(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewIntermediateCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"", // commonName is empty
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "commonName: must be defined")
+}
+
+func TestNewIntermediateCertificate_FailingCreateCertificate(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+
+	parentSerialNumber := big.NewInt(10)
+	organization := &appmocks.MockOrganization{}
+	parentCertificate := &appmocks.MockCertificate{}
+	parentPrivateKey := &appmocks.MockPrivateKey{}
+	commonName := "Intermediate CA"
+
+	organizationId := "TestOrg"
+
+	organization.On("GetID").Return(organizationId)
+	organization.On("GetName").Return("Test Org")
+	organization.On("GetNames").Return([]string{"Test Org"})
+
+	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
+	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
+	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
+	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+
+	// Set expectations on the mock manager
+	mockManager.On("CreateCertificate", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("creation error"))
+
+	_, err := apputils.NewIntermediateCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		organization,
+		365*24*time.Hour,
+		parentCertificate,
+		parentPrivateKey,
+		commonName,
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "creation error")
+}
+
+func TestNewServerCertificate_NilManager(t *testing.T) {
+	_, err := apputils.NewServerCertificate(
+		nil, // manager is nil
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Server Certificate",
+		"www.example.com",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "manager: must be defined")
+}
+
+func TestNewServerCertificate_NilSerialNumber(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewServerCertificate(
+		mockManager,
+		nil, // serialNumber is nil
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Server Certificate",
+		"www.example.com",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "serialNumber: must be defined")
+}
+
+func TestNewServerCertificate_NilOrganization(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewServerCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		nil, // organization is nil
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Server Certificate",
+		"www.example.com",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "organization: must be defined")
+}
+
+func TestNewServerCertificate_NilParentCertificate(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewServerCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		nil, // parentCertificate is nil
+		&appmocks.MockPrivateKey{},
+		"Server Certificate",
+		"www.example.com",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "parentCertificate: must be defined")
+}
+
+func TestNewServerCertificate_NilParentPrivateKey(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewServerCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		nil, // parentPrivateKey is nil
+		"Server Certificate",
+		"www.example.com",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "parentPrivateKey: must be defined")
+}
+
+func TestNewServerCertificate_EmptyCommonName(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewServerCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"", // commonName is empty
+		"www.example.com",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "commonName: must be defined")
+}
+
+func TestNewServerCertificate_NilDnsNames(t *testing.T) {
+	var dnsNames []string = nil
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewServerCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Server Certificate",
+		dnsNames..., // dnsNames is nil
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "dnsNames: must be defined")
+}
+
+func TestNewServerCertificate_FailingCreateCertificate(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+
+	parentSerialNumber := big.NewInt(10)
+	organization := &appmocks.MockOrganization{}
+	parentCertificate := &appmocks.MockCertificate{}
+	parentPrivateKey := &appmocks.MockPrivateKey{}
+	commonName := "Server CA"
+
+	organizationId := "TestOrg"
+
+	organization.On("GetID").Return(organizationId)
+	organization.On("GetName").Return("Test Org")
+	organization.On("GetNames").Return([]string{"Test Org"})
+
+	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
+	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
+	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
+	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+
+	// Set expectations on the mock manager
+	mockManager.On("CreateCertificate", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("creation error"))
+
+	_, err := apputils.NewServerCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		organization,
+		365*24*time.Hour,
+		parentCertificate,
+		parentPrivateKey,
+		commonName,
+		commonName,
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "creation error")
+}
+
+func TestNewClientCertificate_FailingCreateCertificate(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+
+	parentSerialNumber := big.NewInt(10)
+	organization := &appmocks.MockOrganization{}
+	parentCertificate := &appmocks.MockCertificate{}
+	parentPrivateKey := &appmocks.MockPrivateKey{}
+	commonName := "Client CA"
+
+	organizationId := "TestOrg"
+
+	organization.On("GetID").Return(organizationId)
+	organization.On("GetName").Return("Test Org")
+	organization.On("GetNames").Return([]string{"Test Org"})
+
+	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
+	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
+	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
+	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+
+	// Set expectations on the mock manager
+	mockManager.On("CreateCertificate", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("creation error"))
+
+	_, err := apputils.NewClientCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		organization,
+		365*24*time.Hour,
+		parentCertificate,
+		parentPrivateKey,
+		commonName,
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "creation error")
+}
+
+func TestNewRootCertificate_FailingCreateCertificate(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+
+	organization := &appmocks.MockOrganization{}
+	parentPrivateKey := &appmocks.MockPrivateKey{}
+	commonName := "Root CA"
+
+	organizationId := "TestOrg"
+
+	organization.On("GetID").Return(organizationId)
+	organization.On("GetName").Return("Test Org")
+	organization.On("GetNames").Return([]string{"Test Org"})
+
+	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
+	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+
+	// Set expectations on the mock manager
+	mockManager.On("CreateCertificate", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("creation error"))
+
+	_, err := apputils.NewRootCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		organization,
+		365*24*time.Hour,
+		parentPrivateKey,
+		commonName,
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "creation error")
+}
+
+func TestNewClientCertificate_NilManager(t *testing.T) {
+	_, err := apputils.NewClientCertificate(
+		nil, // manager is nil
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Client CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "manager: must be defined")
+}
+
+func TestNewClientCertificate_NilSerialNumber(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewClientCertificate(
+		mockManager,
+		nil, // serialNumber is nil
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Client CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "serialNumber: must be defined")
+}
+
+func TestNewClientCertificate_NilOrganization(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewClientCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		nil, // organization is nil
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"Client CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "organization: must be defined")
+}
+
+func TestNewClientCertificate_NilParentCertificate(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewClientCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		nil, // parentCertificate is nil
+		&appmocks.MockPrivateKey{},
+		"Client CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "parentCertificate: must be defined")
+}
+
+func TestNewClientCertificate_NilParentPrivateKey(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewClientCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		nil, // parentPrivateKey is nil
+		"Client CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "parentPrivateKey: must be defined")
+}
+
+func TestNewClientCertificate_EmptyCommonName(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewClientCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockCertificate{},
+		&appmocks.MockPrivateKey{},
+		"", // commonName is empty
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "commonName: must be defined")
+}
+
+func TestNewRootCertificate_NilManager(t *testing.T) {
+	_, err := apputils.NewRootCertificate(
+		nil, // manager is nil
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockPrivateKey{},
+		"Root CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "manager: must be defined")
+}
+
+func TestNewRootCertificate_NilSerialNumber(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewRootCertificate(
+		mockManager,
+		nil, // serialNumber is nil
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockPrivateKey{},
+		"Root CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "serialNumber: must be defined")
+}
+
+func TestNewRootCertificate_NilOrganization(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewRootCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		nil, // organization is nil
+		365*24*time.Hour,
+		&appmocks.MockPrivateKey{},
+		"Root CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "organization: must be defined")
+}
+
+func TestNewRootCertificate_NilParentPrivateKey(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewRootCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		nil, // parentPrivateKey is nil
+		"Root CA",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "privateKey: must be defined")
+}
+
+func TestNewRootCertificate_EmptyCommonName(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	_, err := apputils.NewRootCertificate(
+		mockManager,
+		appmodels.NewSerialNumber(big.NewInt(1)),
+		&appmocks.MockOrganization{},
+		365*24*time.Hour,
+		&appmocks.MockPrivateKey{},
+		"", // commonName is empty
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "commonName: must be defined")
 }
