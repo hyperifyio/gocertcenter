@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/pem"
+	"errors"
 	"fmt"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
@@ -133,9 +134,145 @@ func MarshalPrivateKeyAsPEM(
 		return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: unsupported private key type")
 	}
 
-	pemData := pem.EncodeToMemory(pemBlock)
+	pemData := manager.EncodePEMToMemory(pemBlock)
 	if pemData == nil {
 		return nil, fmt.Errorf("MarshalPrivateKeyAsPEM: could not encode to PEM")
 	}
 	return pemData, nil
+}
+
+func DetermineRSATypeFromSize(keySize int) (appmodels.KeyType, error) {
+	switch keySize {
+	case 1024:
+		return appmodels.RSA_1024, nil
+	case 2048:
+		return appmodels.RSA_2048, nil
+	case 3072:
+		return appmodels.RSA_3072, nil
+	case 4096:
+		return appmodels.RSA_4096, nil
+	default:
+		return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineRSATypeFromSize: RSA key size not supported: %d", keySize)
+	}
+}
+
+func DetermineECDSACurve(curve elliptic.Curve) (appmodels.KeyType, error) {
+	switch curve {
+	case elliptic.P224():
+		return appmodels.ECDSA_P224, nil
+	case elliptic.P256():
+		return appmodels.ECDSA_P256, nil
+	case elliptic.P384():
+		return appmodels.ECDSA_P384, nil
+	case elliptic.P521():
+		return appmodels.ECDSA_P521, nil
+	default:
+		return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineECDSACurve: unsupported EC curve")
+	}
+}
+
+func DetermineRSATypeFromKey(privateKey any) (appmodels.KeyType, error) {
+	switch key := privateKey.(type) {
+	case *rsa.PrivateKey:
+		keySize := ReadRSAKeySize(key)
+		keyType, err := DetermineRSATypeFromSize(keySize)
+		if err != nil {
+			return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineRSATypeFromKey: failed: %w", err)
+		}
+		return keyType, nil
+	default:
+		return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineRSATypeFromKey: not an RSA key")
+	}
+}
+
+func DetermineKeyType(privateKey any) (appmodels.KeyType, error) {
+	switch key := privateKey.(type) {
+
+	case *rsa.PrivateKey:
+		keyType, err := DetermineRSATypeFromKey(key)
+		if err != nil {
+			return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineKeyType: could not detect RSA key type: %w", err)
+		}
+		return keyType, nil
+
+	case *ecdsa.PrivateKey:
+		keyType, err := DetermineECDSACurve(key.Curve)
+		if err != nil {
+			return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineKeyType: could not detect ecdsa key type: %w", err)
+		}
+		return keyType, nil
+
+	case ed25519.PrivateKey:
+		return appmodels.Ed25519, nil
+
+	default:
+		return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineKeyType: unknown or unsupported key type")
+	}
+
+}
+
+func ReadRSAKeySize(key *rsa.PrivateKey) int {
+	return key.N.BitLen()
+}
+
+func ParsePrivateKeyFromPEMBytes(
+	certManager managers.ICertificateManager,
+	data []byte,
+) (any, appmodels.KeyType, error) {
+	block, _ := certManager.DecodePEM(data)
+	if block == nil {
+		return nil, appmodels.NIL_KEY_TYPE, errors.New("ParsePrivateKeyFromPEMBytes: failed to decode PEM block containing the private key")
+	}
+	return ParsePrivateKeyFromPEMBlock(certManager, block)
+}
+
+func ParsePrivateKeyFromPEMBlock(
+	certManager managers.ICertificateManager,
+	block *pem.Block,
+) (any, appmodels.KeyType, error) {
+	if block.Type == "PRIVATE KEY" {
+		return parsePKCS8PrivateKey(certManager, block.Bytes)
+	} else if block.Type == "RSA PRIVATE KEY" {
+		return parseRSAPrivateKey(certManager, block.Bytes)
+	} else if block.Type == "EC PRIVATE KEY" {
+		return parseECPrivateKey(certManager, block.Bytes)
+	}
+	return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("ParsePrivateKeyFromPEMBlock: unsupported block type: %s", block.Type)
+}
+
+func parsePKCS8PrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
+	privateKey, err := certManager.ParsePKCS8PrivateKey(bytes)
+	if err != nil {
+		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("failed to parse private key: %w", err)
+	}
+	keyType, err := DetermineKeyType(privateKey)
+	if err != nil {
+		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("could not detect key type: %w", err)
+	}
+	return privateKey, keyType, nil
+}
+
+func parseRSAPrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
+	privateKey, err := certManager.ParsePKCS1PrivateKey(bytes)
+	if err != nil {
+		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("parseRSAPrivateKey: failed to parse RSA private key: %w", err)
+	}
+	keyType, err := DetermineRSATypeFromKey(privateKey)
+	if err != nil {
+		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("parseRSAPrivateKey: failed to parse RSA type: %w", err)
+	}
+	return privateKey, keyType, nil
+}
+
+func parseECPrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
+	privateKey, err := certManager.ParseECPrivateKey(bytes)
+	if err != nil {
+		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("failed to parse EC private key: %w", err)
+	}
+	// Determine the curve
+	keyType, err := DetermineECDSACurve(privateKey.Curve)
+	if err != nil {
+		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("could not detect key type: %w", err)
+	}
+	return privateKey, keyType, nil
 }

@@ -4,12 +4,17 @@ package filerepository
 
 import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
+	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-func NewCollection(filePath string) *appmodels.Collection {
+func NewCollection(
+	certManager managers.ICertificateManager,
+	fileManager managers.IFileManager,
+	filePath string,
+) *appmodels.Collection {
 	return appmodels.NewCollection(
-		NewOrganizationRepository(filePath),
-		NewCertificateRepository(filePath),
-		NewPrivateKeyRepository(filePath),
+		NewOrganizationRepository(certManager, fileManager, filePath),
+		NewCertificateRepository(certManager, fileManager, filePath),
+		NewPrivateKeyRepository(certManager, fileManager, filePath),
 	)
 }

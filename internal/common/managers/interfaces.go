@@ -6,10 +6,12 @@ import (
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/pem"
 	"io"
 	"math/big"
 	"net"
 	"net/http"
+	"os"
 
 	swagger "github.com/davidebianchi/gswagger"
 	"github.com/gorilla/mux"
@@ -43,6 +45,15 @@ type ICertificateManager interface {
 	// Returns *x509.Certificate or an error
 	ParseCertificate(der []byte) (*x509.Certificate, error)
 
+	// ParsePKCS8PrivateKey wraps up a call to x509.ParsePKCS8PrivateKey
+	ParsePKCS8PrivateKey(der []byte) (any, error)
+
+	// ParsePKCS1PrivateKey wraps up a call to x509.ParsePKCS1PrivateKey
+	ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error)
+
+	// ParseECPrivateKey wraps up a call to x509.ParseECPrivateKey
+	ParseECPrivateKey(der []byte) (*ecdsa.PrivateKey, error)
+	
 	// MarshalPKCS1PrivateKey wraps up a call to x509.MarshalPKCS1PrivateKey
 	//  - key *rsa.PrivateKey: RSA private key
 	// Returns PKCS #1, ASN.1 DER form []byte, e.g. "RSA PRIVATE KEY" PEM block or an error
@@ -57,6 +68,15 @@ type ICertificateManager interface {
 	//  - key *rsa.PrivateKey, *ecdsa.PrivateKey, ed25519.PrivateKey (not a pointer), or *ecdh.PrivateKey
 	// Returns PKCS #8, ASN.1 DER form []byte e.g. "PRIVATE KEY" PEM block or an error
 	MarshalPKCS8PrivateKey(key any) ([]byte, error)
+
+	// EncodePEMToMemory wraps a call to pem.EncodeToMemory
+	//  - b *pem.Block:
+	// Returns []byte or nil
+	EncodePEMToMemory(b *pem.Block) []byte
+
+	// DecodePEM wraps a call to pem.Decode
+	//  - data []byte:
+	DecodePEM(data []byte) (p *pem.Block, rest []byte)
 }
 
 type IServerManager interface {
@@ -68,4 +88,27 @@ type ISwaggerManager interface {
 	GenerateAndExposeOpenapi() error
 
 	AddRoute(method string, path string, handler http.HandlerFunc, schema swagger.Definitions) (*mux.Route, error)
+}
+
+// IFileManager implements a file system manager
+type IFileManager interface {
+
+	// ReadBytes reads bytes from a file
+	//   - fileName string: The file where to read
+	//
+	// Returns the bytes read or nil
+	ReadBytes(fileName string) ([]byte, error)
+
+	// SaveBytes saves bytes to a file, including creating any parent directories.
+	//   - fileName string: The file where to save
+	//   - data []byte: The data to save
+	//   - filePerms os.FileMode: Permissions for file
+	//   - dirPerms os.FileMode: Permissions for directories
+	//
+	// Returns nil or error
+	SaveBytes(
+		fileName string,
+		data []byte,
+		filePerms, dirPerms os.FileMode,
+	) error
 }

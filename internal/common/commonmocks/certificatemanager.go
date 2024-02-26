@@ -6,6 +6,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/pem"
 	"io"
 
 	"github.com/stretchr/testify/mock"
@@ -79,8 +80,54 @@ func (m *MockCertificateManager) MarshalPKCS8PrivateKey(key any) ([]byte, error)
 	return args.Get(0).([]byte), args.Error(1)
 }
 
-func NewMockCertificateManager() MockCertificateManager {
-	return MockCertificateManager{}
+func (m *MockCertificateManager) EncodePEMToMemory(b *pem.Block) []byte {
+	args := m.Called(b)
+	if args.Get(0) == nil {
+		return nil
+	}
+	return args.Get(0).([]byte)
+}
+
+func (m *MockCertificateManager) DecodePEM(data []byte) (p *pem.Block, rest []byte) {
+	args := m.Called(data)
+	if args.Get(0) == nil && args.Get(1) == nil {
+		return nil, nil
+	}
+	if args.Get(0) == nil {
+		return nil, args.Get(1).([]byte)
+	}
+	if args.Get(1) == nil {
+		return args.Get(0).(*pem.Block), nil
+	}
+	return args.Get(0).(*pem.Block), args.Get(1).([]byte)
+}
+
+func (m *MockCertificateManager) ParsePKCS8PrivateKey(der []byte) (any, error) {
+	args := m.Called(der)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(any), args.Error(1)
+}
+
+func (m *MockCertificateManager) ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
+	args := m.Called(der)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*rsa.PrivateKey), args.Error(1)
+}
+
+func (m *MockCertificateManager) ParseECPrivateKey(der []byte) (*ecdsa.PrivateKey, error) {
+	args := m.Called(der)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*ecdsa.PrivateKey), args.Error(1)
+}
+
+func NewMockCertificateManager() *MockCertificateManager {
+	return &MockCertificateManager{}
 }
 
 var _ managers.ICertificateManager = (*MockCertificateManager)(nil)

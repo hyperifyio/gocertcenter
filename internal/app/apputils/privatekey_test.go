@@ -9,10 +9,11 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
-	"strings"
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
@@ -200,36 +201,49 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 
 func TestMarshalPrivateKeyAsPEM_RSA(t *testing.T) {
 	mockManager := new(commonmocks.MockCertificateManager)
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
-	assert.NoError(t, err)
-
+	privateKey := &rsa.PrivateKey{}
 	expectedPEMBytes := []byte("rsa private key pem")
-	mockManager.On("MarshalPKCS1PrivateKey", privateKey).Return(expectedPEMBytes)
+	expectedResult := []byte("RSA PRIVATE KEY")
 
-	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
+	mockManager.On("MarshalPKCS1PrivateKey", privateKey).Return(expectedPEMBytes)
+	mockManager.On("EncodePEMToMemory", mock.AnythingOfType("*pem.Block")).Return(expectedResult)
+
+	result, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
 	assert.NoError(t, err)
-	assert.Contains(t, string(pemBytes), "RSA PRIVATE KEY")
+	assert.Equal(t, result, expectedResult)
+}
+
+func TestMarshalPrivateKeyAsPEM_ECDSA(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	privateKey := &ecdsa.PrivateKey{}
+
+	expectedResult := []byte("-----BEGIN EC PRIVATE KEY-----")
+
+	expectedPEMBytes := []byte("ecdsa private key pem")
+
+	mockManager.On("MarshalECPrivateKey", privateKey).Return(expectedPEMBytes, nil)
+	mockManager.On("EncodePEMToMemory", mock.AnythingOfType("*pem.Block")).Return(expectedResult)
+
+	result, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, result, expectedResult)
 }
 
 func TestMarshalPrivateKeyAsPEM_Ed25519(t *testing.T) {
 	mockManager := new(commonmocks.MockCertificateManager)
-	_, privateKey, err := ed25519.GenerateKey(rand.Reader)
-	assert.NoError(t, err)
+	privateKey := ed25519.PrivateKey{}
+	expectedResult := []byte("-----BEGIN PRIVATE KEY-----")
 
 	expectedPEMBytes := []byte("ed25519 private key pem")
+
 	mockManager.On("MarshalPKCS8PrivateKey", privateKey).Return(expectedPEMBytes, nil)
+	mockManager.On("EncodePEMToMemory", mock.AnythingOfType("*pem.Block")).Return(expectedResult)
 
-	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
+	result, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
 	assert.NoError(t, err)
-	assert.NotNil(t, pemBytes)
-
-	// Further validate the output is in proper PEM format. This checks if the output
-	// starts with the expected PEM header for a PRIVATE KEY.
-	expectedPEMHeader := "-----BEGIN PRIVATE KEY-----"
-	if !strings.HasPrefix(string(pemBytes), expectedPEMHeader) {
-		t.Errorf("PEM does not start with expected header %q", expectedPEMHeader)
-	}
-
+	assert.NotNil(t, result)
+	assert.Equal(t, result, expectedResult)
 }
 
 func TestMarshalPrivateKeyAsPEM_UnsupportedKeyType(t *testing.T) {
@@ -239,26 +253,6 @@ func TestMarshalPrivateKeyAsPEM_UnsupportedKeyType(t *testing.T) {
 	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, unsupportedKeyType)
 	assert.Error(t, err)
 	assert.Nil(t, pemBytes)
-}
-
-func TestMarshalPrivateKeyAsPEM_ECDSA(t *testing.T) {
-	mockManager := new(commonmocks.MockCertificateManager)
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	assert.NoError(t, err)
-
-	expectedPEMBytes := []byte("ecdsa private key pem")
-	mockManager.On("MarshalECPrivateKey", privateKey).Return(expectedPEMBytes, nil)
-
-	pemBytes, err := apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
-	assert.NoError(t, err)
-	assert.NotNil(t, pemBytes)
-
-	// Further validate the output is in proper PEM format. This checks if the output
-	// starts with the expected PEM header for a PRIVATE KEY.
-	expectedPEMHeader := "-----BEGIN EC PRIVATE KEY-----"
-	if !strings.HasPrefix(string(pemBytes), expectedPEMHeader) {
-		t.Errorf("PEM does not start with expected header %q\nreceived: %q", expectedPEMHeader, string(pemBytes))
-	}
 }
 
 // Additional tests for error scenarios, e.g., when the underlying manager methods return errors
@@ -276,4 +270,95 @@ func TestMarshalPrivateKeyAsPEM_ECDSAError(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, pemBytes)
 
+}
+func TestGeneratePrivateKey_EmptyOrganization(t *testing.T) {
+	_, err := apputils.GeneratePrivateKey(
+		"", // Empty organization
+		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
+		appmodels.RSA_2048,
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "organization: must not be empty")
+}
+
+func TestGeneratePrivateKey_NoCertificates(t *testing.T) {
+	_, err := apputils.GeneratePrivateKey(
+		"TestOrg",
+		nil, // No certificates
+		appmodels.RSA_2048,
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "certificates: must have at least one serial number")
+}
+
+func TestMarshalPrivateKeyAsPEM_RSAKeyNil(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	key := (*rsa.PrivateKey)(nil)
+	mockManager.On("MarshalPKCS1PrivateKey", key).Return(nil)
+	_, err := apputils.MarshalPrivateKeyAsPEM(mockManager, key)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to marshal RSA private key: got nil")
+}
+
+func TestMarshalPrivateKeyAsPEM_ECDSAKeyMarshalError(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	mockManager.On("MarshalECPrivateKey", mock.Anything).Return(nil, fmt.Errorf("marshal error"))
+	_, err := apputils.MarshalPrivateKeyAsPEM(mockManager, &ecdsa.PrivateKey{})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to marshal ECDSA private key")
+}
+
+func TestMarshalPrivateKeyAsPEM_ECDSAKeyMarshalError_ReturnsBytesNil(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	mockManager.On("MarshalECPrivateKey", mock.Anything).Return(nil, nil)
+	_, err := apputils.MarshalPrivateKeyAsPEM(mockManager, &ecdsa.PrivateKey{})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to marshal ECDSA private key: got nil")
+}
+
+func TestMarshalPrivateKeyAsPEM_Ed25519KeyMarshalError(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	mockManager.On("MarshalPKCS8PrivateKey", mock.Anything).Return(nil, fmt.Errorf("marshal error"))
+	_, err := apputils.MarshalPrivateKeyAsPEM(mockManager, ed25519.PrivateKey{})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to marshal Ed25519 private key to PKCS#8")
+}
+
+func TestMarshalPrivateKeyAsPEM_Ed25519KeyMarshalError_ReturnsBytesNil(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	mockManager.On("MarshalPKCS8PrivateKey", mock.Anything).Return(nil, nil)
+	_, err := apputils.MarshalPrivateKeyAsPEM(mockManager, ed25519.PrivateKey{})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "MarshalPrivateKeyAsPEM: ed25519: failed to marshal ECDSA private key: got nil")
+}
+
+func TestMarshalPrivateKeyAsPEM_Ed25519KeyMarshalError_ReturnsInvalidPEM(t *testing.T) {
+	mockManager := new(commonmocks.MockCertificateManager)
+	mockManager.On("MarshalPKCS8PrivateKey", mock.Anything).Return(nil, nil)
+	_, err := apputils.MarshalPrivateKeyAsPEM(mockManager, ed25519.PrivateKey{})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "MarshalPrivateKeyAsPEM: ed25519: failed to marshal ECDSA private key: got nil")
+}
+
+func TestMarshalPrivateKeyAsPEM_EncodePEMToMemoryFails(t *testing.T) {
+	// Create a mock certificate manager
+	mockManager := new(commonmocks.MockCertificateManager)
+
+	// Generate an Ed25519 private key for testing
+	_, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	assert.NoError(t, err, "Failed to generate Ed25519 private key")
+
+	// Configure the mock to simulate EncodePEMToMemory returning nil
+	mockManager.On("MarshalPKCS8PrivateKey", privateKey).Return([]byte("dummy data"), nil) // Assume successful key marshaling
+	mockManager.On("EncodePEMToMemory", mock.Anything).Return(nil)                         // Simulate failure in PEM encoding
+
+	// Call MarshalPrivateKeyAsPEM with the mock manager and the private key
+	_, err = apputils.MarshalPrivateKeyAsPEM(mockManager, privateKey)
+
+	// Assert that an error was returned
+	assert.Error(t, err, "Expected an error due to failure in encoding PEM")
+	assert.Contains(t, err.Error(), "could not encode to PEM", "Error message should indicate failure to encode PEM")
+
+	// Verify that the mock expectations were met
+	mockManager.AssertExpectations(t)
 }

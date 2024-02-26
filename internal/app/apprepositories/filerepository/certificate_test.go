@@ -18,16 +18,23 @@ import (
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
+	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
+	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/filerepository"
 )
 
 func TestCertificateRepository_GetExistingCertificate(t *testing.T) {
+
+	randomManager := managers.NewRandomManager()
+	certManager := managers.NewCertificateManager(randomManager)
+	fileManager := managers.NewFileManager()
+
 	tempDir, cleanup := setupTempDir(t)
 	defer cleanup()
 
 	filePath := tempDir
-	repo := filerepository.NewCertificateRepository(filePath)
+	repo := filerepository.NewCertificateRepository(certManager, fileManager, filePath)
 
 	organization := "TestOrg"
 	serialNumbers := []appmodels.ISerialNumber{
@@ -53,7 +60,7 @@ func TestCertificateRepository_GetExistingCertificate(t *testing.T) {
 	assert.NoError(t, err)
 
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certBytes})
-	err = filerepository.SaveFile(certPath, certPEM)
+	err = fileManager.SaveBytes(certPath, certPEM, 0600, 0700)
 	assert.NoError(t, err)
 
 	// Test
@@ -68,7 +75,13 @@ func TestCertificateRepository_GetExistingCertificate_EmptySerialNumbers(t *test
 	tempDir, cleanup := setupTempDir(t)
 	defer cleanup()
 
-	repo := filerepository.NewCertificateRepository(tempDir)
+	randomManager := commonmocks.NewMockRandomManager()
+	fileManager := commonmocks.NewMockFileManager()
+	certManager := commonmocks.NewMockCertificateManager()
+
+	certManager.On("GetRandomManager").Return(randomManager)
+
+	repo := filerepository.NewCertificateRepository(certManager, fileManager, tempDir)
 
 	// Attempt to get an existing certificate with an empty serialNumbers slice
 	organization := "TestOrg"
@@ -86,7 +99,11 @@ func TestCertificateRepository_GetExistingCertificate_ReadFail(t *testing.T) {
 	tempDir, cleanup := setupTempDir(t)
 	defer cleanup()
 
-	repo := filerepository.NewCertificateRepository(tempDir)
+	randomManager := managers.NewRandomManager()
+	certManager := managers.NewCertificateManager(randomManager)
+	fileManager := managers.NewFileManager()
+
+	repo := filerepository.NewCertificateRepository(certManager, fileManager, tempDir)
 
 	// Setup a scenario where the certificate file will not exist
 	organization := "NonExistentOrg"
@@ -104,10 +121,15 @@ func TestCertificateRepository_GetExistingCertificate_ReadFail(t *testing.T) {
 }
 
 func TestCertificateRepository_CreateCertificate(t *testing.T) {
+
+	randomManager := managers.NewRandomManager()
+	certManager := managers.NewCertificateManager(randomManager)
+	fileManager := managers.NewFileManager()
+
 	tempDir, cleanup := setupTempDir(t)
 	defer cleanup()
 
-	repo := filerepository.NewCertificateRepository(tempDir)
+	repo := filerepository.NewCertificateRepository(certManager, fileManager, tempDir)
 
 	// Generate a new RSA private key.
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -146,6 +168,11 @@ func TestCertificateRepository_CreateCertificate(t *testing.T) {
 }
 
 func TestCertificateRepository_CreateCertificate_SaveFail(t *testing.T) {
+
+	randomManager := managers.NewRandomManager()
+	certManager := managers.NewCertificateManager(randomManager)
+	fileManager := managers.NewFileManager()
+
 	tempDir, cleanup := setupTempDir(t)
 	defer cleanup()
 
@@ -160,7 +187,7 @@ func TestCertificateRepository_CreateCertificate_SaveFail(t *testing.T) {
 		_ = os.Chmod(tempDir, 0700)
 	}()
 
-	repo := filerepository.NewCertificateRepository(tempDir)
+	repo := filerepository.NewCertificateRepository(certManager, fileManager, tempDir)
 
 	// Use a mock or a simple certificate for testing
 	mockCertificate := appmocks.MockCertificate{}

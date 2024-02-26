@@ -6,6 +6,8 @@ import (
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/pem"
+	"fmt"
 	"io"
 )
 
@@ -25,8 +27,12 @@ func (m CertificateManager) CreateCertificate(rand io.Reader, template, parent *
 	return x509.CreateCertificate(rand, template, parent, publicKey, privateKey)
 }
 
-func (m CertificateManager) ParseCertificate(certBytes []byte) (*x509.Certificate, error) {
-	return x509.ParseCertificate(certBytes)
+func (m CertificateManager) ParseCertificate(der []byte) (*x509.Certificate, error) {
+	return x509.ParseCertificate(der)
+}
+
+func (m CertificateManager) ParseECPrivateKey(der []byte) (*ecdsa.PrivateKey, error) {
+	return x509.ParseECPrivateKey(der)
 }
 
 func (m CertificateManager) MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte {
@@ -39,6 +45,30 @@ func (m CertificateManager) MarshalECPrivateKey(key *ecdsa.PrivateKey) ([]byte, 
 
 func (m CertificateManager) MarshalPKCS8PrivateKey(key any) ([]byte, error) {
 	return x509.MarshalPKCS8PrivateKey(key)
+}
+
+func (m CertificateManager) EncodePEMToMemory(b *pem.Block) []byte {
+	return pem.EncodeToMemory(b)
+}
+
+func (m CertificateManager) DecodePEM(data []byte) (p *pem.Block, rest []byte) {
+	return pem.Decode(data)
+}
+
+func (m CertificateManager) ParsePKCS8PrivateKey(der []byte) (any, error) {
+	privateKey, err := x509.ParsePKCS8PrivateKey(der)
+	if err != nil {
+		return nil, fmt.Errorf("ParsePKCS8PrivateKey: failed: %w", err)
+	}
+	return privateKey, nil
+}
+
+func (m CertificateManager) ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
+	privateKey, err := x509.ParsePKCS1PrivateKey(der)
+	if err != nil {
+		return nil, fmt.Errorf("ParsePKCS1PrivateKey: failed: %w", err)
+	}
+	return privateKey, nil
 }
 
 func NewCertificateManager(randomManager IRandomManager) CertificateManager {

@@ -11,16 +11,14 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/hyperifyio/gocertcenter/internal/repositories/memoryrepository"
-
+	"github.com/hyperifyio/gocertcenter/internal/app/appendpoints"
+	"github.com/hyperifyio/gocertcenter/internal/common/api/apiserver"
 	"github.com/hyperifyio/gocertcenter/internal/common/mainutils"
 )
 
 var (
 	listenPort = flag.String("port", mainutils.GetEnvOrDefault("PORT", "8080"), "port on which the server listens")
-	certFile   = flag.String("cert", mainutils.GetEnvOrDefault("CERT_FILE", "cert.pem"), "server certificate as PEM file")
-	keyFile    = flag.String("key", mainutils.GetEnvOrDefault("KEY_FILE", "key.pem"), "server private key as PEM file")
-	caFile     = flag.String("ca", mainutils.GetEnvOrDefault("CA_FILE", "ca.pem"), "server CA as PEM file")
+	dataDir    = flag.String("data-dir", mainutils.GetEnvOrDefault("DATA_DIR", "./tmp/data"), "application data directory")
 )
 
 func main() {
@@ -31,15 +29,19 @@ func main() {
 
 	listenAddr := fmt.Sprintf(":%s", *listenPort)
 
-	repository := memoryrepository.NewCollection()
+	// fileManager := managers.NewFileManager()
+	// randomManager := managers.NewRandomManager()
+	// certManager := managers.NewCertificateManager(randomManager)
+	// repository := filerepository.NewCollection(certManager, fileManager, dataDir)
+	// expiration := 24 * time.Hour
+	//
+	// repositoryControllerCollection := appcontrollers.NewCollection(
+	// 	appcontrollers.NewOrganizationController(repository.Organization),
+	// 	appcontrollers.NewCertificateController(repository.Certificate, certManager, randomManager, expiration),
+	// 	appcontrollers.NewPrivateKeyController(repository.PrivateKey),
+	// )
 
-	repositoryControllerCollection := appcontrollers.NewCollection(
-		appcontrollers.NewOrganizationController(repository.Organization),
-		appcontrollers.NewCertificateController(repository.Certificate),
-		appcontrollers.NewPrivateKeyController(repository.PrivateKey),
-	)
-
-	server, err := apiserver.NewServer(listenAddr, *repositoryControllerCollection, nil)
+	server, err := apiserver.NewServer(listenAddr, nil)
 	if err != nil {
 		log.Fatalf("[main]: Failed to create the server: %v", err)
 	}

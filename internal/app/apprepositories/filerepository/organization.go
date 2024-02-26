@@ -7,23 +7,19 @@ import (
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
+	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
 // OrganizationRepository implements models.IOrganizationService for a file system
 type OrganizationRepository struct {
-	filePath string
-}
-
-// NewOrganizationRepository creates a file based repository
-func NewOrganizationRepository(filePath string) *OrganizationRepository {
-	return &OrganizationRepository{
-		filePath: filePath,
-	}
+	filePath    string
+	certManager managers.ICertificateManager
+	fileManager managers.IFileManager
 }
 
 func (r *OrganizationRepository) GetExistingOrganization(id string) (appmodels.IOrganization, error) {
 	fileName := GetOrganizationJsonPath(r.filePath, id)
-	dto, err := ReadOrganizationJsonFile(fileName)
+	dto, err := ReadOrganizationJsonFile(r.fileManager, fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read saved organization '%s': %w", id, err)
 	}
@@ -37,11 +33,24 @@ func (r *OrganizationRepository) GetExistingOrganization(id string) (appmodels.I
 func (r *OrganizationRepository) CreateOrganization(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
 	id := organization.GetID()
 	fileName := GetOrganizationJsonPath(r.filePath, id)
-	err := SaveOrganizationJsonFile(fileName, apputils.GetOrganizationDTO(organization))
+	err := SaveOrganizationJsonFile(r.fileManager, fileName, apputils.GetOrganizationDTO(organization))
 	if err != nil {
 		return nil, fmt.Errorf("organization creation failed: %w", err)
 	}
 	return r.GetExistingOrganization(id)
+}
+
+// NewOrganizationRepository creates a file based repository
+func NewOrganizationRepository(
+	certManager managers.ICertificateManager,
+	fileManager managers.IFileManager,
+	filePath string,
+) *OrganizationRepository {
+	return &OrganizationRepository{
+		fileManager: fileManager,
+		certManager: certManager,
+		filePath:    filePath,
+	}
 }
 
 var _ appmodels.IOrganizationService = (*OrganizationRepository)(nil)

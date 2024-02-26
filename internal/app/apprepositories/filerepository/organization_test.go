@@ -9,22 +9,29 @@ import (
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
+	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/filerepository"
 )
 
 func TestOrganizationRepository_GetExistingOrganization(t *testing.T) {
+
+	randomManager := managers.NewRandomManager()
+	fileManager := managers.NewFileManager()
+	certManager := managers.NewCertificateManager(randomManager)
+
 	// Setup
 	tempDir, cleanup := setupTempDir(t)
 	defer cleanup()
 
 	filePath := tempDir
 	orgID := "org123"
-	repo := filerepository.NewOrganizationRepository(filePath)
+	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	orgJsonPath := filerepository.GetOrganizationJsonPath(filePath, orgID)
 
 	err := filerepository.SaveOrganizationJsonFile(
+		fileManager,
 		orgJsonPath,
 		appdtos.NewOrganizationDTO(orgID, "Test Org", []string{"Test Org"}),
 	)
@@ -45,6 +52,10 @@ func TestOrganizationRepository_GetExistingOrganization(t *testing.T) {
 
 func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 
+	randomManager := managers.NewRandomManager()
+	fileManager := managers.NewFileManager()
+	certManager := managers.NewCertificateManager(randomManager)
+
 	// Setup
 	tempDir, cleanup := setupTempDir(t)
 	defer cleanup()
@@ -56,7 +67,7 @@ func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 	mockOrg.On("GetName").Return(orgName)
 	mockOrg.On("GetNames").Return([]string{orgName})
 	mockOrg.On("GetID").Return(orgID)
-	repo := filerepository.NewOrganizationRepository(filePath)
+	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	// Test
 	org, err := repo.CreateOrganization(mockOrg)
@@ -66,7 +77,7 @@ func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 
 	orgJsonPath := filerepository.GetOrganizationJsonPath(filePath, orgID)
 
-	savedOrg, err := filerepository.ReadOrganizationJsonFile(orgJsonPath)
+	savedOrg, err := filerepository.ReadOrganizationJsonFile(fileManager, orgJsonPath)
 	assert.NoError(t, err, "Should be able to retrieve the newly created organization without error")
 	assert.NotNil(t, savedOrg, "The saved organization should not be nil")
 	assert.Equal(t, orgID, savedOrg.ID, "The saved organization ID should match the original ID")
@@ -76,13 +87,18 @@ func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 }
 
 func TestOrganizationRepository_GetExistingOrganization_ReadFail(t *testing.T) {
+
+	randomManager := managers.NewRandomManager()
+	fileManager := managers.NewFileManager()
+	certManager := managers.NewCertificateManager(randomManager)
+
 	// Setup
 	tempDir, cleanup := setupTempDir(t)
 	defer cleanup()
 
 	filePath := tempDir
 	orgID := "nonexistent_org"
-	repo := filerepository.NewOrganizationRepository(filePath)
+	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	// Attempt to get an organization with an ID that does not have a corresponding JSON file
 	org, err := repo.GetExistingOrganization(orgID)
@@ -95,10 +111,14 @@ func TestOrganizationRepository_GetExistingOrganization_ReadFail(t *testing.T) {
 
 func TestOrganizationRepository_CreateOrganization_SaveFail(t *testing.T) {
 
+	randomManager := managers.NewRandomManager()
+	fileManager := managers.NewFileManager()
+	certManager := managers.NewCertificateManager(randomManager)
+
 	// Assuming we have a way to simulate save failure, e.g., by using an invalid file path
 	// This step is illustrative; you'd need to adjust based on your actual ability to induce a save failure
 	filePath := "/invalid/path/that/does/not/exist"
-	repo := filerepository.NewOrganizationRepository(filePath)
+	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	orgId := "org123"
 	orgName := "Test Org"

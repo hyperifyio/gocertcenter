@@ -7,18 +7,14 @@ import (
 	"fmt"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
+	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
 // CertificateRepository implements models.ICertificateService for a file system
 type CertificateRepository struct {
-	filePath string
-}
-
-// NewCertificateRepository creates a file based repository
-func NewCertificateRepository(filePath string) *CertificateRepository {
-	return &CertificateRepository{
-		filePath: filePath,
-	}
+	filePath    string
+	certManager managers.ICertificateManager
+	fileManager managers.IFileManager
 }
 
 func (r *CertificateRepository) GetExistingCertificate(
@@ -31,7 +27,7 @@ func (r *CertificateRepository) GetExistingCertificate(
 	}
 
 	fileName := GetCertificatePemPath(r.filePath, organization, certificates)
-	cert, err := ReadCertificateFile(fileName)
+	cert, err := ReadCertificateFile(r.fileManager, r.certManager, fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read certificate: %w", err)
 	}
@@ -49,11 +45,24 @@ func (r *CertificateRepository) CreateCertificate(certificate appmodels.ICertifi
 		organization,
 		fullPath,
 	)
-	err := SaveCertificateFile(fileName, certificate.GetCertificate())
+	err := SaveCertificateFile(r.fileManager, r.certManager, fileName, certificate.GetCertificate())
 	if err != nil {
 		return nil, fmt.Errorf("failed to save certificate: %w", err)
 	}
 	return r.GetExistingCertificate(organization, fullPath)
+}
+
+// NewCertificateRepository creates a file based repository
+func NewCertificateRepository(
+	certManager managers.ICertificateManager,
+	fileManager managers.IFileManager,
+	filePath string,
+) *CertificateRepository {
+	return &CertificateRepository{
+		fileManager: fileManager,
+		certManager: certManager,
+		filePath:    filePath,
+	}
 }
 
 var _ appmodels.ICertificateService = (*CertificateRepository)(nil)
