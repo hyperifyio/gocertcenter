@@ -56,16 +56,6 @@ func (m *MockCertificateController) GetParentCertificateController() appmodels.I
 	return args.Get(0).(appmodels.ICertificateController)
 }
 
-func (m *MockCertificateController) GetPrivateKeyModel() appmodels.IPrivateKey {
-	args := m.Called()
-	return args.Get(0).(appmodels.IPrivateKey)
-}
-
-func (m *MockCertificateController) GetPrivateKeyController() appmodels.IPrivateKeyController {
-	args := m.Called()
-	return args.Get(0).(appmodels.IPrivateKeyController)
-}
-
 func (m *MockCertificateController) NewCertificate(template *x509.Certificate) (appmodels.ICertificate, error) {
 	args := m.Called(template)
 	return args.Get(0).(appmodels.ICertificate), args.Error(1)
@@ -88,6 +78,21 @@ func (m *MockCertificateController) NewServerCertificate(dnsNames ...string) (ap
 func (m *MockCertificateController) NewClientCertificate(commonName string) (appmodels.ICertificate, error) {
 	args := m.Called(commonName)
 	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+}
+
+func (m *MockCertificateController) GetOrganizationController() appmodels.IOrganizationController {
+	args := m.Called()
+	return args.Get(0).(appmodels.IOrganizationController)
+}
+
+func (m *MockCertificateController) GetPrivateKeyModel() (appmodels.IPrivateKey, error) {
+	args := m.Called()
+	return args.Get(0).(appmodels.IPrivateKey), args.Error(1)
+}
+
+func (m *MockCertificateController) GetPrivateKeyController() (appmodels.IPrivateKeyController, error) {
+	args := m.Called()
+	return args.Get(0).(appmodels.IPrivateKeyController), args.Error(1)
 }
 
 var _ appmodels.ICertificateController = (*MockCertificateController)(nil)

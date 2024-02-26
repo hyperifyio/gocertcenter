@@ -3,9 +3,11 @@
 package appcontrollers_test
 
 import (
+	"math/big"
 	"testing"
 	"time"
 
+	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appcontrollers"
@@ -15,18 +17,28 @@ import (
 
 func TestNewCertificateController(t *testing.T) {
 
-	mockCertificateService := &appmocks.MockCertificateService{}
+	serialNumber := appmodels.NewSerialNumber(big.NewInt(1))
+
+	model := &appmocks.MockCertificate{}
+
+	mockCertificateRepository := &appmocks.MockCertificateService{}
+	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
+
 	mockCertManager := &managers.CertificateManager{}
 	mockRandomManager := &commonmocks.MockRandomManager{}
+
 	controller := appcontrollers.NewCertificateController(
-		mockCertificateService,
+		serialNumber,
+		model,
+		mockCertificateRepository,
+		mockPrivateKeyRepository,
 		mockCertManager,
 		mockRandomManager,
 		time.Second,
 	)
 
-	if !controller.UsesCertificateService(mockCertificateService) {
+	if !controller.UsesCertificateService(mockCertificateRepository) {
 		t.Fatalf("Expected the certificate controller to use the mockService, got false")
 	}
-
+	
 }

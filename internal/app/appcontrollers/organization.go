@@ -19,9 +19,21 @@ import (
 // promotes separation of concerns by decoupling the business logic from the
 // specific details of data persistence.
 type OrganizationController struct {
-	repository    appmodels.IOrganizationService
+
+	// id is the organization ID this controller controls
+	id string
+
+	// model is the latest model of the organization
+	model appmodels.IOrganization
+
+	parent appmodels.IApplicationController
+
 	certManager   managers.ICertificateManager
 	randomManager managers.IRandomManager
+
+	organizationRepository appmodels.IOrganizationService
+	certificateRepository  appmodels.ICertificateService
+	privateKeyRepository   appmodels.IPrivateKeyService
 
 	// defaultExpiration - Expiration time for new root certificates
 	defaultExpiration time.Duration
@@ -31,28 +43,39 @@ type OrganizationController struct {
 }
 
 func (r *OrganizationController) GetOrganizationID() string {
-	// TODO implement me
-	panic("implement me")
+	return r.id
 }
 
 func (r *OrganizationController) GetOrganizationModel() appmodels.IOrganization {
-	// TODO implement me
-	panic("implement me")
+	return r.model
 }
 
 func (r *OrganizationController) GetApplicationController() appmodels.IApplicationController {
-	// TODO implement me
-	panic("implement me")
+	return r.parent
 }
 
 func (r *OrganizationController) GetCertificateController(serialNumber appmodels.ISerialNumber) (appmodels.ICertificateController, error) {
-	// TODO implement me
-	panic("implement me")
+	model, err := r.GetCertificateModel(serialNumber)
+	if err != nil {
+		return nil, fmt.Errorf("OrganizationController('%s').GetCertificateController('%s'): could not find: %w", r.id, serialNumber, err)
+	}
+	return NewCertificateController(
+		serialNumber,
+		model,
+		r.certificateRepository,
+		r.privateKeyRepository,
+		r.certManager,
+		r.randomManager,
+		r.defaultExpiration,
+	), nil
 }
 
 func (r *OrganizationController) GetCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {
-	// TODO implement me
-	panic("implement me")
+	model, err := r.certificateRepository.GetExistingCertificate(r.id, []appmodels.ISerialNumber{serialNumber})
+	if err != nil {
+		return nil, fmt.Errorf("OrganizationController('%s').GetCertificateModel('%s'): failed to fetch: %w", r.id, serialNumber.String(), err)
+	}
+	return model, nil
 }
 
 func (r *OrganizationController) SetExpirationDuration(expiration time.Duration) {
@@ -90,27 +113,42 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 }
 
 func (r *OrganizationController) UsesOrganizationService(service appmodels.IOrganizationService) bool {
-	return r.repository == service
+	return r.organizationRepository == service
 }
 
-func (r *OrganizationController) GetExistingOrganization(id string) (appmodels.IOrganization, error) {
-	return r.repository.GetExistingOrganization(id)
-}
-
-func (r *OrganizationController) CreateOrganization(certificate appmodels.IOrganization) (appmodels.IOrganization, error) {
-	return r.repository.CreateOrganization(certificate)
+func (r *OrganizationController) UsesApplicationController(service appmodels.IApplicationController) bool {
+	return r.parent == service
 }
 
 // NewOrganizationController creates a new instance of OrganizationController
+// implementing appmodels.IOrganizationService interface.
 //
-//	injecting the specified models.IOrganizationService implementation. This setup
-//	facilitates the separation of business logic from data access layers,
-//	aligning with the principles of dependency injection.
+//   - organization string
+//   - model appmodels.IOrganization
+//   - organizationRepository appmodels.IOrganizationService
+//   - certificateRepository appmodels.ICertificateService
+//   - privateKeyRepository appmodels.IPrivateKeyService
+//   - certManager managers.ICertificateManager
+//   - randomManager managers.IRandomManager
+//
+// Returns *OrganizationController
 func NewOrganizationController(
-	service appmodels.IOrganizationService,
+	organization string,
+	model appmodels.IOrganization,
+	organizationRepository appmodels.IOrganizationService,
+	certificateRepository appmodels.ICertificateService,
+	privateKeyRepository appmodels.IPrivateKeyService,
+	certManager managers.ICertificateManager,
+	randomManager managers.IRandomManager,
 ) *OrganizationController {
 	return &OrganizationController{
-		repository: service,
+		id:                     organization,
+		model:                  model,
+		organizationRepository: organizationRepository,
+		certificateRepository:  certificateRepository,
+		privateKeyRepository:   privateKeyRepository,
+		certManager:            certManager,
+		randomManager:          randomManager,
 	}
 }
 

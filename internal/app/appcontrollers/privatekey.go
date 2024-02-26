@@ -14,59 +14,55 @@ import (
 // promotes separation of concerns by decoupling the business logic from the
 // specific details of data persistence.
 type PrivateKeyController struct {
-	repository appmodels.IPrivateKeyService
+	model  appmodels.IPrivateKey
+	parent appmodels.ICertificateController
+
+	privateKeyRepository appmodels.IPrivateKeyService
 }
 
 func (r *PrivateKeyController) GetApplicationController() appmodels.IApplicationController {
-	// TODO implement me
-	panic("implement me")
+	return r.parent.GetApplicationController()
 }
 
 func (r *PrivateKeyController) GetOrganizationID() string {
-	// TODO implement me
-	panic("implement me")
+	return r.parent.GetOrganizationID()
 }
 
 func (r *PrivateKeyController) GetOrganizationModel() appmodels.IOrganization {
-	// TODO implement me
-	panic("implement me")
+	return r.parent.GetOrganizationModel()
 }
 
 func (r *PrivateKeyController) GetOrganizationController() appmodels.IOrganizationController {
-	// TODO implement me
-	panic("implement me")
+	return r.parent.GetOrganizationController()
 }
 
 func (r *PrivateKeyController) GetCertificateModel() appmodels.ICertificate {
-	// TODO implement me
-	panic("implement me")
+	return r.parent.GetCertificateModel()
 }
 
 func (r *PrivateKeyController) GetCertificateController() appmodels.ICertificateController {
-	// TODO implement me
-	panic("implement me")
+	return r.parent
 }
 
 func (r *PrivateKeyController) UsesPrivateKeyService(service appmodels.IPrivateKeyService) bool {
-	return r.repository == service
-}
-
-func (r *PrivateKeyController) GetExistingPrivateKey(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
-	return r.repository.GetExistingPrivateKey(organization, certificates)
-}
-
-func (r *PrivateKeyController) CreatePrivateKey(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
-	return r.repository.CreatePrivateKey(key)
+	return r.privateKeyRepository == service
 }
 
 // NewPrivateKeyController creates a new instance of PrivateKeyController
+// injecting the specified appmodels.IPrivateKeyService implementation.
 //
-//	injecting the specified IPrivateKeyService implementation. This setup
-//	facilitates the separation of business logic from data access layers,
-//	aligning with the principles of dependency injection.
-func NewPrivateKeyController(repository appmodels.IPrivateKeyService) *PrivateKeyController {
+//   - model appmodels.IPrivateKey
+//   - parent appmodels.ICertificateController
+//   - privateKeyRepository appmodels.IPrivateKeyService
+func NewPrivateKeyController(
+	model appmodels.IPrivateKey,
+	parent appmodels.ICertificateController,
+	privateKeyRepository appmodels.IPrivateKeyService,
+) *PrivateKeyController {
 	return &PrivateKeyController{
-		repository: repository,
+		model:                model,
+		parent:               parent,
+		privateKeyRepository: privateKeyRepository,
 	}
 }
 

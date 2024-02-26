@@ -188,6 +188,9 @@ type IOrganizationController interface {
 	// NewRootCertificate creates a new root certificate for the organization
 	//  * commonName - The name of the root CA
 	NewRootCertificate(commonName string) (ICertificate, error)
+
+	UsesOrganizationService(service IOrganizationService) bool
+	UsesApplicationController(service IApplicationController) bool
 }
 
 // ICertificateController controls a certificate owned by the organization. It
@@ -207,6 +210,10 @@ type ICertificateController interface {
 	// GetOrganizationModel returns the model of the organization who owns the
 	// certificate this controller controls
 	GetOrganizationModel() IOrganization
+
+	// GetOrganizationController returns the organization controller who owns
+	// the certificate this controller controls
+	GetOrganizationController() IOrganizationController
 
 	// GetCertificateModel returns the model of the certificate this controller
 	// controls
@@ -229,11 +236,11 @@ type ICertificateController interface {
 	GetParentCertificateController() ICertificateController
 
 	// GetPrivateKeyModel returns the private key model of this certificate
-	GetPrivateKeyModel() IPrivateKey
+	GetPrivateKeyModel() (IPrivateKey, error)
 
 	// GetPrivateKeyController returns the private key controller of this
 	// certificate
-	GetPrivateKeyController() IPrivateKeyController
+	GetPrivateKeyController() (IPrivateKeyController, error)
 
 	// NewCertificate creates a new child certificate using values from a
 	// template and signs it using this certificate and private key

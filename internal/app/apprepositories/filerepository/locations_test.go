@@ -1,4 +1,4 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 package filerepository_test
 
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
-	
+
 	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/filerepository"
 )
 

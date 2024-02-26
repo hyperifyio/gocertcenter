@@ -81,4 +81,9 @@ func (m *MockOrganizationController) NewClientCertificate(o appmodels.IOrganizat
 	return args.Get(0).(appmodels.ICertificate), args.Error(1)
 }
 
+func (m *MockOrganizationController) UsesApplicationController(service appmodels.IApplicationController) bool {
+	args := m.Called(service)
+	return args.Bool(0)
+}
+
 var _ appmodels.IOrganizationController = (*MockOrganizationController)(nil)

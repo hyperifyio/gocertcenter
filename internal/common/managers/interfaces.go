@@ -1,4 +1,4 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 package managers
 
@@ -53,7 +53,7 @@ type ICertificateManager interface {
 
 	// ParseECPrivateKey wraps up a call to x509.ParseECPrivateKey
 	ParseECPrivateKey(der []byte) (*ecdsa.PrivateKey, error)
-	
+
 	// MarshalPKCS1PrivateKey wraps up a call to x509.MarshalPKCS1PrivateKey
 	//  - key *rsa.PrivateKey: RSA private key
 	// Returns PKCS #1, ASN.1 DER form []byte, e.g. "RSA PRIVATE KEY" PEM block or an error

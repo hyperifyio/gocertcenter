@@ -1,3 +1,3 @@
 // Copyright (c) 2024. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-package managers_test
+package appcontrollers

@@ -1,4 +1,4 @@
-// Copyright (c) 2024. Hangover Games <info@hangover.games>. All rights reserved.
+// Copyright (c) 2024. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
 package commonmocks
 
