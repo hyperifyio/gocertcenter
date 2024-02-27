@@ -74,18 +74,22 @@ func (r *CertificateController) GetCertificateModel() appmodels.ICertificate {
 	return r.model
 }
 
-func (r *CertificateController) GetChildCertificateCollection() ([]appmodels.ICertificate, error) {
+func (r *CertificateController) GetChildCertificateCollection(certificateType string) ([]appmodels.ICertificate, error) {
 	organization := r.GetOrganizationID()
 	path := append(r.model.GetParents(), r.serialNumber)
 	list, err := r.certificateRepository.FindAllByOrganizationAndSerialNumbers(
 		organization,
 		path,
 	)
+
+	if certificateType != "" {
+		list = apputils.FilterCertificatesByType(list, certificateType)
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("[%s@%s:GetChildCertificateCollection]: failed: %w", r.serialNumber.String(), organization, err)
 	}
 	return list, nil
-
 }
 
 func (r *CertificateController) GetChildCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {

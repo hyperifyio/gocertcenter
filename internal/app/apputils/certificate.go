@@ -111,6 +111,62 @@ func ToListOfCertificateDTO(list []appmodels.ICertificate) []appdtos.Certificate
 	return result
 }
 
+func FilterCertificatesByType(list []appmodels.ICertificate, certificateType string) []appmodels.ICertificate {
+	if certificateType == "root" {
+		return FilterRootCertificates(list)
+	}
+	if certificateType == "client" {
+		return FilterClientCertificates(list)
+	}
+	if certificateType == "server" {
+		return FilterServerCertificates(list)
+	}
+	if certificateType == "intermediate" {
+		return FilterIntermediateCertificates(list)
+	}
+	return []appmodels.ICertificate{}
+}
+
+func FilterRootCertificates(list []appmodels.ICertificate) []appmodels.ICertificate {
+	result := make([]appmodels.ICertificate, 0)
+	for _, v := range list {
+		if v.IsRootCertificate() {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+func FilterClientCertificates(list []appmodels.ICertificate) []appmodels.ICertificate {
+	result := make([]appmodels.ICertificate, 0)
+	for _, v := range list {
+		if v.IsClientCertificate() {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+func FilterServerCertificates(list []appmodels.ICertificate) []appmodels.ICertificate {
+	result := make([]appmodels.ICertificate, 0)
+	for _, v := range list {
+		if v.IsServerCertificate() {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+func FilterIntermediateCertificates(list []appmodels.ICertificate) []appmodels.ICertificate {
+	result := make([]appmodels.ICertificate, 0)
+	for _, v := range list {
+		if v.IsIntermediateCertificate() {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
 func ToCertificateListDTO(list []appmodels.ICertificate) appdtos.CertificateListDTO {
 	payload := ToListOfCertificateDTO(list)
 	return appdtos.NewCertificateListDTO(payload)

@@ -236,7 +236,7 @@ type ICertificateController interface {
 	GetCertificateModel() ICertificate
 
 	// GetChildCertificateCollection returns all child certificates
-	GetChildCertificateCollection() ([]ICertificate, error)
+	GetChildCertificateCollection(certificateType string) ([]ICertificate, error)
 
 	// GetChildCertificateModel returns a child certificate model
 	//  * serialNumber - The serial number of the child certificate

@@ -16,6 +16,7 @@ type MockRequest struct {
 	Method           string
 	URL              *url.URL
 	Vars             map[string]string
+	QueryParams      map[string]string
 	BodyContent      []byte
 	BodyContentError error
 }
@@ -42,6 +43,10 @@ func (m *MockRequest) GetMethod() string {
 
 func (m *MockRequest) GetVariable(name string) string {
 	return m.Vars[name]
+}
+
+func (m *MockRequest) GetQueryParam(name string) string {
+	return m.QueryParams[name]
 }
 
 var _ apitypes.IRequest = (*MockRequest)(nil)

@@ -93,6 +93,7 @@ type IRequest interface {
 	GetMethod() string
 	GetURL() *url.URL
 	GetVariable(name string) string
+	GetQueryParam(name string) string
 	Body() io.ReadCloser
 	GetBodyBytes() ([]byte, error)
 }

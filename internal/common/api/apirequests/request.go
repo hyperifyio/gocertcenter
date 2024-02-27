@@ -17,35 +17,40 @@ type RequestImpl struct {
 	request *http.Request
 }
 
-func (request *RequestImpl) Body() io.ReadCloser {
-	return request.request.Body
+func (r *RequestImpl) Body() io.ReadCloser {
+	return r.request.Body
 }
 
-func (request *RequestImpl) GetBodyBytes() ([]byte, error) {
-	bytes, err := io.ReadAll(request.request.Body)
+func (r *RequestImpl) GetBodyBytes() ([]byte, error) {
+	bytes, err := io.ReadAll(r.request.Body)
 	if err != nil {
 		return nil, fmt.Errorf("GetBodyBytes: failed: %w", err)
 	}
-	defer request.request.Body.Close()
+	defer r.request.Body.Close()
 	return bytes, nil
 }
 
-func (request *RequestImpl) IsMethodGet() bool {
-	return request.request.Method == http.MethodGet
+func (r *RequestImpl) IsMethodGet() bool {
+	return r.request.Method == http.MethodGet
 }
 
-func (request *RequestImpl) GetURL() *url.URL {
+func (r *RequestImpl) GetURL() *url.URL {
 	// FIXME: Add tests
-	return request.request.URL
+	return r.request.URL
 }
 
-func (request *RequestImpl) GetMethod() string {
+func (r *RequestImpl) GetMethod() string {
 	// FIXME: Add tests
-	return request.request.Method
+	return r.request.Method
 }
 
-func (request *RequestImpl) GetVariable(name string) string {
-	return mux.Vars(request.request)[name]
+func (r *RequestImpl) GetVariable(name string) string {
+	return mux.Vars(r.request)[name]
+}
+
+func (r *RequestImpl) GetQueryParam(name string) string {
+	queryParams := r.request.URL.Query()
+	return queryParams.Get(name)
 }
 
 func NewRequest(

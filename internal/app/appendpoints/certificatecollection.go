@@ -33,6 +33,9 @@ func (c *ApiController) GetCertificateCollectionDefinitions() swagger.Definition
 // GetCertificateCollection handles a request to get organization's certificates
 func (c *ApiController) GetCertificateCollection(response apitypes.IResponse, request apitypes.IRequest) error {
 
+	// certificateType is server, client, root or intermediate
+	certificateType := request.GetQueryParam("type")
+
 	// Get organization ID
 	organization := request.GetVariable("organization")
 
@@ -57,12 +60,13 @@ func (c *ApiController) GetCertificateCollection(response apitypes.IResponse, re
 	}
 
 	// Get certificate list
-	list, err := certificateController.GetChildCertificateCollection()
+	list, err := certificateController.GetChildCertificateCollection(certificateType)
 	if err != nil {
 		return fmt.Errorf("[GetCertificateCollection]: could not get a collection: %w", err)
 	}
 
 	log.Printf("[GetCertificateCollection]: Request: list = %d", len(list))
+
 	data := apputils.ToCertificateListDTO(list)
 	response.Send(http.StatusOK, data)
 
