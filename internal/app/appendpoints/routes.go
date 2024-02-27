@@ -12,9 +12,27 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 	return []apitypes.Route{
 		{
 			Method:      http.MethodGet,
-			Path:        "/",
-			Handler:     c.GetIndex,
-			Definitions: c.GetIndexDefinitions(),
+			Path:        "/organizations/{organization}/certificates/{serialNumber}",
+			Handler:     c.GetOrganizationCertificate,
+			Definitions: c.GetOrganizationCertificateDefinitions(),
+		},
+		{
+			Method:      http.MethodGet,
+			Path:        "/organizations/{organization}/certificates",
+			Handler:     c.GetOrganizationCertificateCollection,
+			Definitions: c.GetOrganizationCertificateCollectionDefinitions(),
+		},
+		{
+			Method:      http.MethodPost,
+			Path:        "/organizations/{organization}/certificates",
+			Handler:     c.CreateOrganizationRootCertificate,
+			Definitions: c.CreateOrganizationRootCertificateDefinitions(),
+		},
+		{
+			Method:      http.MethodGet,
+			Path:        "/organizations/{organization}",
+			Handler:     c.GetOrganization,
+			Definitions: c.GetOrganizationDefinitions(),
 		},
 		{
 			Method:      http.MethodGet,
@@ -30,21 +48,9 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 		},
 		{
 			Method:      http.MethodGet,
-			Path:        "/organizations/{organization}",
-			Handler:     c.GetOrganization,
-			Definitions: c.GetOrganizationDefinitions(),
-		},
-		{
-			Method:      http.MethodGet,
-			Path:        "/organizations/{organization}/certificates",
-			Handler:     c.GetOrganizationCertificateCollection,
-			Definitions: c.GetOrganizationCertificateCollectionDefinitions(),
-		},
-		{
-			Method:      http.MethodPost,
-			Path:        "/organizations/{organization}/certificates",
-			Handler:     c.CreateOrganizationRootCertificate,
-			Definitions: c.CreateOrganizationRootCertificateDefinitions(),
+			Path:        "/",
+			Handler:     c.GetIndex,
+			Definitions: c.GetIndexDefinitions(),
 		},
 	}
 }

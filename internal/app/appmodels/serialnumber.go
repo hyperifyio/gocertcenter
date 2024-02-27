@@ -3,6 +3,7 @@
 package appmodels
 
 import (
+	"fmt"
 	"math/big"
 )
 
@@ -28,6 +29,22 @@ func (s *SerialNumber) Sign() int {
 
 func NewSerialNumber(value *big.Int) ISerialNumber {
 	return &SerialNumber{value: value}
+}
+
+func ParseSerialNumber(value string, base int) (ISerialNumber, error) {
+
+	if value == "" {
+		return nil, fmt.Errorf("[ParseSerialNumber]: no value provided")
+	}
+
+	newSerialNumber := new(SerialNumber)
+	newSerialNumber.value = new(big.Int)
+	_, success := newSerialNumber.value.SetString(value, base)
+	if success {
+		return newSerialNumber, nil
+	} else {
+		return nil, fmt.Errorf("[ParseSerialNumber]: failed to parse: %s", value)
+	}
 }
 
 var _ ISerialNumber = (*SerialNumber)(nil)
