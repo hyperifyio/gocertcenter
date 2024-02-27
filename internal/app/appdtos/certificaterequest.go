@@ -6,7 +6,7 @@ package appdtos
 type CertificateRequestDTO struct {
 
 	// CertificateType is the type of the certificate to create
-	CertificateType CertificateType `json:"certificateType"`
+	CertificateType CertificateType `json:"type"`
 
 	// CommonName of the certificate. This is also added to the DnsNames for server certificates.
 	CommonName string `json:"commonName"`

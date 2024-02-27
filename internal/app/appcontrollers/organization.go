@@ -73,6 +73,8 @@ func (r *OrganizationController) GetCertificateController(serialNumber appmodels
 		return nil, fmt.Errorf("OrganizationController('%s').GetCertificateController('%s'): could not find: %w", r.id, serialNumber, err)
 	}
 	return NewCertificateController(
+		r,
+		nil,
 		serialNumber,
 		model,
 		r.certificateRepository,

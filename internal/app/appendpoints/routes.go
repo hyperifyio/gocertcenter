@@ -11,6 +11,12 @@ import (
 func (c *ApiController) GetRoutes() []apitypes.Route {
 	return []apitypes.Route{
 		{
+			Method:      http.MethodPost,
+			Path:        "/organizations/{organization}/certificates/{serialNumber}/certificates",
+			Handler:     c.CreateOrganizationCertificate,
+			Definitions: c.CreateOrganizationCertificateDefinitions(),
+		},
+		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates/{serialNumber}",
 			Handler:     c.GetOrganizationCertificate,

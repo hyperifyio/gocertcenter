@@ -48,8 +48,13 @@ func (c *ApiController) CreateOrganizationRootCertificate(response apitypes.IRes
 		return nil
 	}
 
-	if body.CertificateType != appdtos.RootCertificate {
-		response.SendError(400, "[ApiController.CreateOrganizationRootCertificate]: only RootCertificate type supported")
+	certificateType := body.CertificateType
+	if certificateType == "" {
+		certificateType = appdtos.RootCertificate
+	}
+
+	if certificateType != appdtos.RootCertificate {
+		response.SendError(400, "[ApiController.CreateOrganizationRootCertificate]: only root certificate type supported")
 		return nil
 	}
 

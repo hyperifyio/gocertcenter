@@ -21,6 +21,7 @@ func TestNewCertificateController(t *testing.T) {
 
 	model := &appmocks.MockCertificate{}
 
+	mockOrganizationController := &appmocks.MockOrganizationController{}
 	mockCertificateRepository := &appmocks.MockCertificateService{}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
 
@@ -28,6 +29,8 @@ func TestNewCertificateController(t *testing.T) {
 	mockRandomManager := &commonmocks.MockRandomManager{}
 
 	controller := appcontrollers.NewCertificateController(
+		mockOrganizationController,
+		nil,
 		serialNumber,
 		model,
 		mockCertificateRepository,
@@ -40,5 +43,5 @@ func TestNewCertificateController(t *testing.T) {
 	if !controller.UsesCertificateService(mockCertificateRepository) {
 		t.Fatalf("Expected the certificate controller to use the mockService, got false")
 	}
-	
+
 }

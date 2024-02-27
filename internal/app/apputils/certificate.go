@@ -75,6 +75,34 @@ func GetCertificateDTO(c appmodels.ICertificate) appdtos.CertificateDTO {
 	)
 }
 
+func ToCertificateCreatedDTO(
+	certManager managers.ICertificateManager,
+	c appmodels.ICertificate,
+	k appmodels.IPrivateKey,
+) (appdtos.CertificateCreatedDTO, error) {
+
+	if certManager == nil {
+		return appdtos.CertificateCreatedDTO{}, fmt.Errorf("ToCertificateCreatedDTO: cert manager not defined")
+	}
+
+	if c == nil {
+		return appdtos.CertificateCreatedDTO{}, fmt.Errorf("ToCertificateCreatedDTO: certificate not defined")
+	}
+
+	if k == nil {
+		return appdtos.CertificateCreatedDTO{}, fmt.Errorf("ToCertificateCreatedDTO: private key not defined")
+	}
+
+	dto, err := ToPrivateKeyDTO(certManager, k)
+	if err != nil {
+		return appdtos.CertificateCreatedDTO{}, fmt.Errorf("ToCertificateCreatedDTO: failed: %w", err)
+	}
+	return appdtos.NewCertificateCreatedDTO(
+		GetCertificateDTO(c),
+		dto,
+	), nil
+}
+
 func ToListOfCertificateDTO(list []appmodels.ICertificate) []appdtos.CertificateDTO {
 	result := make([]appdtos.CertificateDTO, len(list))
 	for i, v := range list {

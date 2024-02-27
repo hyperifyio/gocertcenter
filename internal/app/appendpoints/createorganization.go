@@ -50,10 +50,25 @@ func (c *ApiController) CreateOrganization(response apitypes.IResponse, request 
 	}
 
 	id := body.ID
+	name := body.Name
 	names := body.AllNames
 	var certificates []appmodels.ICertificate
 	var keys []appmodels.IPrivateKey
 
+	if id == "" && name != "" {
+		id = name
+	}
+
+	if name == "" && id != "" {
+		name = id
+	}
+
+	if len(names) == 0 {
+		names = append(names, name)
+	}
+
+	id = apputils.Slugify(id)
+	
 	model := appmodels.NewOrganization(id, names)
 
 	savedModel, err := c.appController.NewOrganization(model)

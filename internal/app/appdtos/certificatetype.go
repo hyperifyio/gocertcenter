@@ -6,10 +6,10 @@ type CertificateType string
 
 // Define enum values
 const (
-	RootCertificate         CertificateType = "RootCertificate"
-	IntermediateCertificate CertificateType = "IntermediateCertificate"
-	ServerCertificate       CertificateType = "ServerCertificate"
-	ClientCertificate       CertificateType = "ClientCertificate"
+	RootCertificate         CertificateType = "root"
+	IntermediateCertificate CertificateType = "intermediate"
+	ServerCertificate       CertificateType = "server"
+	ClientCertificate       CertificateType = "client"
 )
 
 func (f CertificateType) IsClientCertificate() bool {
