@@ -16,8 +16,6 @@ type MockRequest struct {
 	Vars   map[string]string
 }
 
-var _ apitypes.IRequest = (*MockRequest)(nil)
-
 func (m *MockRequest) IsMethodGet() bool {
 	return m.IsGet
 }
@@ -33,3 +31,5 @@ func (m *MockRequest) GetMethod() string {
 func (m *MockRequest) GetVars() map[string]string {
 	return m.Vars
 }
+
+var _ apitypes.IRequest = (*MockRequest)(nil)

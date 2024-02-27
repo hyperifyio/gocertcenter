@@ -9,7 +9,7 @@ import (
 )
 
 // NotFound handles not found errors
-func NotFound(response apitypes.IResponse, request apitypes.IRequest, server apitypes.IServer) {
+func NotFound(response apitypes.IResponse, request apitypes.IRequest) {
 	log.Printf("[NotFound] %s %s", request.GetMethod(), request.GetURL())
 	response.SendNotFoundError()
 }

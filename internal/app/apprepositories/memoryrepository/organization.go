@@ -14,8 +14,25 @@ type OrganizationRepository struct {
 	organizations map[string]appmodels.IOrganization
 }
 
-// Compile time assertion for implementing the interface
-var _ appmodels.IOrganizationService = (*OrganizationRepository)(nil)
+func (r *OrganizationRepository) FindAll() ([]appmodels.IOrganization, error) {
+	list := make([]appmodels.IOrganization, 0, len(r.organizations))
+	for _, org := range r.organizations {
+		list = append(list, org)
+	}
+	return list, nil
+}
+
+func (r *OrganizationRepository) FindById(id string) (appmodels.IOrganization, error) {
+	if organization, exists := r.organizations[id]; exists {
+		return organization, nil
+	}
+	return nil, errors.New("organization not found")
+}
+
+func (r *OrganizationRepository) Save(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
+	r.organizations[organization.GetID()] = organization
+	return organization, nil
+}
 
 // NewOrganizationRepository creates a memory based repository for organizations
 func NewOrganizationRepository() *OrganizationRepository {
@@ -24,14 +41,5 @@ func NewOrganizationRepository() *OrganizationRepository {
 	}
 }
 
-func (r *OrganizationRepository) GetExistingOrganization(id string) (appmodels.IOrganization, error) {
-	if organization, exists := r.organizations[id]; exists {
-		return organization, nil
-	}
-	return nil, errors.New("organization not found")
-}
-
-func (r *OrganizationRepository) CreateOrganization(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
-	r.organizations[organization.GetID()] = organization
-	return organization, nil
-}
+// Compile time assertion for implementing the interface
+var _ appmodels.IOrganizationService = (*OrganizationRepository)(nil)

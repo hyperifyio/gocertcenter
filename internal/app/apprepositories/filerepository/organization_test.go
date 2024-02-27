@@ -38,7 +38,7 @@ func TestOrganizationRepository_GetExistingOrganization(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test
-	org, err := repo.GetExistingOrganization(orgID)
+	org, err := repo.FindById(orgID)
 	assert.NoError(t, err)
 	assert.NotNil(t, org)
 
@@ -70,7 +70,7 @@ func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	// Test
-	org, err := repo.CreateOrganization(mockOrg)
+	org, err := repo.Save(mockOrg)
 	assert.NoError(t, err)
 	assert.NotNil(t, org)
 	// Perform more assertions based on the mockOrg and the expected behaviors
@@ -101,7 +101,7 @@ func TestOrganizationRepository_GetExistingOrganization_ReadFail(t *testing.T) {
 	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	// Attempt to get an organization with an ID that does not have a corresponding JSON file
-	org, err := repo.GetExistingOrganization(orgID)
+	org, err := repo.FindById(orgID)
 
 	// Test assertions
 	assert.Error(t, err, "Expected an error due to failed file read")
@@ -123,7 +123,7 @@ func TestOrganizationRepository_CreateOrganization_SaveFail(t *testing.T) {
 	orgId := "org123"
 	orgName := "Test Org"
 
-	// Mock organization to pass to CreateOrganization
+	// Mock organization to pass to Save
 	mockOrg := &appmocks.MockOrganization{}
 	mockOrg.On("GetID").Return(orgId)
 	mockOrg.On("GetName").Return(orgName)
@@ -131,7 +131,7 @@ func TestOrganizationRepository_CreateOrganization_SaveFail(t *testing.T) {
 	mockOrg.On("GetID").Return(orgId)
 
 	// Test
-	org, err := repo.CreateOrganization(mockOrg)
+	org, err := repo.Save(mockOrg)
 
 	// Assertions
 	assert.Error(t, err, "Expected an error due to failed organization save")

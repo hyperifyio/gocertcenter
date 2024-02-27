@@ -2,7 +2,9 @@
 
 package apimocks
 
-import "github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
+import (
+	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
+)
 
 // MockResponse implements the apitypes.IResponse interface
 type MockResponse struct {
@@ -14,8 +16,6 @@ type MockResponse struct {
 	ConflictError           string
 	InternalServerError     string
 }
-
-var _ apitypes.IResponse = (*MockResponse)(nil)
 
 func (m *MockResponse) Send(statusCode int, data interface{}) {
 	m.SentStatusCode = statusCode
@@ -42,3 +42,5 @@ func (m *MockResponse) SendConflictError(error string) {
 func (m *MockResponse) SendInternalServerError(error string) {
 	m.InternalServerError = error
 }
+
+var _ apitypes.IResponse = (*MockResponse)(nil)

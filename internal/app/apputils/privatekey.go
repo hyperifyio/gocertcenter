@@ -12,10 +12,37 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
+
+func ToPrivateKeyDTO(certManager managers.ICertificateManager, c appmodels.IPrivateKey) (appdtos.PrivateKeyDTO, error) {
+
+	bytes, err := MarshalPrivateKeyAsPEM(certManager, c.GetPrivateKey())
+	if err != nil {
+		return appdtos.PrivateKeyDTO{}, fmt.Errorf("ToPrivateKeyDTO: rsa: failed to marshal RSA private key: got nil")
+	}
+
+	return appdtos.NewPrivateKeyDTO(
+		c.GetSerialNumber().String(),
+		c.GetKeyType().String(),
+		string(bytes),
+	), nil
+}
+
+func ToPrivateKeyDTOList(certManager managers.ICertificateManager, list []appmodels.IPrivateKey) ([]appdtos.PrivateKeyDTO, error) {
+	result := make([]appdtos.PrivateKeyDTO, len(list))
+	for i, v := range list {
+		dto, err := ToPrivateKeyDTO(certManager, v)
+		if err != nil {
+			return nil, fmt.Errorf("ToPrivateKeyDTOList: failed: %w", err)
+		}
+		result[i] = dto
+	}
+	return result, nil
+}
 
 // GeneratePrivateKey creates a new private key of type models.KeyType
 //   - organization: The organization ID

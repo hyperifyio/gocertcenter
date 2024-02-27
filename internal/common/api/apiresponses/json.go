@@ -7,14 +7,11 @@ import (
 	"net/http"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apidtos"
+	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
 type JSONResponse struct {
 	writer http.ResponseWriter
-}
-
-func NewJSONResponse(w http.ResponseWriter) *JSONResponse {
-	return &JSONResponse{writer: w}
 }
 
 func (sender *JSONResponse) Send(statusCode int, data interface{}) {
@@ -62,3 +59,9 @@ func (sender *JSONResponse) SendConflictError(error string) {
 func (sender *JSONResponse) SendInternalServerError(error string) {
 	sender.SendError(http.StatusInternalServerError, error)
 }
+
+func NewJSONResponse(w http.ResponseWriter) *JSONResponse {
+	return &JSONResponse{writer: w}
+}
+
+var _ apitypes.IResponse = (*JSONResponse)(nil)

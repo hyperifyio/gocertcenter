@@ -1,6 +1,6 @@
 // Copyright (c) 2024. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-package indexendpoint
+package appendpoints
 
 import (
 	"log"
@@ -14,7 +14,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 )
 
-func IndexDefinitions() swagger.Definitions {
+func (c *ApiController) GetIndexDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns information about the running server",
 		Description: "This includes the software name and a version",
@@ -28,13 +28,12 @@ func IndexDefinitions() swagger.Definitions {
 	}
 }
 
-// Index handles the GET requests at the root URL.
-func Index(response apitypes.IResponse, request apitypes.IRequest, server apitypes.IServer) {
-
-	log.Printf("[Index] Request")
-
+// GetIndex handles the GET requests at the root URL.
+func (c *ApiController) GetIndex(response apitypes.IResponse, request apitypes.IRequest) {
+	log.Printf("[IndexController] Request")
 	data := appdtos.NewIndexDTO(gocertcenter.Name, gocertcenter.Version)
-
 	response.Send(http.StatusOK, data)
-
 }
+
+var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetIndexDefinitions
+var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).GetIndex

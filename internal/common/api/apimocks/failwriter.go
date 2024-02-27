@@ -12,8 +12,6 @@ type FailWriter struct {
 	http.ResponseWriter
 }
 
-var _ http.ResponseWriter = (*FailWriter)(nil)
-
 func NewFailWriter(m http.ResponseWriter) *FailWriter {
 	return &FailWriter{m}
 }
@@ -21,3 +19,5 @@ func NewFailWriter(m http.ResponseWriter) *FailWriter {
 func (fw *FailWriter) Write(_ []byte) (int, error) {
 	return 0, fmt.Errorf("simulated write failure")
 }
+
+var _ http.ResponseWriter = (*FailWriter)(nil)

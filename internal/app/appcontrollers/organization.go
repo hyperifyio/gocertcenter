@@ -130,6 +130,7 @@ func (r *OrganizationController) UsesApplicationController(service appmodels.IAp
 //   - privateKeyRepository appmodels.IPrivateKeyService
 //   - certManager managers.ICertificateManager
 //   - randomManager managers.IRandomManager
+//   - defaultExpiration time.Duration
 //
 // Returns *OrganizationController
 func NewOrganizationController(
@@ -140,6 +141,7 @@ func NewOrganizationController(
 	privateKeyRepository appmodels.IPrivateKeyService,
 	certManager managers.ICertificateManager,
 	randomManager managers.IRandomManager,
+	defaultExpiration time.Duration,
 ) *OrganizationController {
 	return &OrganizationController{
 		id:                     organization,
@@ -149,6 +151,7 @@ func NewOrganizationController(
 		privateKeyRepository:   privateKeyRepository,
 		certManager:            certManager,
 		randomManager:          randomManager,
+		defaultExpiration:      defaultExpiration,
 	}
 }
 

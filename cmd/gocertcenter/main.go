@@ -10,10 +10,14 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
+	"github.com/hyperifyio/gocertcenter/internal/app/appcontrollers"
 	"github.com/hyperifyio/gocertcenter/internal/app/appendpoints"
+	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/memoryrepository"
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apiserver"
 	"github.com/hyperifyio/gocertcenter/internal/common/mainutils"
+	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
 var (
@@ -29,26 +33,34 @@ func main() {
 
 	listenAddr := fmt.Sprintf(":%s", *listenPort)
 
+	randomManager := managers.NewRandomManager()
+	certManager := managers.NewCertificateManager(randomManager)
+
 	// fileManager := managers.NewFileManager()
-	// randomManager := managers.NewRandomManager()
-	// certManager := managers.NewCertificateManager(randomManager)
-	// repository := filerepository.NewCollection(certManager, fileManager, dataDir)
-	// expiration := 24 * time.Hour
-	//
-	// repositoryControllerCollection := appcontrollers.NewCollection(
-	// 	appcontrollers.NewOrganizationController(repository.Organization),
-	// 	appcontrollers.NewCertificateController(repository.Certificate, certManager, randomManager, expiration),
-	// 	appcontrollers.NewPrivateKeyController(repository.PrivateKey),
-	// )
+	// repository := filerepository.NewCollection(certManager, fileManager, *dataDir)
+
+	repository := memoryrepository.NewCollection()
+	defaultExpiration := 24 * time.Hour
+
+	appController := appcontrollers.NewApplicationController(
+		repository.Organization,
+		repository.Certificate,
+		repository.PrivateKey,
+		certManager,
+		randomManager,
+		defaultExpiration,
+	)
 
 	server, err := apiserver.NewServer(listenAddr, nil)
 	if err != nil {
 		log.Fatalf("[main]: Failed to create the server: %v", err)
 	}
 
-	server.SetInfo(appendpoints.GetInfo())
+	apiController := appendpoints.NewApiController(server, appController, certManager)
 
-	if err := server.SetupRoutes(appendpoints.GetRoutes()); err != nil {
+	server.SetInfo(apiController.GetInfo())
+
+	if err := server.SetupRoutes(apiController.GetRoutes()); err != nil {
 		log.Fatalf("[main]: Failed to setup routes: %v", err)
 	}
 

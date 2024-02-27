@@ -17,7 +17,13 @@ type OrganizationRepository struct {
 	fileManager managers.IFileManager
 }
 
-func (r *OrganizationRepository) GetExistingOrganization(id string) (appmodels.IOrganization, error) {
+func (r *OrganizationRepository) FindAll() ([]appmodels.IOrganization, error) {
+	// FIXME: Not implemented yet
+	var list []appmodels.IOrganization
+	return list, nil
+}
+
+func (r *OrganizationRepository) FindById(id string) (appmodels.IOrganization, error) {
 	fileName := GetOrganizationJsonPath(r.filePath, id)
 	dto, err := ReadOrganizationJsonFile(r.fileManager, fileName)
 	if err != nil {
@@ -30,14 +36,14 @@ func (r *OrganizationRepository) GetExistingOrganization(id string) (appmodels.I
 	return model, nil
 }
 
-func (r *OrganizationRepository) CreateOrganization(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
+func (r *OrganizationRepository) Save(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
 	id := organization.GetID()
 	fileName := GetOrganizationJsonPath(r.filePath, id)
 	err := SaveOrganizationJsonFile(r.fileManager, fileName, apputils.GetOrganizationDTO(organization))
 	if err != nil {
 		return nil, fmt.Errorf("organization creation failed: %w", err)
 	}
-	return r.GetExistingOrganization(id)
+	return r.FindById(id)
 }
 
 // NewOrganizationRepository creates a file based repository

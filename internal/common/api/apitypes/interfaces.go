@@ -95,7 +95,16 @@ type IRequest interface {
 }
 
 // RequestHandlerFunc defines the type for handlers in this API.
-type RequestHandlerFunc func(IResponse, IRequest, IServer)
+type RequestHandlerFunc func(IResponse, IRequest)
+
+// RequestDefinitionsFunc defines the type for OpenAPI definitions function
+type RequestDefinitionsFunc func() swagger.Definitions
+
+// ApplicationInfoFunc defines the type for OpenAPI info structure
+type ApplicationInfoFunc func() *openapi3.Info
+
+// ApplicationRoutesFunc defines a function which returns application routes
+type ApplicationRoutesFunc func() []Route
 
 // NewServerManagerFunc is a factory function for IServerManager instances
 type NewServerManagerFunc func(
@@ -104,3 +113,9 @@ type NewServerManagerFunc func(
 ) managers.IServerManager
 
 type Hash64FactoryFunc func() hash.Hash64
+
+type IAppController interface {
+	GetInfo() *openapi3.Info
+
+	GetRoutes() []Route
+}

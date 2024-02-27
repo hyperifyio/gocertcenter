@@ -13,14 +13,19 @@ type MockOrganizationService struct {
 	mock.Mock
 }
 
+func (m *MockOrganizationService) FindAll() ([]appmodels.IOrganization, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
 // GetExistingOrganization mocks the GetExistingOrganization method
-func (m *MockOrganizationService) GetExistingOrganization(organization string) (appmodels.IOrganization, error) {
+func (m *MockOrganizationService) FindById(organization string) (appmodels.IOrganization, error) {
 	args := m.Called(organization)
 	return args.Get(0).(appmodels.IOrganization), args.Error(1)
 }
 
 // CreateOrganization mocks the CreateOrganization method
-func (m *MockOrganizationService) CreateOrganization(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
+func (m *MockOrganizationService) Save(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
 	args := m.Called(organization)
 	return args.Get(0).(appmodels.IOrganization), args.Error(1)
 }

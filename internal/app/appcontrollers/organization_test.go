@@ -4,6 +4,7 @@ package appcontrollers_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appcontrollers"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
@@ -28,6 +29,7 @@ func TestNewOrganizationController(t *testing.T) {
 		mockPrivateKeyRepository,
 		certManager,
 		randomManager,
+		24*time.Hour,
 	)
 
 	if !controller.UsesOrganizationService(mockOrganizationRepository) {

@@ -48,27 +48,6 @@ type Server struct {
 	hashFactory    apitypes.Hash64FactoryFunc
 }
 
-var _ apitypes.IServer = (*Server)(nil)
-
-// NewServer ..
-func NewServer(
-	listen string,
-	swaggerFactory apitypes.NewSwaggerManagerFunc,
-) (*Server, error) {
-	s := &Server{
-		listen:         listen,
-		swaggerFactory: swaggerFactory,
-		serverFactory:  nil,
-		swaggerManager: nil,
-	}
-	if err := s.InitSetup(); err != nil {
-		return nil, fmt.Errorf("[server] server initialization failed: %v", err)
-	}
-	s.SetupNotFoundHandler(apierrors.NotFound)
-	s.SetupMethodNotAllowedHandler(apierrors.MethodNotAllowed)
-	return s, nil
-}
-
 func (s *Server) IsStarted() bool {
 	return s.server != nil
 }
@@ -153,11 +132,11 @@ func (s *Server) SetupRoutes(
 }
 
 func (s *Server) SetupNotFoundHandler(handler apitypes.RequestHandlerFunc) {
-	s.router.NotFoundHandler = responseHandler(handler, s)
+	s.router.NotFoundHandler = responseHandler(handler)
 }
 
 func (s *Server) SetupMethodNotAllowedHandler(handler apitypes.RequestHandlerFunc) {
-	s.router.MethodNotAllowedHandler = responseHandler(handler, s)
+	s.router.MethodNotAllowedHandler = responseHandler(handler)
 }
 
 func (s *Server) FinalizeSetup() error {
@@ -179,7 +158,7 @@ func (s *Server) SetupHandler(
 	if path == "" {
 		path = "/"
 	}
-	handler := responseHandler(apiHandler, s)
+	handler := responseHandler(apiHandler)
 	if _, err := s.swaggerManager.AddRoute(method, path, handler, definitions); err != nil {
 		return fmt.Errorf("failed to setup route %s %s: %w", method, path, err)
 	}
@@ -199,7 +178,9 @@ func (s *Server) Start() error {
 	address := s.listen
 
 	if s.router == nil {
-		s.InitSetup()
+		if err := s.InitSetup(); err != nil {
+			return fmt.Errorf("[server] failed to initialize: %v", err)
+		}
 	}
 
 	if err := s.FinalizeSetup(); err != nil {
@@ -321,14 +302,32 @@ func (s *Server) GetInternalHash() (uint64, error) {
 	)
 }
 
+// NewServer ..
+func NewServer(
+	listen string,
+	swaggerFactory apitypes.NewSwaggerManagerFunc,
+) (*Server, error) {
+	s := &Server{
+		listen:         listen,
+		swaggerFactory: swaggerFactory,
+		serverFactory:  nil,
+		swaggerManager: nil,
+	}
+	if err := s.InitSetup(); err != nil {
+		return nil, fmt.Errorf("[server] server initialization failed: %v", err)
+	}
+	s.SetupNotFoundHandler(apierrors.NotFound)
+	s.SetupMethodNotAllowedHandler(apierrors.MethodNotAllowed)
+	return s, nil
+}
+
 // responseHandler wraps a handler function to inject dependencies.
-func responseHandler(
-	handler apitypes.RequestHandlerFunc,
-	server apitypes.IServer,
-) http.HandlerFunc {
+func responseHandler(handler apitypes.RequestHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		response := apiresponses.NewJSONResponse(w)
 		request := apirequests.NewRequest(r)
-		handler(response, request, server)
+		handler(response, request)
 	}
 }
+
+var _ apitypes.IServer = (*Server)(nil)

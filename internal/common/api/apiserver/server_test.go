@@ -417,7 +417,7 @@ func TestServer_SetupRoutes(t *testing.T) {
 
 // testHandler returns a simple HTTP handler function for testing purposes.
 func testHandler(responseContent string) apitypes.RequestHandlerFunc {
-	return func(response apitypes.IResponse, request apitypes.IRequest, server apitypes.IServer) {
+	return func(response apitypes.IResponse, request apitypes.IRequest) {
 		response.Send(http.StatusOK, map[string]string{"message": responseContent})
 	}
 }
@@ -443,7 +443,7 @@ func TestSetupHandler(t *testing.T) {
 	testResponse := "SetupHandler works!"
 
 	// Setup the handler
-	err = server.SetupHandler(testMethod, testPath, func(response apitypes.IResponse, request apitypes.IRequest, server apitypes.IServer) {
+	err = server.SetupHandler(testMethod, testPath, func(response apitypes.IResponse, request apitypes.IRequest) {
 		response.Send(http.StatusOK, map[string]interface{}{"message": testResponse})
 	}, swagger.Definitions{})
 	if err != nil {
@@ -560,7 +560,7 @@ func TestServer_SetupHandlerWithMock(t *testing.T) {
 	path := "/test"
 	method := "GET"
 	definitions := swagger.Definitions{}
-	handler := func(response apitypes.IResponse, request apitypes.IRequest, server apitypes.IServer) {}
+	handler := func(response apitypes.IResponse, request apitypes.IRequest) {}
 
 	// Mock the AddRoute method
 	// Since AddRoute is expected to return (*mux.Route, error), ensure the mock does the same.
@@ -605,7 +605,7 @@ func TestSetupHandlerEmptyMethodPath(t *testing.T) {
 	mockSwaggerManager.On("AddRoute", "GET", "/", mock.AnythingOfType("http.HandlerFunc"), swagger.Definitions{}).Return(mockRoute, nil)
 
 	// Call the method under test
-	err = server.SetupHandler("", "", func(response apitypes.IResponse, request apitypes.IRequest, server apitypes.IServer) {}, swagger.Definitions{})
+	err = server.SetupHandler("", "", func(response apitypes.IResponse, request apitypes.IRequest) {}, swagger.Definitions{})
 
 	// Assert expectations
 	mockSwaggerManager.AssertExpectations(t)
@@ -687,7 +687,7 @@ func TestSetupRoutes_HandlerError(t *testing.T) {
 		{
 			Method:      "GET",
 			Path:        "/test",
-			Handler:     func(response apitypes.IResponse, request apitypes.IRequest, server apitypes.IServer) {},
+			Handler:     func(response apitypes.IResponse, request apitypes.IRequest) {},
 			Definitions: swagger.Definitions{},
 		},
 	}

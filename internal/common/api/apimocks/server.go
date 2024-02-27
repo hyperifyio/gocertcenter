@@ -18,8 +18,6 @@ type MockServer struct {
 	Info    *openapi3.Info
 }
 
-var _ apitypes.IServer = (*MockServer)(nil)
-
 func (m *MockServer) IsStarted() bool {
 	args := m.Called()
 	return args.Bool(0)
@@ -122,3 +120,5 @@ func NewMockServer() *MockServer {
 	// Ensure you setup the mock ruleset here or in your tests directly
 	return mockServer
 }
+
+var _ apitypes.IServer = (*MockServer)(nil)

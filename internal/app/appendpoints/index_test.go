@@ -1,14 +1,16 @@
 // Copyright (c) 2024. Heusala Group Oy <info@heusalagroup.fi>. All rights reserved.
 
-package indexendpoint_test
+package appendpoints_test
 
 import (
 	"reflect"
 	"testing"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
-	"github.com/hyperifyio/gocertcenter/internal/app/appendpoints/indexendpoint"
+	"github.com/hyperifyio/gocertcenter/internal/app/appendpoints"
+	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apimocks"
+	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
 )
 
 const ExpectedStatusCode = 200
@@ -21,8 +23,11 @@ func TestIndex(t *testing.T) {
 	mockResponse := &apimocks.MockResponse{}
 	mockRequest := &apimocks.MockRequest{IsGet: true}
 	mockServer := apimocks.NewMockServer()
+	certManager := new(commonmocks.MockCertificateManager)
+	mockApp := new(appmocks.MockApplicationController)
+	controller := appendpoints.NewApiController(mockServer, mockApp, certManager)
 
-	indexendpoint.Index(mockResponse, mockRequest, mockServer)
+	controller.GetIndex(mockResponse, mockRequest)
 
 	if mockResponse.SentStatusCode != ExpectedStatusCode {
 		t.Errorf("Expected status code %d, got %d", ExpectedStatusCode, mockResponse.SentStatusCode)
@@ -34,7 +39,12 @@ func TestIndex(t *testing.T) {
 
 func TestIndexDefinitions(t *testing.T) {
 
-	defs := indexendpoint.IndexDefinitions()
+	mockServer := apimocks.NewMockServer()
+	mockApp := new(appmocks.MockApplicationController)
+	certManager := new(commonmocks.MockCertificateManager)
+	controller := appendpoints.NewApiController(mockServer, mockApp, certManager)
+
+	defs := controller.GetIndexDefinitions()
 
 	// Check the summary and description
 	if defs.Summary != ExpectedSummaryText {

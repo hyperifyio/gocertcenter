@@ -25,7 +25,7 @@ func TestNotFound(t *testing.T) {
 	response := &apimocks.MockResponse{}
 
 	// Call the NotFound function with the mocks
-	apierrors.NotFound(response, request, nil) // Assuming server is not used in the handler and can be nil
+	apierrors.NotFound(response, request) // Assuming server is not used in the handler and can be nil
 
 	// Verify the response
 	if !response.NotFoundError {

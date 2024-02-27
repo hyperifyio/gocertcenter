@@ -9,7 +9,7 @@ import (
 )
 
 // MethodNotAllowed handles not found errors
-func MethodNotAllowed(response apitypes.IResponse, request apitypes.IRequest, server apitypes.IServer) {
+func MethodNotAllowed(response apitypes.IResponse, request apitypes.IRequest) {
 	log.Printf("[MethodNotAllowed] %s %s", request.GetMethod(), request.GetURL())
 	response.SendMethodNotSupportedError()
 }

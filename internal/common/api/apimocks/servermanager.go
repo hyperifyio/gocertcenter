@@ -15,8 +15,6 @@ type MockServerManager struct {
 	mock.Mock
 }
 
-var _ managers.IServerManager = (*MockServerManager)(nil)
-
 // Serve is a mock method that simulates starting the server.
 func (m *MockServerManager) Serve(l net.Listener) error {
 	args := m.Called(l)
@@ -28,3 +26,5 @@ func (m *MockServerManager) Shutdown() error {
 	args := m.Called()
 	return args.Error(0)
 }
+
+var _ managers.IServerManager = (*MockServerManager)(nil)

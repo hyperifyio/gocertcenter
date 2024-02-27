@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
-	
+
 	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/memoryrepository"
 )
 
@@ -20,12 +20,12 @@ func TestOrganizationRepository_CreateAndGetOrganization(t *testing.T) {
 	// Setting up expectations
 	mockOrg.On("GetID").Return(id)
 
-	// Test CreateOrganization
-	_, err := repo.CreateOrganization(mockOrg)
+	// Test Save
+	_, err := repo.Save(mockOrg)
 	assert.NoError(t, err)
 
-	// Test GetExistingOrganization success
-	foundCert, err := repo.GetExistingOrganization(id)
+	// Test FindById success
+	foundCert, err := repo.FindById(id)
 	assert.NoError(t, err)
 	assert.NotNil(t, foundCert)
 
@@ -37,8 +37,8 @@ func TestOrganizationRepository_GetExistingOrganizationNotFound(t *testing.T) {
 	repo := memoryrepository.NewOrganizationRepository()
 	id := "testOrg"
 
-	// Test GetExistingOrganization for a non-existent organization
-	_, err := repo.GetExistingOrganization(id)
+	// Test FindById for a non-existent organization
+	_, err := repo.FindById(id)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "organization not found")
 }

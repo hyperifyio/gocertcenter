@@ -126,14 +126,8 @@ func (r *CertificateController) GetPrivateKeyController() (appmodels.IPrivateKey
 	), nil
 }
 
-func (r *CertificateController) NewCertificate(template *x509.Certificate) (appmodels.ICertificate, error) {
-	// TODO implement me
-	panic("implement me")
-}
-
 func (r *CertificateController) SetExpirationDuration(expiration time.Duration) {
-	// TODO implement me
-	panic("implement me")
+	r.expiration = expiration
 }
 
 func (r *CertificateController) NewIntermediateCertificate(commonName string) (appmodels.ICertificate, error) {
@@ -147,6 +141,7 @@ func (r *CertificateController) NewIntermediateCertificate(commonName string) (a
 	if err != nil {
 		return nil, fmt.Errorf("NewIntermediateCertificate: failed to create serial number: %w", err)
 	}
+
 	cert, err := apputils.NewIntermediateCertificate(
 		r.certManager,
 		serialNumber,
@@ -159,6 +154,7 @@ func (r *CertificateController) NewIntermediateCertificate(commonName string) (a
 	if err != nil {
 		return nil, fmt.Errorf("NewIntermediateCertificate: failed to create intermediate certificate: %w", err)
 	}
+
 	return cert, nil
 }
 

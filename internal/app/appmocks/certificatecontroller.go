@@ -3,7 +3,6 @@
 package appmocks
 
 import (
-	"crypto/x509"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -54,11 +53,6 @@ func (m *MockCertificateController) GetParentCertificateModel() appmodels.ICerti
 func (m *MockCertificateController) GetParentCertificateController() appmodels.ICertificateController {
 	args := m.Called()
 	return args.Get(0).(appmodels.ICertificateController)
-}
-
-func (m *MockCertificateController) NewCertificate(template *x509.Certificate) (appmodels.ICertificate, error) {
-	args := m.Called(template)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
 }
 
 func (m *MockCertificateController) SetExpirationDuration(expiration time.Duration) {

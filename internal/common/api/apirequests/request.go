@@ -3,19 +3,16 @@
 package apirequests
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
 	"net/url"
+
+	"github.com/gorilla/mux"
+
+	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
 type RequestImpl struct {
 	request *http.Request
-}
-
-func NewRequest(
-	request *http.Request,
-) *RequestImpl {
-	return &RequestImpl{request}
 }
 
 func (request *RequestImpl) IsMethodGet() bool {
@@ -36,3 +33,11 @@ func (request *RequestImpl) GetVars() map[string]string {
 	// FIXME: Add tests
 	return mux.Vars(request.request)
 }
+
+func NewRequest(
+	request *http.Request,
+) *RequestImpl {
+	return &RequestImpl{request}
+}
+
+var _ apitypes.IRequest = (*RequestImpl)(nil)

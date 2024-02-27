@@ -25,7 +25,7 @@ func TestMethodNotAllowed(t *testing.T) {
 	response := &apimocks.MockResponse{}
 
 	// Assuming apierrors.MethodNotAllowed expects IResponse, IRequest, IServer which can be nil for this test
-	apierrors.MethodNotAllowed(response, request, nil) // Mock server can be nil if not used in the handler
+	apierrors.MethodNotAllowed(response, request) // Mock server can be nil if not used in the handler
 
 	// Verify the response
 	if !response.MethodNotSupportedError {

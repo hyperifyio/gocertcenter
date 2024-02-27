@@ -103,8 +103,9 @@ type IPrivateKey interface {
 // promoting loose coupling between the application's business logic and its
 // data layer.
 type IOrganizationService interface {
-	GetExistingOrganization(organization string) (IOrganization, error)
-	CreateOrganization(certificate IOrganization) (IOrganization, error)
+	FindAll() ([]IOrganization, error)
+	FindById(organization string) (IOrganization, error)
+	Save(certificate IOrganization) (IOrganization, error)
 }
 
 // ICertificateService defines the interface for storing certificate models,
@@ -150,6 +151,9 @@ type IApplicationController interface {
 	// the controller
 	UsesPrivateKeyService(service IPrivateKeyService) bool
 
+	// GetOrganizationCollection returns all organizations
+	GetOrganizationCollection() ([]IOrganization, error)
+
 	// GetOrganizationModel returns an organization model by an organization ID
 	GetOrganizationModel(organization string) (IOrganization, error)
 
@@ -157,7 +161,7 @@ type IApplicationController interface {
 	GetOrganizationController(name string) (IOrganizationController, error)
 
 	// NewOrganization creates a new organization
-	NewOrganization(certificate IOrganization) (IOrganization, error)
+	NewOrganization(model IOrganization) (IOrganization, error)
 }
 
 // IOrganizationController controls an organization owned by the application. An
@@ -241,11 +245,6 @@ type ICertificateController interface {
 	// GetPrivateKeyController returns the private key controller of this
 	// certificate
 	GetPrivateKeyController() (IPrivateKeyController, error)
-
-	// NewCertificate creates a new child certificate using values from a
-	// template and signs it using this certificate and private key
-	//  * template - template parameters
-	NewCertificate(template *x509.Certificate) (ICertificate, error)
 
 	// SetExpirationDuration sets the expiration duration used in
 	// NewIntermediateCertificate, NewServerCertificate, or NewClientCertificate

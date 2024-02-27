@@ -17,8 +17,6 @@ type MockSwaggerManager struct {
 	mock.Mock
 }
 
-var _ managers.ISwaggerManager = (*MockSwaggerManager)(nil)
-
 // GenerateAndExposeOpenapi mocks the GenerateAndExposeOpenapi method.
 func (m *MockSwaggerManager) GenerateAndExposeOpenapi() error {
 	args := m.Called()
@@ -30,3 +28,5 @@ func (m *MockSwaggerManager) AddRoute(method string, path string, handler http.H
 	args := m.Called(method, path, handler, schema)
 	return args.Get(0).(*mux.Route), args.Error(1)
 }
+
+var _ managers.ISwaggerManager = (*MockSwaggerManager)(nil)

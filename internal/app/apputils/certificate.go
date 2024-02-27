@@ -75,6 +75,14 @@ func GetCertificateDTO(c appmodels.ICertificate) appdtos.CertificateDTO {
 	)
 }
 
+func ToCertificateDTOList(list []appmodels.ICertificate) []appdtos.CertificateDTO {
+	result := make([]appdtos.CertificateDTO, len(list))
+	for i, v := range list {
+		result[i] = GetCertificateDTO(v)
+	}
+	return result
+}
+
 func GetCertificatePEMBytes(c appmodels.ICertificate) []byte {
 	// Convert the certificate to a PEM block
 	pemBlock := &pem.Block{
