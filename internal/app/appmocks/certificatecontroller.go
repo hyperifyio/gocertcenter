@@ -59,19 +59,19 @@ func (m *MockCertificateController) SetExpirationDuration(expiration time.Durati
 	m.Called(expiration)
 }
 
-func (m *MockCertificateController) NewIntermediateCertificate(commonName string) (appmodels.ICertificate, error) {
+func (m *MockCertificateController) NewIntermediateCertificate(commonName string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
 	args := m.Called(commonName)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+	return args.Get(0).(appmodels.ICertificate), args.Get(1).(appmodels.IPrivateKey), args.Error(2)
 }
 
-func (m *MockCertificateController) NewServerCertificate(dnsNames ...string) (appmodels.ICertificate, error) {
+func (m *MockCertificateController) NewServerCertificate(dnsNames ...string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
 	args := m.Called(dnsNames)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+	return args.Get(0).(appmodels.ICertificate), args.Get(1).(appmodels.IPrivateKey), args.Error(2)
 }
 
-func (m *MockCertificateController) NewClientCertificate(commonName string) (appmodels.ICertificate, error) {
+func (m *MockCertificateController) NewClientCertificate(commonName string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
 	args := m.Called(commonName)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+	return args.Get(0).(appmodels.ICertificate), args.Get(1).(appmodels.IPrivateKey), args.Error(2)
 }
 
 func (m *MockCertificateController) GetOrganizationController() appmodels.IOrganizationController {

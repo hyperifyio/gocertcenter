@@ -14,3 +14,16 @@ func GetOrganizationDTO(o appmodels.IOrganization) appdtos.OrganizationDTO {
 		o.GetNames(),
 	)
 }
+
+func ToListOfOrganizationDTO(list []appmodels.IOrganization) []appdtos.OrganizationDTO {
+	result := make([]appdtos.OrganizationDTO, len(list))
+	for i, v := range list {
+		result[i] = GetOrganizationDTO(v)
+	}
+	return result
+}
+
+func ToOrganizationListDTO(list []appmodels.IOrganization) appdtos.OrganizationListDTO {
+	payload := ToListOfOrganizationDTO(list)
+	return appdtos.NewOrganizationListDTO(payload)
+}

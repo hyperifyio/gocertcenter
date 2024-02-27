@@ -70,6 +70,13 @@ type ICertificate interface {
 	GetCertificate() *x509.Certificate
 }
 
+// IPublicKey describes an interface for PublicKey model
+type IPublicKey interface {
+
+	// GetPublicKey returns the public key
+	GetPublicKey() any
+}
+
 // IPrivateKey describes an interface for PrivateKey model
 type IPrivateKey interface {
 
@@ -254,16 +261,16 @@ type ICertificateController interface {
 	// NewIntermediateCertificate creates a new child certificate as an
 	// intermediate CA certificate
 	//  * commonName - The name of the intermediate CA
-	NewIntermediateCertificate(commonName string) (ICertificate, error)
+	NewIntermediateCertificate(commonName string) (ICertificate, IPrivateKey, error)
 
 	// NewServerCertificate creates a new server certificate.
 	//   - dnsNames: List of domain names the new certificate. The first one is
 	//     used as a common name as well.
-	NewServerCertificate(dnsNames ...string) (ICertificate, error)
+	NewServerCertificate(dnsNames ...string) (ICertificate, IPrivateKey, error)
 
 	// NewClientCertificate creates a new client certificate
 	//  * commonName - The name of the client
-	NewClientCertificate(commonName string) (ICertificate, error)
+	NewClientCertificate(commonName string) (ICertificate, IPrivateKey, error)
 }
 
 // IPrivateKeyController controls a private key owned by the certificate

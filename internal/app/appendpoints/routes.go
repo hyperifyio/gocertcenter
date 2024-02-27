@@ -28,6 +28,12 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 			Handler:     c.CreateOrganization,
 			Definitions: c.CreateOrganizationDefinitions(),
 		},
+		{
+			Method:      http.MethodGet,
+			Path:        "/organizations/{organization}",
+			Handler:     c.GetOrganization,
+			Definitions: c.GetOrganizationDefinitions(),
+		},
 	}
 }
 

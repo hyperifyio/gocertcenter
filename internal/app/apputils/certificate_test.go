@@ -185,6 +185,7 @@ func TestCreateSignedCertificate_NilManager(t *testing.T) {
 }
 
 func TestNewIntermediateCertificate(t *testing.T) {
+
 	// Mock the certificate manager
 	mockManager := &commonmocks.MockCertificateManager{}
 
@@ -195,6 +196,7 @@ func TestNewIntermediateCertificate(t *testing.T) {
 	expiration := 365 * 24 * time.Hour
 	parentCertificate := &appmocks.MockCertificate{}
 	parentPrivateKey := &appmocks.MockPrivateKey{}
+	publicKey := &appmocks.MockPublicKey{}
 	commonName := "Intermediate CA"
 
 	organizationId := "TestOrg"
@@ -202,6 +204,8 @@ func TestNewIntermediateCertificate(t *testing.T) {
 	organization.On("GetID").Return(organizationId)
 	organization.On("GetName").Return("Test Org")
 	organization.On("GetNames").Return([]string{"Test Org"})
+
+	publicKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
@@ -221,6 +225,7 @@ func TestNewIntermediateCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(serialNumber),
 		organization,
 		expiration,
+		publicKey,
 		parentCertificate,
 		parentPrivateKey,
 		commonName,
@@ -246,6 +251,9 @@ func TestNewServerCertificate(t *testing.T) {
 	organization := &appmocks.MockOrganization{}
 	expiration := 365 * 24 * time.Hour
 	parentCertificate := &appmocks.MockCertificate{}
+	mockPublicKey := &appmocks.MockPublicKey{}
+	mockPublicKey.On("GetPublicKey").Return(&rsa.PublicKey{})
+
 	parentPrivateKey := &appmocks.MockPrivateKey{}
 	commonName := "Server Certificate"
 	dnsNames := []string{"www.example.com", "example.com"}
@@ -274,6 +282,7 @@ func TestNewServerCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(serialNumber),
 		organization,
 		expiration,
+		mockPublicKey,
 		parentCertificate,
 		parentPrivateKey,
 		commonName,
@@ -298,6 +307,7 @@ func TestNewClientCertificate(t *testing.T) {
 	serialNumber := big.NewInt(300)
 	organization := &appmocks.MockOrganization{}
 	expiration := 365 * 24 * time.Hour
+	mockPublicKey := appmocks.NewMockRsaPublicKey()
 	parentCertificate := &appmocks.MockCertificate{}
 	parentPrivateKey := &appmocks.MockPrivateKey{}
 	commonName := "Client Certificate"
@@ -311,6 +321,7 @@ func TestNewClientCertificate(t *testing.T) {
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
 	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+
 	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
 
@@ -326,6 +337,7 @@ func TestNewClientCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(serialNumber),
 		organization,
 		expiration,
+		mockPublicKey,
 		parentCertificate,
 		parentPrivateKey,
 		commonName,
@@ -459,6 +471,7 @@ func TestNewIntermediateCertificate_NilManager(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Intermediate CA",
@@ -474,6 +487,7 @@ func TestNewIntermediateCertificate_NilSerialNumber(t *testing.T) {
 		nil, // serialNumber is nil
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Intermediate CA",
@@ -489,6 +503,7 @@ func TestNewIntermediateCertificate_NilOrganization(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		nil, // organization is nil
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Intermediate CA",
@@ -504,6 +519,7 @@ func TestNewIntermediateCertificate_NilParentCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		nil, // parentCertificate is nil
 		&appmocks.MockPrivateKey{},
 		"Intermediate CA",
@@ -519,6 +535,7 @@ func TestNewIntermediateCertificate_NilParentPrivateKey(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		nil, // parentPrivateKey is nil
 		"Intermediate CA",
@@ -534,6 +551,7 @@ func TestNewIntermediateCertificate_EmptyCommonName(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"", // commonName is empty
@@ -571,6 +589,7 @@ func TestNewIntermediateCertificate_FailingCreateCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		organization,
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		parentCertificate,
 		parentPrivateKey,
 		commonName,
@@ -585,6 +604,7 @@ func TestNewServerCertificate_NilManager(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Server Certificate",
@@ -601,6 +621,7 @@ func TestNewServerCertificate_NilSerialNumber(t *testing.T) {
 		nil, // serialNumber is nil
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Server Certificate",
@@ -617,6 +638,7 @@ func TestNewServerCertificate_NilOrganization(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		nil, // organization is nil
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Server Certificate",
@@ -633,6 +655,7 @@ func TestNewServerCertificate_NilParentCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		nil, // parentCertificate is nil
 		&appmocks.MockPrivateKey{},
 		"Server Certificate",
@@ -649,6 +672,7 @@ func TestNewServerCertificate_NilParentPrivateKey(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		nil, // parentPrivateKey is nil
 		"Server Certificate",
@@ -665,6 +689,7 @@ func TestNewServerCertificate_EmptyCommonName(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"", // commonName is empty
@@ -682,6 +707,7 @@ func TestNewServerCertificate_NilDnsNames(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Server Certificate",
@@ -720,6 +746,7 @@ func TestNewServerCertificate_FailingCreateCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		organization,
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		parentCertificate,
 		parentPrivateKey,
 		commonName,
@@ -758,6 +785,7 @@ func TestNewClientCertificate_FailingCreateCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		organization,
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		parentCertificate,
 		parentPrivateKey,
 		commonName,
@@ -803,6 +831,7 @@ func TestNewClientCertificate_NilManager(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Client CA",
@@ -818,6 +847,7 @@ func TestNewClientCertificate_NilSerialNumber(t *testing.T) {
 		nil, // serialNumber is nil
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Client CA",
@@ -833,6 +863,7 @@ func TestNewClientCertificate_NilOrganization(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		nil, // organization is nil
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"Client CA",
@@ -848,6 +879,7 @@ func TestNewClientCertificate_NilParentCertificate(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		nil, // parentCertificate is nil
 		&appmocks.MockPrivateKey{},
 		"Client CA",
@@ -863,6 +895,7 @@ func TestNewClientCertificate_NilParentPrivateKey(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		nil, // parentPrivateKey is nil
 		"Client CA",
@@ -878,6 +911,7 @@ func TestNewClientCertificate_EmptyCommonName(t *testing.T) {
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		&appmocks.MockOrganization{},
 		365*24*time.Hour,
+		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
 		"", // commonName is empty

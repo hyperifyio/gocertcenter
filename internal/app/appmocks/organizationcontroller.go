@@ -7,8 +7,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/hyperifyio/gocertcenter/internal/common/managers"
-
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
@@ -54,31 +52,6 @@ func (m *MockOrganizationController) NewRootCertificate(commonName string) (appm
 func (m *MockOrganizationController) UsesOrganizationService(service appmodels.IOrganizationService) bool {
 	args := m.Called(service)
 	return args.Bool(0)
-}
-
-func (m *MockOrganizationController) GetExistingOrganization(id string) (appmodels.IOrganization, error) {
-	args := m.Called(id)
-	return args.Get(0).(appmodels.IOrganization), args.Error(1)
-}
-
-func (m *MockOrganizationController) CreateOrganization(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
-	args := m.Called(organization)
-	return args.Get(0).(appmodels.IOrganization), args.Error(1)
-}
-
-func (m *MockOrganizationController) NewIntermediateCertificate(o appmodels.IOrganization, manager managers.ICertificateManager, commonName string, serialNumber appmodels.ISerialNumber, parentCertificate appmodels.ICertificate, parentPrivateKey appmodels.IPrivateKey, expiration time.Duration) (appmodels.ICertificate, error) {
-	args := m.Called(o, manager, commonName, serialNumber, parentCertificate, parentPrivateKey, expiration)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
-}
-
-func (m *MockOrganizationController) NewServerCertificate(o appmodels.IOrganization, manager managers.ICertificateManager, serialNumber appmodels.ISerialNumber, parentCertificate appmodels.ICertificate, privateKey appmodels.IPrivateKey, dnsNames []string, expiration time.Duration) (appmodels.ICertificate, error) {
-	args := m.Called(o, manager, serialNumber, parentCertificate, privateKey, dnsNames, expiration)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
-}
-
-func (m *MockOrganizationController) NewClientCertificate(o appmodels.IOrganization, manager managers.ICertificateManager, commonName string, serialNumber appmodels.ISerialNumber, parentCertificate appmodels.ICertificate, privateKey appmodels.IPrivateKey, expiration time.Duration) (appmodels.ICertificate, error) {
-	args := m.Called(o, manager, commonName, serialNumber, parentCertificate, privateKey, expiration)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
 }
 
 func (m *MockOrganizationController) UsesApplicationController(service appmodels.IApplicationController) bool {

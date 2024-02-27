@@ -12,6 +12,7 @@ import (
 )
 
 func TestMethodNotAllowed(t *testing.T) {
+
 	requestURL, err := url.Parse("https://example.com/nonexistent")
 	if err != nil {
 		t.Fatalf("Error parsing URL: %v", err)

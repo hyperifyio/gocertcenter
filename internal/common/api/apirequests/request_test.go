@@ -74,13 +74,13 @@ func TestRequestImpl_GetMethod(t *testing.T) {
 	}
 }
 
-func TestRequestImpl_GetVars(t *testing.T) {
+func TestRequestImpl_GetVariable(t *testing.T) {
 	r := mux.NewRouter()
 	r.HandleFunc("/test/{var}", func(w http.ResponseWriter, r *http.Request) {
 		requestImpl := apirequests.NewRequest(r)
-		vars := requestImpl.GetVars()
-		if val, ok := vars["var"]; !ok || val != "value" {
-			t.Errorf("GetVars() did not return the expected value, got %v", vars)
+		value := requestImpl.GetVariable("var")
+		if value != "value" {
+			t.Errorf("GetVars() did not return the expected value, got %v", value)
 		}
 	})
 

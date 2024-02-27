@@ -3,6 +3,8 @@
 package apimocks
 
 import (
+	"bytes"
+	"io"
 	"net/url"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
@@ -10,10 +12,20 @@ import (
 
 // MockRequest implements the apitypes.IRequest interface
 type MockRequest struct {
-	IsGet  bool
-	Method string
-	URL    *url.URL
-	Vars   map[string]string
+	IsGet            bool
+	Method           string
+	URL              *url.URL
+	Vars             map[string]string
+	BodyContent      []byte
+	BodyContentError error
+}
+
+func (m *MockRequest) Body() io.ReadCloser {
+	return io.NopCloser(bytes.NewBufferString(string(m.BodyContent)))
+}
+
+func (m *MockRequest) GetBodyBytes() ([]byte, error) {
+	return m.BodyContent, m.BodyContentError
 }
 
 func (m *MockRequest) IsMethodGet() bool {
@@ -28,8 +40,8 @@ func (m *MockRequest) GetMethod() string {
 	return m.Method
 }
 
-func (m *MockRequest) GetVars() map[string]string {
-	return m.Vars
+func (m *MockRequest) GetVariable(name string) string {
+	return m.Vars[name]
 }
 
 var _ apitypes.IRequest = (*MockRequest)(nil)

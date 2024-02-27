@@ -44,9 +44,8 @@ func (request *RequestImpl) GetMethod() string {
 	return request.request.Method
 }
 
-func (request *RequestImpl) GetVars() map[string]string {
-	// FIXME: Add tests
-	return mux.Vars(request.request)
+func (request *RequestImpl) GetVariable(name string) string {
+	return mux.Vars(request.request)[name]
 }
 
 func NewRequest(

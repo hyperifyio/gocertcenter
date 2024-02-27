@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
@@ -15,11 +14,6 @@ import (
 // MockPrivateKey is a mock implementation of the IPrivateKey interface
 type MockPrivateKey struct {
 	mock.Mock
-}
-
-func (m *MockPrivateKey) GetDTO() appdtos.PrivateKeyDTO {
-	args := m.Called()
-	return args.Get(0).(appdtos.PrivateKeyDTO)
 }
 
 func (m *MockPrivateKey) GetOrganizationID() string {

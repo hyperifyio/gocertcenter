@@ -8,8 +8,8 @@ import (
 
 	swagger "github.com/davidebianchi/gswagger"
 
-	"github.com/hyperifyio/gocertcenter"
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
+	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
@@ -21,7 +21,7 @@ func (c *ApiController) GetOrganizationCollectionDefinitions() swagger.Definitio
 		Responses: map[int]swagger.ContentValue{
 			200: {
 				Content: swagger.Content{
-					"application/json": {Value: appdtos.IndexDTO{}},
+					"application/json": {Value: appdtos.OrganizationListDTO{}},
 				},
 			},
 		},
@@ -30,15 +30,12 @@ func (c *ApiController) GetOrganizationCollectionDefinitions() swagger.Definitio
 
 // GetOrganizationCollection handles a request
 func (c *ApiController) GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest) {
-
 	list, err := c.appController.GetOrganizationCollection()
 	if err != nil {
 		response.SendError(500, "Could not get a collection")
 	}
-
 	log.Printf("[GetOrganizationCollection] Request: list = %d", len(list))
-
-	data := appdtos.NewIndexDTO(gocertcenter.Name, gocertcenter.Version)
+	data := apputils.ToOrganizationListDTO(list)
 	response.Send(http.StatusOK, data)
 }
 

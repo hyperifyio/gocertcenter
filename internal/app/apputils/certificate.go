@@ -27,7 +27,7 @@ func CreateSignedCertificate(
 	manager managers.ICertificateManager,
 	template *x509.Certificate,
 	signingCertificate *x509.Certificate,
-	signingPublicKey any,
+	publicKey any,
 	signingPrivateKey any,
 ) (*x509.Certificate, error) {
 
@@ -39,7 +39,7 @@ func CreateSignedCertificate(
 		rand.Reader,
 		template,
 		signingCertificate,
-		signingPublicKey,
+		publicKey,
 		signingPrivateKey,
 	)
 	if err != nil {
@@ -95,13 +95,14 @@ func GetCertificatePEMBytes(c appmodels.ICertificate) []byte {
 }
 
 // NewIntermediateCertificate creates an intermediate certificate
-//   - manager: Certificate manager
-//   - serialNumber: Serial number for the new certificate
-//   - organization: The organization for the new certificate
-//   - expiration: The expiration duration
-//   - parentCertificate: The certificate to use for signing
-//   - parentPrivateKey: The private key to use for signing
-//   - commonName: The common name for the new certificate
+//   - manager managers.ICertificateManager is the certificate manager
+//   - serialNumber appmodels.ISerialNumber is the serial number for the new certificate
+//   - organization appmodels.IOrganization is the organization for the new certificate
+//   - expiration time.Duration is the expiration duration of the new certificate
+//   - publicKey appmodels.IPublicKey is public key of the new certificate
+//   - parentCertificate appmodels.ICertificate is the certificate of the part who signs this certificate
+//   - parentPrivateKey appmodels.IPrivateKey is the private key of the part who signs this certificate
+//   - commonName string is the common name for the new certificate
 //
 // Returns the new certificate or an error
 func NewIntermediateCertificate(
@@ -109,6 +110,7 @@ func NewIntermediateCertificate(
 	serialNumber appmodels.ISerialNumber,
 	organization appmodels.IOrganization,
 	expiration time.Duration,
+	publicKey appmodels.IPublicKey,
 	parentCertificate appmodels.ICertificate,
 	parentPrivateKey appmodels.IPrivateKey,
 	commonName string,
@@ -161,7 +163,7 @@ func NewIntermediateCertificate(
 		manager,
 		&certificateTemplate,
 		parentCertificate.GetCertificate(),
-		parentPrivateKey.GetPublicKey(),
+		publicKey.GetPublicKey(),
 		parentPrivateKey.GetPrivateKey(),
 	)
 	if err != nil {
@@ -177,6 +179,7 @@ func NewIntermediateCertificate(
 //   - serialNumber: Serial number for the new certificate
 //   - organization: The organization for the new certificate
 //   - expiration: The expiration duration
+//   - publicKey appmodels.IPublicKey is public key of the new certificate
 //   - parentCertificate: The certificate to use for signing
 //   - parentPrivateKey: The private key to use for signing
 //   - commonName: The common name for the new certificate
@@ -188,6 +191,7 @@ func NewServerCertificate(
 	serialNumber appmodels.ISerialNumber,
 	organization appmodels.IOrganization,
 	expiration time.Duration,
+	publicKey appmodels.IPublicKey,
 	parentCertificate appmodels.ICertificate,
 	parentPrivateKey appmodels.IPrivateKey,
 	commonName string,
@@ -241,7 +245,7 @@ func NewServerCertificate(
 		manager,
 		&certificateTemplate,
 		parentCertificate.GetCertificate(),
-		parentPrivateKey.GetPublicKey(),
+		publicKey.GetPublicKey(),
 		parentPrivateKey.GetPrivateKey(),
 	)
 	if err != nil {
@@ -256,6 +260,7 @@ func NewServerCertificate(
 //   - serialNumber: Serial number for the new certificate
 //   - organization: The organization for the new certificate
 //   - expiration: The expiration duration
+//   - publicKey appmodels.IPublicKey is public key of the new certificate
 //   - parentCertificate: The certificate to use for signing
 //   - parentPrivateKey: The private key to use for signing
 //   - commonName: The common name for the new certificate
@@ -267,6 +272,7 @@ func NewClientCertificate(
 	serialNumber appmodels.ISerialNumber,
 	organization appmodels.IOrganization,
 	expiration time.Duration,
+	publicKey appmodels.IPublicKey,
 	parentCertificate appmodels.ICertificate,
 	parentPrivateKey appmodels.IPrivateKey,
 	commonName string,
@@ -314,7 +320,7 @@ func NewClientCertificate(
 		manager,
 		&certificateTemplate,
 		parentCertificate.GetCertificate(),
-		parentPrivateKey.GetPublicKey(),
+		publicKey.GetPublicKey(),
 		parentPrivateKey.GetPrivateKey(),
 	)
 	if err != nil {

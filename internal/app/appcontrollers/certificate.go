@@ -130,87 +130,122 @@ func (r *CertificateController) SetExpirationDuration(expiration time.Duration) 
 	r.expiration = expiration
 }
 
-func (r *CertificateController) NewIntermediateCertificate(commonName string) (appmodels.ICertificate, error) {
+func (r *CertificateController) NewIntermediateCertificate(commonName string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
 
-	privateKey, err := r.GetPrivateKeyModel()
+	parentPrivateKey, err := r.GetPrivateKeyModel()
 	if err != nil {
-		return nil, fmt.Errorf("NewIntermediateCertificate: failed to fetch private key: %w", err)
+		return nil, nil, fmt.Errorf("NewIntermediateCertificate: failed to fetch private key: %w", err)
 	}
+
+	organization := r.GetOrganizationModel()
+	parentCertificate := r.GetCertificateModel()
 
 	serialNumber, err := apputils.GenerateSerialNumber(r.randomManager)
 	if err != nil {
-		return nil, fmt.Errorf("NewIntermediateCertificate: failed to create serial number: %w", err)
+		return nil, nil, fmt.Errorf("NewIntermediateCertificate: failed to create serial number: %w", err)
 	}
+
+	newPrivateKey, err := apputils.GeneratePrivateKey(
+		organization.GetID(),
+		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber(), serialNumber),
+		appmodels.ECDSA_P384,
+	)
 
 	cert, err := apputils.NewIntermediateCertificate(
 		r.certManager,
 		serialNumber,
-		r.GetOrganizationModel(),
+		organization,
 		r.expiration,
-		r.GetCertificateModel(),
-		privateKey,
+		newPrivateKey,
+		parentCertificate,
+		parentPrivateKey,
 		commonName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("NewIntermediateCertificate: failed to create intermediate certificate: %w", err)
+		return nil, nil, fmt.Errorf("NewIntermediateCertificate: failed to create intermediate certificate: %w", err)
 	}
 
-	return cert, nil
+	return cert, newPrivateKey, nil
 }
 
-func (r *CertificateController) NewServerCertificate(dnsNames ...string) (appmodels.ICertificate, error) {
+func (r *CertificateController) NewServerCertificate(dnsNames ...string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
+
 	if len(dnsNames) <= 0 {
-		return nil, errors.New("server certificate must have at least one dns name")
+		return nil, nil, errors.New("server certificate must have at least one dns name")
 	}
 
-	privateKey, err := r.GetPrivateKeyModel()
+	organization := r.GetOrganizationModel()
+
+	parentCertificate := r.GetCertificateModel()
+
+	parentPrivateKey, err := r.GetPrivateKeyModel()
 	if err != nil {
-		return nil, fmt.Errorf("NewServerCertificate: failed to fetch private key: %w", err)
+		return nil, nil, fmt.Errorf("NewServerCertificate: failed to fetch private key: %w", err)
 	}
 
 	serialNumber, err := apputils.GenerateSerialNumber(r.randomManager)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create serial number: %w", err)
+		return nil, nil, fmt.Errorf("failed to create serial number: %w", err)
 	}
+
+	newPrivateKey, err := apputils.GeneratePrivateKey(
+		organization.GetID(),
+		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber(), serialNumber),
+		appmodels.ECDSA_P384,
+	)
+
 	cert, err := apputils.NewServerCertificate(
 		r.certManager,
 		serialNumber,
 		r.GetOrganizationModel(),
 		r.expiration,
-		r.GetCertificateModel(),
-		privateKey,
+		newPrivateKey,
+		parentCertificate,
+		parentPrivateKey,
 		dnsNames[0],
 		dnsNames...,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create intermediate certificate: %w", err)
+		return nil, nil, fmt.Errorf("failed to create intermediate certificate: %w", err)
 	}
-	return cert, nil
+	return cert, newPrivateKey, nil
 }
 
-func (r *CertificateController) NewClientCertificate(commonName string) (appmodels.ICertificate, error) {
+func (r *CertificateController) NewClientCertificate(commonName string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
 	privateKey, err := r.GetPrivateKeyModel()
 	if err != nil {
-		return nil, fmt.Errorf("NewServerCertificate: failed to fetch private key: %w", err)
+		return nil, nil, fmt.Errorf("NewServerCertificate: failed to fetch private key: %w", err)
 	}
+
+	organization := r.GetOrganizationModel()
+
+	parentCertificate := r.GetCertificateModel()
 
 	serialNumber, err := apputils.GenerateSerialNumber(r.randomManager)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create serial number: %w", err)
+		return nil, nil, fmt.Errorf("failed to create serial number: %w", err)
 	}
+
+	newPrivateKey, err := apputils.GeneratePrivateKey(
+		organization.GetID(),
+		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber(), serialNumber),
+		appmodels.ECDSA_P384,
+	)
+
 	cert, err := apputils.NewServerCertificate(
 		r.certManager,
 		serialNumber,
-		r.GetOrganizationModel(),
+		organization,
 		r.expiration,
-		r.GetCertificateModel(),
+		newPrivateKey,
+		parentCertificate,
 		privateKey,
 		commonName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create intermediate certificate: %w", err)
+		return nil, nil, fmt.Errorf("failed to create intermediate certificate: %w", err)
 	}
-	return cert, nil
+	return cert, newPrivateKey, nil
 }
 
 func (r *CertificateController) UsesCertificateService(service appmodels.ICertificateService) bool {
@@ -258,6 +293,8 @@ func (r *CertificateController) CreateSignedCertificate(
 //   - certManager is managers.ICertificateManager
 //   - randomManager is  managers.IRandomManager
 //   - expiration time.Duration is
+//
+// Returns *CertificateController
 func NewCertificateController(
 	serialNumber appmodels.ISerialNumber,
 	model appmodels.ICertificate,
