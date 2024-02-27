@@ -47,11 +47,26 @@ func (a *ApplicationController) GetOrganizationController(organization string) (
 	if err != nil {
 		return nil, fmt.Errorf("ApplicationController.GetOrganizationController: could not find organization '%s': %w", organization, err)
 	}
-	return NewOrganizationController(organization, model, a.organizationRepository, a.certificateRepository, a.privateKeyRepository, a.certManager, a.randomManager, a.defaultExpiration), nil
+	return NewOrganizationController(
+		organization,
+		model,
+		a.organizationRepository,
+		a.certificateRepository,
+		a.privateKeyRepository,
+		a.certManager,
+		a.randomManager,
+		a.defaultExpiration,
+	), nil
 }
 
 func (a *ApplicationController) NewOrganization(model appmodels.IOrganization) (appmodels.IOrganization, error) {
 	organization := model.GetID()
+
+	_, err := a.organizationRepository.FindById(organization)
+	if err == nil {
+		return nil, fmt.Errorf("ApplicationController.NewOrganization: organization exist already: %s", organization)
+	}
+
 	savedModel, err := a.organizationRepository.Save(model)
 	if err != nil {
 		return nil, fmt.Errorf("ApplicationController.NewOrganization: could not create organization: %s: %w", organization, err)

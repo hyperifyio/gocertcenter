@@ -3,6 +3,7 @@
 package appendpoints
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -18,12 +19,20 @@ import (
 // CreateOrganizationDefinitions returns OpenAPI definitions
 func (c *ApiController) CreateOrganizationDefinitions() swagger.Definitions {
 	return swagger.Definitions{
-		Summary:     "Returns a collection of organization entities",
+		Summary:     "Creates an organization",
 		Description: "",
+		RequestBody: &swagger.ContentValue{
+			Description: "Organization data",
+			Content: swagger.Content{
+				"application/json": {
+					Value: appdtos.OrganizationDTO{},
+				},
+			},
+		},
 		Responses: map[int]swagger.ContentValue{
 			200: {
 				Content: swagger.Content{
-					"application/json": {Value: appdtos.IndexDTO{}},
+					"application/json": {Value: appdtos.OrganizationDTO{}},
 				},
 			},
 		},
@@ -31,13 +40,13 @@ func (c *ApiController) CreateOrganizationDefinitions() swagger.Definitions {
 }
 
 // CreateOrganization handles a request
-func (c *ApiController) CreateOrganization(response apitypes.IResponse, request apitypes.IRequest) {
+func (c *ApiController) CreateOrganization(response apitypes.IResponse, request apitypes.IRequest) error {
 
 	body, err := c.DecodeOrganizationFromRequestBody(request)
 	if err != nil {
 		log.Printf("Request body invalid: %v", err)
 		response.SendError(400, "request body invalid")
-		return
+		return nil
 	}
 
 	id := body.ID
@@ -49,22 +58,21 @@ func (c *ApiController) CreateOrganization(response apitypes.IResponse, request 
 
 	savedModel, err := c.appController.NewOrganization(model)
 	if err != nil {
-		response.SendError(500, "Failed to create an organization")
-		return
+		return fmt.Errorf("ApiController.CreateOrganization: saving failed: %v", err)
 	}
 
 	keyDTOs, err := apputils.ToPrivateKeyDTOList(c.certManager, keys)
 	if err != nil {
-		response.SendError(500, "Failed to create an organization")
-		return
+		return fmt.Errorf("ApiController.CreateOrganization: ToPrivateKeyDTOList failed: %v", err)
 	}
 
 	data := appdtos.NewOrganizationCreatedDTO(
 		apputils.GetOrganizationDTO(savedModel),
-		apputils.ToCertificateDTOList(certificates),
+		apputils.ToListOfCertificateDTO(certificates),
 		keyDTOs,
 	)
 	response.Send(http.StatusOK, data)
+	return nil
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateOrganizationDefinitions

@@ -15,7 +15,7 @@ type MockPrivateKeyService struct {
 
 // GetExistingPrivateKey simulates retrieving an existing private key by serial number.
 // It uses a function field to allow custom behavior for each test.
-func (m *MockPrivateKeyService) GetExistingPrivateKey(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
+func (m *MockPrivateKeyService) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
 	if m.GetExistingPrivateKeyFunc != nil {
 		return m.GetExistingPrivateKeyFunc(organization, certificates)
 	}
@@ -25,7 +25,7 @@ func (m *MockPrivateKeyService) GetExistingPrivateKey(organization string, certi
 
 // CreatePrivateKey simulates creating a new private key.
 // It uses a function field to allow custom behavior for each test.
-func (m *MockPrivateKeyService) CreatePrivateKey(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
+func (m *MockPrivateKeyService) Save(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
 	if m.CreatePrivateKeyFunc != nil {
 		return m.CreatePrivateKeyFunc(key)
 	}

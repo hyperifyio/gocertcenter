@@ -31,3 +31,23 @@ func (c *ApiController) DecodeOrganizationFromRequestBody(request apitypes.IRequ
 
 	return body, nil
 }
+
+// DecodeCertificateRequestFromRequestBody parses organization DTO from request body
+func (c *ApiController) DecodeCertificateRequestFromRequestBody(request apitypes.IRequest) (appdtos.CertificateRequestDTO, error) {
+
+	if request == nil {
+		return appdtos.CertificateRequestDTO{}, errors.New("request must be defined")
+	}
+
+	bodyIO := request.Body()
+
+	// Decode the JSON body into the struct
+	var body appdtos.CertificateRequestDTO
+	err := json.NewDecoder(bodyIO).Decode(&body)
+	if err != nil {
+		return appdtos.CertificateRequestDTO{}, fmt.Errorf("request decoding failed: %s", err)
+	}
+	defer bodyIO.Close()
+
+	return body, nil
+}

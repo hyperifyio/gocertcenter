@@ -14,7 +14,14 @@ type IApiController interface {
 	GetRoutes() []apitypes.Route
 
 	GetIndexDefinitions() swagger.Definitions
-	GetIndex(response apitypes.IResponse, request apitypes.IRequest)
-	GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest)
+	GetIndex(response apitypes.IResponse, request apitypes.IRequest) error
+
+	GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest) error
 	GetOrganizationCollectionDefinitions() swagger.Definitions
+
+	GetOrganizationCertificateCollection(response apitypes.IResponse, request apitypes.IRequest) error
+	GetOrganizationCertificateCollectionDefinitions() swagger.Definitions
+
+	CreateOrganizationRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error
+	CreateOrganizationRootCertificateDefinitions() swagger.Definitions
 }

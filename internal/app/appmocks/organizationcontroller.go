@@ -15,6 +15,11 @@ type MockOrganizationController struct {
 	mock.Mock
 }
 
+func (m *MockOrganizationController) GetCertificateCollection() ([]appmodels.ICertificate, error) {
+	args := m.Called()
+	return args.Get(0).([]appmodels.ICertificate), args.Error(1)
+}
+
 func (m *MockOrganizationController) GetOrganizationID() string {
 	args := m.Called()
 	return args.String(0)

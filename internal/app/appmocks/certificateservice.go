@@ -13,12 +13,17 @@ type MockCertificateService struct {
 	mock.Mock
 }
 
-func (m *MockCertificateService) GetExistingCertificate(organization string, certificates []appmodels.ISerialNumber) (appmodels.ICertificate, error) {
+func (m *MockCertificateService) FindAllByOrganization(organization string) ([]appmodels.ICertificate, error) {
+	args := m.Called(organization)
+	return args.Get(0).([]appmodels.ICertificate), args.Error(1)
+}
+
+func (m *MockCertificateService) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.ICertificate, error) {
 	args := m.Called(organization, certificates)
 	return args.Get(0).(appmodels.ICertificate), args.Error(1)
 }
 
-func (m *MockCertificateService) CreateCertificate(certificate appmodels.ICertificate) (appmodels.ICertificate, error) {
+func (m *MockCertificateService) Save(certificate appmodels.ICertificate) (appmodels.ICertificate, error) {
 	args := m.Called(certificate)
 	return args.Get(0).(appmodels.ICertificate), args.Error(1)
 }

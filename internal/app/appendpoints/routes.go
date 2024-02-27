@@ -34,6 +34,18 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 			Handler:     c.GetOrganization,
 			Definitions: c.GetOrganizationDefinitions(),
 		},
+		{
+			Method:      http.MethodGet,
+			Path:        "/organizations/{organization}/certificates",
+			Handler:     c.GetOrganizationCertificateCollection,
+			Definitions: c.GetOrganizationCertificateCollectionDefinitions(),
+		},
+		{
+			Method:      http.MethodPost,
+			Path:        "/organizations/{organization}/certificates",
+			Handler:     c.CreateOrganizationRootCertificate,
+			Definitions: c.CreateOrganizationRootCertificateDefinitions(),
+		},
 	}
 }
 

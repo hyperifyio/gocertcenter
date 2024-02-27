@@ -98,7 +98,7 @@ type IRequest interface {
 }
 
 // RequestHandlerFunc defines the type for handlers in this API.
-type RequestHandlerFunc func(IResponse, IRequest)
+type RequestHandlerFunc func(IResponse, IRequest) error
 
 // RequestDefinitionsFunc defines the type for OpenAPI definitions function
 type RequestDefinitionsFunc func() swagger.Definitions

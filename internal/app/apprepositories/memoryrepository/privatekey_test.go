@@ -10,11 +10,11 @@ import (
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
-	
+
 	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/memoryrepository"
 )
 
-// TestPrivateKeyRepository_CreateAndGetPrivateKey tests the CreatePrivateKey and GetExistingPrivateKey methods
+// TestPrivateKeyRepository_CreateAndGetPrivateKey tests the Save and FindByOrganizationAndSerialNumbers methods
 func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 	organization := "testOrg"
 	repo := memoryrepository.NewPrivateKeyRepository()
@@ -26,12 +26,12 @@ func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 	mockKey.On("GetSerialNumber").Return(serialNumber)
 	mockKey.On("GetParents").Return([]appmodels.ISerialNumber{})
 
-	// Test CreatePrivateKey
-	_, err := repo.CreatePrivateKey(mockKey)
+	// Test Save
+	_, err := repo.Save(mockKey)
 	assert.NoError(t, err)
 
-	// Test GetExistingPrivateKey success
-	foundKey, err := repo.GetExistingPrivateKey(organization, []appmodels.ISerialNumber{serialNumber})
+	// Test FindByOrganizationAndSerialNumbers success
+	foundKey, err := repo.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
 	assert.NoError(t, err)
 	assert.NotNil(t, foundKey, "The key should be found")
 
@@ -45,8 +45,8 @@ func TestPrivateKeyRepository_GetExistingPrivateKeyNotFound(t *testing.T) {
 	repo := memoryrepository.NewPrivateKeyRepository()
 	serialNumber := appmodels.NewSerialNumber(big.NewInt(456))
 
-	// Test GetExistingPrivateKey for a non-existent key
-	_, err := repo.GetExistingPrivateKey(organization, []appmodels.ISerialNumber{serialNumber})
+	// Test FindByOrganizationAndSerialNumbers for a non-existent key
+	_, err := repo.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
 	assert.Error(t, err)
 	assert.Contains(t, "key not found", err.Error())
 }

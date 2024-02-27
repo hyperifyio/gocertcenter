@@ -326,7 +326,11 @@ func responseHandler(handler apitypes.RequestHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		response := apiresponses.NewJSONResponse(w)
 		request := apirequests.NewRequest(r)
-		handler(response, request)
+		err := handler(response, request)
+		if err != nil {
+			log.Printf("[server] Request handler failed: %v", err)
+			response.SendError(500, "Internal Server Error")
+		}
 	}
 }
 

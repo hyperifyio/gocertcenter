@@ -417,8 +417,9 @@ func TestServer_SetupRoutes(t *testing.T) {
 
 // testHandler returns a simple HTTP handler function for testing purposes.
 func testHandler(responseContent string) apitypes.RequestHandlerFunc {
-	return func(response apitypes.IResponse, request apitypes.IRequest) {
+	return func(response apitypes.IResponse, request apitypes.IRequest) error {
 		response.Send(http.StatusOK, map[string]string{"message": responseContent})
+		return nil
 	}
 }
 
@@ -443,8 +444,9 @@ func TestSetupHandler(t *testing.T) {
 	testResponse := "SetupHandler works!"
 
 	// Setup the handler
-	err = server.SetupHandler(testMethod, testPath, func(response apitypes.IResponse, request apitypes.IRequest) {
+	err = server.SetupHandler(testMethod, testPath, func(response apitypes.IResponse, request apitypes.IRequest) error {
 		response.Send(http.StatusOK, map[string]interface{}{"message": testResponse})
+		return nil
 	}, swagger.Definitions{})
 	if err != nil {
 		t.Fatalf("SetupHandler failed: %v", err)
@@ -560,7 +562,9 @@ func TestServer_SetupHandlerWithMock(t *testing.T) {
 	path := "/test"
 	method := "GET"
 	definitions := swagger.Definitions{}
-	handler := func(response apitypes.IResponse, request apitypes.IRequest) {}
+	var handler apitypes.RequestHandlerFunc = func(response apitypes.IResponse, request apitypes.IRequest) error {
+		return nil
+	}
 
 	// Mock the AddRoute method
 	// Since AddRoute is expected to return (*mux.Route, error), ensure the mock does the same.
@@ -604,8 +608,17 @@ func TestSetupHandlerEmptyMethodPath(t *testing.T) {
 	// Set up expectations
 	mockSwaggerManager.On("AddRoute", "GET", "/", mock.AnythingOfType("http.HandlerFunc"), swagger.Definitions{}).Return(mockRoute, nil)
 
+	var handler apitypes.RequestHandlerFunc = func(response apitypes.IResponse, request apitypes.IRequest) error {
+		return nil
+	}
+
 	// Call the method under test
-	err = server.SetupHandler("", "", func(response apitypes.IResponse, request apitypes.IRequest) {}, swagger.Definitions{})
+	err = server.SetupHandler(
+		"",
+		"",
+		handler,
+		swagger.Definitions{},
+	)
 
 	// Assert expectations
 	mockSwaggerManager.AssertExpectations(t)
@@ -682,12 +695,16 @@ func TestSetupRoutes_HandlerError(t *testing.T) {
 		t.Fatalf("Failed to create server: %v", err)
 	}
 
+	var handler apitypes.RequestHandlerFunc = func(response apitypes.IResponse, request apitypes.IRequest) error {
+		return nil
+	}
+
 	// Define a test route that would trigger the AddRoute call
 	testRoutes := []apitypes.Route{
 		{
 			Method:      "GET",
 			Path:        "/test",
-			Handler:     func(response apitypes.IResponse, request apitypes.IRequest) {},
+			Handler:     handler,
 			Definitions: swagger.Definitions{},
 		},
 	}

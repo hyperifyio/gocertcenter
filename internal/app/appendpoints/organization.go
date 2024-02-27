@@ -3,6 +3,7 @@
 package appendpoints
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -22,7 +23,7 @@ func (c *ApiController) GetOrganizationDefinitions() swagger.Definitions {
 		Responses: map[int]swagger.ContentValue{
 			200: {
 				Content: swagger.Content{
-					"application/json": {Value: appdtos.OrganizationListDTO{}},
+					"application/json": {Value: appdtos.OrganizationDTO{}},
 				},
 			},
 		},
@@ -30,15 +31,16 @@ func (c *ApiController) GetOrganizationDefinitions() swagger.Definitions {
 }
 
 // GetOrganization handles a request
-func (c *ApiController) GetOrganization(response apitypes.IResponse, request apitypes.IRequest) {
+func (c *ApiController) GetOrganization(response apitypes.IResponse, request apitypes.IRequest) error {
 	organization := request.GetVariable("organization")
 	model, err := c.appController.GetOrganizationModel(organization)
 	if err != nil {
-		response.SendError(500, "Could not get a model")
+		return fmt.Errorf("ApiController.GetOrganization: failed to find model: %v", err)
 	}
 	log.Printf("[GetOrganization] Request: model = %v", model)
 	data := apputils.GetOrganizationDTO(model)
 	response.Send(http.StatusOK, data)
+	return nil
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetOrganizationDefinitions

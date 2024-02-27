@@ -22,7 +22,7 @@ func (r *PrivateKeyRepository) GetFilePath() string {
 	return r.filePath
 }
 
-func (r *PrivateKeyRepository) GetExistingPrivateKey(
+func (r *PrivateKeyRepository) FindByOrganizationAndSerialNumbers(
 	organization string,
 	certificates []appmodels.ISerialNumber,
 ) (appmodels.IPrivateKey, error) {
@@ -37,7 +37,7 @@ func (r *PrivateKeyRepository) GetExistingPrivateKey(
 	return appmodels.NewPrivateKey(organization, certificates, keyType, privkey), nil
 }
 
-func (r *PrivateKeyRepository) CreatePrivateKey(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
+func (r *PrivateKeyRepository) Save(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
 
 	organization := key.GetOrganizationID()
 	certificates := key.GetParents()

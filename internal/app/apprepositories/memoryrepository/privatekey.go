@@ -24,14 +24,14 @@ func NewPrivateKeyRepository() *PrivateKeyRepository {
 	}
 }
 
-func (r *PrivateKeyRepository) GetExistingPrivateKey(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
+func (r *PrivateKeyRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
 	if key, exists := r.keys[getCertificateLocator(organization, certificates)]; exists {
 		return key, nil
 	}
 	return nil, errors.New("key not found")
 }
 
-func (r *PrivateKeyRepository) CreatePrivateKey(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
+func (r *PrivateKeyRepository) Save(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
 	r.keys[getCertificateLocator(key.GetOrganizationID(), append(key.GetParents(), key.GetSerialNumber()))] = key
 	return key, nil
 }

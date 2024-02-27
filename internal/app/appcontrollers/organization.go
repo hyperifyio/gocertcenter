@@ -11,6 +11,10 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
+const (
+	DefaultRootKeyType = appmodels.ECDSA_P384
+)
+
 // OrganizationController implements models.IOrganizationController to control
 // operations for organization models.
 //
@@ -42,6 +46,15 @@ type OrganizationController struct {
 	defaultKeyType appmodels.KeyType
 }
 
+func (r *OrganizationController) GetCertificateCollection() ([]appmodels.ICertificate, error) {
+	organization := r.GetOrganizationID()
+	list, err := r.certificateRepository.FindAllByOrganization(organization)
+	if err != nil {
+		return nil, fmt.Errorf("OrganizationController(%s).GetCertificateCollection: failed: %w", organization, err)
+	}
+	return list, nil
+}
+
 func (r *OrganizationController) GetOrganizationID() string {
 	return r.id
 }
@@ -71,7 +84,7 @@ func (r *OrganizationController) GetCertificateController(serialNumber appmodels
 }
 
 func (r *OrganizationController) GetCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {
-	model, err := r.certificateRepository.GetExistingCertificate(r.id, []appmodels.ISerialNumber{serialNumber})
+	model, err := r.certificateRepository.FindByOrganizationAndSerialNumbers(r.id, []appmodels.ISerialNumber{serialNumber})
 	if err != nil {
 		return nil, fmt.Errorf("OrganizationController('%s').GetCertificateModel('%s'): failed to fetch: %w", r.id, serialNumber.String(), err)
 	}
@@ -84,18 +97,30 @@ func (r *OrganizationController) SetExpirationDuration(expiration time.Duration)
 
 func (r *OrganizationController) NewRootCertificate(commonName string) (appmodels.ICertificate, error) {
 
+	organization := r.GetOrganizationID()
+
 	serialNumber, err := apputils.GenerateSerialNumber(r.randomManager)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create serial number: %w", err)
+		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: failed to create serial number: %w", organization, err)
+	}
+
+	_, err = r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
+	if err == nil {
+		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: serial number exist already: %s", organization, serialNumber.String())
+	}
+
+	keyType := r.defaultKeyType
+	if keyType == appmodels.NIL_KEY_TYPE {
+		keyType = DefaultRootKeyType
 	}
 
 	privateKey, err := apputils.GeneratePrivateKey(
 		r.GetOrganizationID(),
 		[]appmodels.ISerialNumber{serialNumber},
-		r.defaultKeyType,
+		keyType,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate private key: %w", err)
+		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: failed to generate private key: %w", organization, err)
 	}
 
 	cert, err := apputils.NewRootCertificate(
@@ -107,9 +132,20 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 		commonName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create root certificate: %w", err)
+		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: failed to create certificate: %w", organization, err)
 	}
-	return cert, nil
+
+	_, err = r.privateKeyRepository.Save(privateKey)
+	if err != nil {
+		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: could not save private key: %w", organization, err)
+	}
+
+	savedModel, err := r.certificateRepository.Save(cert)
+	if err != nil {
+		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: could not save certificate: %w", organization, err)
+	}
+
+	return savedModel, nil
 }
 
 func (r *OrganizationController) UsesOrganizationService(service appmodels.IOrganizationService) bool {

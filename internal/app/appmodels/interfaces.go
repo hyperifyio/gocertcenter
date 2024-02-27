@@ -120,8 +120,9 @@ type IOrganizationService interface {
 // interface it supports easy substitution of its implementation, thereby
 // promoting loose coupling between the application's business logic and its data layer.
 type ICertificateService interface {
-	GetExistingCertificate(organization string, certificates []ISerialNumber) (ICertificate, error)
-	CreateCertificate(certificate ICertificate) (ICertificate, error)
+	FindAllByOrganization(organization string) ([]ICertificate, error)
+	FindByOrganizationAndSerialNumbers(organization string, certificates []ISerialNumber) (ICertificate, error)
+	Save(certificate ICertificate) (ICertificate, error)
 }
 
 // IPrivateKeyService defines the interface for storing private keys,
@@ -132,8 +133,8 @@ type ICertificateService interface {
 type IPrivateKeyService interface {
 
 	// GetExistingPrivateKey only returns public properties of the private key
-	GetExistingPrivateKey(organization string, certificates []ISerialNumber) (IPrivateKey, error)
-	CreatePrivateKey(key IPrivateKey) (IPrivateKey, error)
+	FindByOrganizationAndSerialNumbers(organization string, certificates []ISerialNumber) (IPrivateKey, error)
+	Save(key IPrivateKey) (IPrivateKey, error)
 }
 
 // IApplicationController controls an application. An application may own one
@@ -183,6 +184,9 @@ type IOrganizationController interface {
 
 	// GetApplicationController returns the parent controller who owns this organization controller
 	GetApplicationController() IApplicationController
+
+	// GetCertificateCollection returns all the root level certificates for the organization
+	GetCertificateCollection() ([]ICertificate, error)
 
 	// GetCertificateController returns a controller for a root certificate specified by its serial number
 	//  * serialNumber - The serial number of the root certificate

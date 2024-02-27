@@ -3,6 +3,7 @@
 package appendpoints
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -29,14 +30,15 @@ func (c *ApiController) GetOrganizationCollectionDefinitions() swagger.Definitio
 }
 
 // GetOrganizationCollection handles a request
-func (c *ApiController) GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest) {
+func (c *ApiController) GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest) error {
 	list, err := c.appController.GetOrganizationCollection()
 	if err != nil {
-		response.SendError(500, "Could not get a collection")
+		return fmt.Errorf("[ApiController.GetOrganization]: failed to find a collection: %v", err)
 	}
 	log.Printf("[GetOrganizationCollection] Request: list = %d", len(list))
 	data := apputils.ToOrganizationListDTO(list)
 	response.Send(http.StatusOK, data)
+	return nil
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetOrganizationCollectionDefinitions

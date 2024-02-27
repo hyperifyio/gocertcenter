@@ -75,12 +75,17 @@ func GetCertificateDTO(c appmodels.ICertificate) appdtos.CertificateDTO {
 	)
 }
 
-func ToCertificateDTOList(list []appmodels.ICertificate) []appdtos.CertificateDTO {
+func ToListOfCertificateDTO(list []appmodels.ICertificate) []appdtos.CertificateDTO {
 	result := make([]appdtos.CertificateDTO, len(list))
 	for i, v := range list {
 		result[i] = GetCertificateDTO(v)
 	}
 	return result
+}
+
+func ToCertificateListDTO(list []appmodels.ICertificate) appdtos.CertificateListDTO {
+	payload := ToListOfCertificateDTO(list)
+	return appdtos.NewCertificateListDTO(payload)
 }
 
 func GetCertificatePEMBytes(c appmodels.ICertificate) []byte {
@@ -149,7 +154,7 @@ func NewIntermediateCertificate(
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().Add(expiration),
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+		ExtKeyUsage:           []x509.ExtKeyUsage{},
 		BasicConstraintsValid: true,
 		IsCA:                  true,
 
@@ -311,7 +316,7 @@ func NewClientCertificate(
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().Add(expiration),
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}, // Key difference for client auth
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 		BasicConstraintsValid: true,
 	}
 
@@ -377,7 +382,7 @@ func NewRootCertificate(
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().Add(expiration),
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
+		ExtKeyUsage:           []x509.ExtKeyUsage{},
 		BasicConstraintsValid: true,
 		IsCA:                  true,
 	}

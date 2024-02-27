@@ -42,7 +42,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey(t *testing.T) {
 	err = fileManager.SaveBytes(fileName, keyPEM, 0600, 0700)
 	assert.NoError(t, err)
 
-	privateKey, err := repo.GetExistingPrivateKey(organization, certificates)
+	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)
 	assert.NoError(t, err)
 	assert.NotNil(t, privateKey)
 
@@ -75,7 +75,7 @@ func TestPrivateKeyRepository_CreatePrivateKey(t *testing.T) {
 	mockPrivateKey.On("GetPrivateKey").Return(rsaPrivKey)
 
 	// Act
-	createdKey, err := repo.CreatePrivateKey(mockPrivateKey)
+	createdKey, err := repo.Save(mockPrivateKey)
 
 	// Assertions
 	assert.NoError(t, err)
@@ -96,7 +96,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey_Nonexistent(t *testing.T) {
 	organization := "NonexistentOrg"
 	certificates := []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}
 
-	privateKey, err := repo.GetExistingPrivateKey(organization, certificates)
+	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)
 	assert.Error(t, err)
 	assert.Nil(t, privateKey)
 }
@@ -112,7 +112,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey_EmptyCertificates(t *testing
 	organization := "NonexistentOrg"
 	var certificates []appmodels.ISerialNumber
 
-	privateKey, err := repo.GetExistingPrivateKey(organization, certificates)
+	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)
 	assert.Error(t, err)
 	assert.Nil(t, privateKey)
 }

@@ -17,7 +17,12 @@ type CertificateRepository struct {
 	fileManager managers.IFileManager
 }
 
-func (r *CertificateRepository) GetExistingCertificate(
+func (r *CertificateRepository) FindAllByOrganization(organization string) ([]appmodels.ICertificate, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (r *CertificateRepository) FindByOrganizationAndSerialNumbers(
 	organization string,
 	certificates []appmodels.ISerialNumber,
 ) (appmodels.ICertificate, error) {
@@ -35,7 +40,7 @@ func (r *CertificateRepository) GetExistingCertificate(
 	return appmodels.NewCertificate(organization, certificates[:len(certificates)-1], cert), nil
 }
 
-func (r *CertificateRepository) CreateCertificate(certificate appmodels.ICertificate) (appmodels.ICertificate, error) {
+func (r *CertificateRepository) Save(certificate appmodels.ICertificate) (appmodels.ICertificate, error) {
 	organization := certificate.GetOrganizationID()
 	parents := certificate.GetParents()
 	serialNumber := certificate.GetSerialNumber()
@@ -49,7 +54,7 @@ func (r *CertificateRepository) CreateCertificate(certificate appmodels.ICertifi
 	if err != nil {
 		return nil, fmt.Errorf("failed to save certificate: %w", err)
 	}
-	return r.GetExistingCertificate(organization, fullPath)
+	return r.FindByOrganizationAndSerialNumbers(organization, fullPath)
 }
 
 // NewCertificateRepository creates a file based repository

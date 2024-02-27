@@ -29,10 +29,11 @@ func (c *ApiController) GetIndexDefinitions() swagger.Definitions {
 }
 
 // GetIndex handles the GET requests at the root URL.
-func (c *ApiController) GetIndex(response apitypes.IResponse, request apitypes.IRequest) {
+func (c *ApiController) GetIndex(response apitypes.IResponse, request apitypes.IRequest) error {
 	log.Printf("[IndexController] Request")
 	data := appdtos.NewIndexDTO(gocertcenter.Name, gocertcenter.Version)
 	response.Send(http.StatusOK, data)
+	return nil
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetIndexDefinitions

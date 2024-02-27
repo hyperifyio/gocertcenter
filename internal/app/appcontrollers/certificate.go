@@ -63,7 +63,7 @@ func (r *CertificateController) GetCertificateModel() appmodels.ICertificate {
 }
 
 func (r *CertificateController) GetChildCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {
-	model, err := r.certificateRepository.GetExistingCertificate(
+	model, err := r.certificateRepository.FindByOrganizationAndSerialNumbers(
 		r.GetOrganizationID(),
 		append(r.model.GetParents(), r.serialNumber, serialNumber),
 	)
@@ -104,7 +104,7 @@ func (r *CertificateController) GetParentCertificateController() appmodels.ICert
 }
 
 func (r *CertificateController) GetPrivateKeyModel() (appmodels.IPrivateKey, error) {
-	model, err := r.privateKeyRepository.GetExistingPrivateKey(
+	model, err := r.privateKeyRepository.FindByOrganizationAndSerialNumbers(
 		r.GetOrganizationID(),
 		append(r.model.GetParents(), r.serialNumber),
 	)
@@ -253,7 +253,7 @@ func (r *CertificateController) UsesCertificateService(service appmodels.ICertif
 }
 
 func (r *CertificateController) GetExistingCertificate(organization string, certificates []appmodels.ISerialNumber) (appmodels.ICertificate, error) {
-	return r.certificateRepository.GetExistingCertificate(organization, certificates)
+	return r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, certificates)
 }
 
 func (r *CertificateController) CreateSignedCertificate(
