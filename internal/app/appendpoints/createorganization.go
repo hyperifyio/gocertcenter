@@ -3,7 +3,7 @@
 package appendpoints
 
 import (
-	"encoding/json"
+	"log"
 	"net/http"
 
 	swagger "github.com/davidebianchi/gswagger"
@@ -33,27 +33,12 @@ func (c *ApiController) CreateOrganizationDefinitions() swagger.Definitions {
 // CreateOrganization handles a request
 func (c *ApiController) CreateOrganization(response apitypes.IResponse, request apitypes.IRequest) {
 
-	if request == nil {
-		response.SendError(500, "request object is invalid")
-		return
-	}
-
-	if response == nil {
-		response.SendError(500, "response object is invalid")
-		return
-	}
-
-	bodyIO := request.Body()
-
-	var body appdtos.OrganizationDTO
-
-	// Decode the JSON body into the struct
-	err := json.NewDecoder(bodyIO).Decode(&body)
+	body, err := c.DecodeOrganizationFromRequestBody(request)
 	if err != nil {
-		response.SendError(400, "request body failed to decode")
+		log.Printf("Request body invalid: %v", err)
+		response.SendError(400, "request body invalid")
 		return
 	}
-	defer bodyIO.Close()
 
 	id := body.ID
 	names := body.AllNames
