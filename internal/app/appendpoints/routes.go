@@ -12,6 +12,12 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 	return []apitypes.Route{
 		{
 			Method:      http.MethodGet,
+			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}/certificates/{serialNumber}",
+			Handler:     c.GetCertificate,
+			Definitions: c.GetCertificateDefinitions(),
+		},
+		{
+			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates/{serialNumber}/certificates",
 			Handler:     c.GetCertificateCollection,
 			Definitions: c.GetCertificateCollectionDefinitions(),
