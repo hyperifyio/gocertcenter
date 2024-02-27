@@ -3,6 +3,8 @@
 package apirequests
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -13,6 +15,19 @@ import (
 
 type RequestImpl struct {
 	request *http.Request
+}
+
+func (request *RequestImpl) Body() io.ReadCloser {
+	return request.request.Body
+}
+
+func (request *RequestImpl) GetBodyBytes() ([]byte, error) {
+	bytes, err := io.ReadAll(request.request.Body)
+	if err != nil {
+		return nil, fmt.Errorf("GetBodyBytes: failed: %w", err)
+	}
+	defer request.request.Body.Close()
+	return bytes, nil
 }
 
 func (request *RequestImpl) IsMethodGet() bool {

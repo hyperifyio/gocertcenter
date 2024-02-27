@@ -3,14 +3,16 @@
 package appendpoints
 
 import (
+	"encoding/json"
 	"net/http"
 
 	swagger "github.com/davidebianchi/gswagger"
 
+	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
+
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
-	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
 // CreateOrganizationDefinitions returns OpenAPI definitions
@@ -31,9 +33,30 @@ func (c *ApiController) CreateOrganizationDefinitions() swagger.Definitions {
 // CreateOrganization handles a request
 func (c *ApiController) CreateOrganization(response apitypes.IResponse, request apitypes.IRequest) {
 
-	id := ""
-	name := ""
-	names := []string{name}
+	if request == nil {
+		response.SendError(500, "request object is invalid")
+		return
+	}
+
+	if response == nil {
+		response.SendError(500, "response object is invalid")
+		return
+	}
+
+	bodyIO := request.Body()
+
+	var body appdtos.OrganizationDTO
+
+	// Decode the JSON body into the struct
+	err := json.NewDecoder(bodyIO).Decode(&body)
+	if err != nil {
+		response.SendError(400, "request body failed to decode")
+		return
+	}
+	defer bodyIO.Close()
+
+	id := body.ID
+	names := body.AllNames
 	var certificates []appmodels.ICertificate
 	var keys []appmodels.IPrivateKey
 

@@ -5,6 +5,7 @@ package apitypes
 import (
 	"context"
 	"hash"
+	"io"
 	"net/url"
 
 	swagger "github.com/davidebianchi/gswagger"
@@ -92,6 +93,8 @@ type IRequest interface {
 	GetMethod() string
 	GetURL() *url.URL
 	GetVars() map[string]string
+	Body() io.ReadCloser
+	GetBodyBytes() ([]byte, error)
 }
 
 // RequestHandlerFunc defines the type for handlers in this API.
