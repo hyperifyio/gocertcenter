@@ -17,6 +17,11 @@ type CertificateRepository struct {
 	fileManager managers.IFileManager
 }
 
+func (r *CertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) ([]appmodels.ICertificate, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
 func (r *CertificateRepository) FindAllByOrganization(organization string) ([]appmodels.ICertificate, error) {
 	// TODO implement me
 	panic("implement me")

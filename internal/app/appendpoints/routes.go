@@ -11,28 +11,34 @@ import (
 func (c *ApiController) GetRoutes() []apitypes.Route {
 	return []apitypes.Route{
 		{
+			Method:      http.MethodGet,
+			Path:        "/organizations/{organization}/certificates/{serialNumber}/certificates",
+			Handler:     c.GetCertificateCollection,
+			Definitions: c.GetCertificateCollectionDefinitions(),
+		},
+		{
 			Method:      http.MethodPost,
 			Path:        "/organizations/{organization}/certificates/{serialNumber}/certificates",
-			Handler:     c.CreateOrganizationCertificate,
-			Definitions: c.CreateOrganizationCertificateDefinitions(),
+			Handler:     c.CreateCertificate,
+			Definitions: c.CreateCertificateDefinitions(),
 		},
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates/{serialNumber}",
-			Handler:     c.GetOrganizationCertificate,
-			Definitions: c.GetOrganizationCertificateDefinitions(),
+			Handler:     c.GetRootCertificate,
+			Definitions: c.GetRootCertificateDefinitions(),
 		},
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates",
-			Handler:     c.GetOrganizationCertificateCollection,
-			Definitions: c.GetOrganizationCertificateCollectionDefinitions(),
+			Handler:     c.GetRootCertificateCollection,
+			Definitions: c.GetRootCertificateCollectionDefinitions(),
 		},
 		{
 			Method:      http.MethodPost,
 			Path:        "/organizations/{organization}/certificates",
-			Handler:     c.CreateOrganizationRootCertificate,
-			Definitions: c.CreateOrganizationRootCertificateDefinitions(),
+			Handler:     c.CreateRootCertificate,
+			Definitions: c.CreateRootCertificateDefinitions(),
 		},
 		{
 			Method:      http.MethodGet,

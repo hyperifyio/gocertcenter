@@ -47,5 +47,5 @@ func TestCertificateRepository_GetExistingCertificateNotFound(t *testing.T) {
 	// Test FindByOrganizationAndSerialNumbers for a non-existent certificate
 	_, err := repo.FindByOrganizationAndSerialNumbers("testorg", []appmodels.ISerialNumber{signedBy, serialNumber})
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "certificate not found")
+	assert.Contains(t, err.Error(), ": not found:")
 }

@@ -17,7 +17,7 @@ import (
 // GetOrganizationCollectionDefinitions returns OpenAPI definitions
 func (c *ApiController) GetOrganizationCollectionDefinitions() swagger.Definitions {
 	return swagger.Definitions{
-		Summary:     "Returns a collection of organization entities",
+		Summary:     "Returns a specific root certificate",
 		Description: "",
 		Responses: map[int]swagger.ContentValue{
 			200: {

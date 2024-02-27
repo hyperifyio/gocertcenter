@@ -15,8 +15,8 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
 )
 
-// CreateOrganizationRootCertificateDefinitions returns OpenAPI definitions
-func (c *ApiController) CreateOrganizationRootCertificateDefinitions() swagger.Definitions {
+// CreateRootCertificateDefinitions returns OpenAPI definitions
+func (c *ApiController) CreateRootCertificateDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns a collection of organization entities",
 		Description: "",
@@ -39,12 +39,12 @@ func (c *ApiController) CreateOrganizationRootCertificateDefinitions() swagger.D
 }
 
 // CreateOrganizationRootCertificate handles a request
-func (c *ApiController) CreateOrganizationRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *ApiController) CreateRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error {
 
 	body, err := c.DecodeCertificateRequestFromRequestBody(request)
 	if err != nil {
-		log.Printf("[ApiController.CreateOrganizationRootCertificate]: Request body invalid: %v", err)
-		response.SendError(400, "[ApiController.CreateOrganizationRootCertificate]: request body invalid")
+		log.Printf("[ApiController.CreateRootCertificate]: Request body invalid: %v", err)
+		response.SendError(400, "[ApiController.CreateRootCertificate]: request body invalid")
 		return nil
 	}
 
@@ -54,7 +54,7 @@ func (c *ApiController) CreateOrganizationRootCertificate(response apitypes.IRes
 	}
 
 	if certificateType != appdtos.RootCertificate {
-		response.SendError(400, "[ApiController.CreateOrganizationRootCertificate]: only root certificate type supported")
+		response.SendError(400, "[ApiController.CreateRootCertificate]: only root certificate type supported")
 		return nil
 	}
 
@@ -62,14 +62,14 @@ func (c *ApiController) CreateOrganizationRootCertificate(response apitypes.IRes
 
 	organizationController, err := c.appController.GetOrganizationController(organization)
 	if err != nil {
-		return fmt.Errorf("[ApiController.CreateOrganizationRootCertificate]: failed to find organization controller: %w", err)
+		return fmt.Errorf("[ApiController.CreateRootCertificate]: failed to find organization controller: %w", err)
 	}
 
 	commonName := body.CommonName
 
 	cert, err := organizationController.NewRootCertificate(commonName)
 	if err != nil {
-		return fmt.Errorf("[ApiController.CreateOrganizationRootCertificate]: [OrganizationController(%s).NewRootCertificate]: failed: %w", organization, err)
+		return fmt.Errorf("[ApiController.CreateRootCertificate]: [OrganizationController(%s).NewRootCertificate]: failed: %w", organization, err)
 	}
 
 	data := apputils.GetCertificateDTO(cert)
@@ -77,5 +77,5 @@ func (c *ApiController) CreateOrganizationRootCertificate(response apitypes.IRes
 	return nil
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateOrganizationRootCertificateDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).CreateOrganizationRootCertificate
+var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateRootCertificateDefinitions
+var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).CreateRootCertificate

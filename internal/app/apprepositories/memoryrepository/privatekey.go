@@ -3,7 +3,8 @@
 package memoryrepository
 
 import (
-	"errors"
+	"fmt"
+	"log"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
@@ -14,8 +15,20 @@ type PrivateKeyRepository struct {
 	keys map[string]appmodels.IPrivateKey
 }
 
-// Compile time assertion for implementing the interface
-var _ appmodels.IPrivateKeyService = (*PrivateKeyRepository)(nil)
+func (r *PrivateKeyRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
+	id := getCertificateLocator(organization, certificates)
+	if key, exists := r.keys[id]; exists {
+		return key, nil
+	}
+	return nil, fmt.Errorf("[PrivateKey:FindById]: not found: %s", id)
+}
+
+func (r *PrivateKeyRepository) Save(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
+	id := getCertificateLocator(key.GetOrganizationID(), append(key.GetParents(), key.GetSerialNumber()))
+	r.keys[id] = key
+	log.Printf("[PrivateKey:Save:%s] Saved: %v", id, key)
+	return key, nil
+}
 
 // NewPrivateKeyRepository is a memory based repository for private keys
 func NewPrivateKeyRepository() *PrivateKeyRepository {
@@ -24,14 +37,5 @@ func NewPrivateKeyRepository() *PrivateKeyRepository {
 	}
 }
 
-func (r *PrivateKeyRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
-	if key, exists := r.keys[getCertificateLocator(organization, certificates)]; exists {
-		return key, nil
-	}
-	return nil, errors.New("key not found")
-}
-
-func (r *PrivateKeyRepository) Save(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
-	r.keys[getCertificateLocator(key.GetOrganizationID(), append(key.GetParents(), key.GetSerialNumber()))] = key
-	return key, nil
-}
+// Compile time assertion for implementing the interface
+var _ appmodels.IPrivateKeyService = (*PrivateKeyRepository)(nil)

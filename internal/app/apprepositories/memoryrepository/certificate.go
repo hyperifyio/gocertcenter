@@ -4,6 +4,8 @@ package memoryrepository
 
 import (
 	"errors"
+	"fmt"
+	"log"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
@@ -14,11 +16,25 @@ type CertificateRepository struct {
 	certificates map[string]appmodels.ICertificate
 }
 
+func (r *CertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) ([]appmodels.ICertificate, error) {
+	targetLocator := getCertificateLocator(organization, certificates)
+	var result []appmodels.ICertificate
+	if r.certificates == nil {
+		return result, nil
+	}
+	for _, cert := range r.certificates {
+		parentLocator := getCertificateLocator(organization, cert.GetParents())
+		if parentLocator == targetLocator {
+			result = append(result, cert)
+		}
+	}
+	return result, nil
+}
+
 func (r *CertificateRepository) FindAllByOrganization(organization string) ([]appmodels.ICertificate, error) {
 	if r.certificates == nil {
-		return nil, errors.New("certificate repository is not initialized")
+		return nil, errors.New("[Certificate:FindAllByOrganization]: not initialized")
 	}
-
 	var result []appmodels.ICertificate
 	for _, cert := range r.certificates {
 		if cert.GetOrganizationID() == organization {
@@ -29,14 +45,17 @@ func (r *CertificateRepository) FindAllByOrganization(organization string) ([]ap
 }
 
 func (r *CertificateRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.ICertificate, error) {
-	if certificate, exists := r.certificates[getCertificateLocator(organization, certificates)]; exists {
+	id := getCertificateLocator(organization, certificates)
+	if certificate, exists := r.certificates[id]; exists {
 		return certificate, nil
 	}
-	return nil, errors.New("certificate not found")
+	return nil, fmt.Errorf("[Certificate:FindByOrganizationAndSerialNumbers]: not found: %s", id)
 }
 
 func (r *CertificateRepository) Save(certificate appmodels.ICertificate) (appmodels.ICertificate, error) {
-	r.certificates[getCertificateLocator(certificate.GetOrganizationID(), append(certificate.GetParents(), certificate.GetSerialNumber()))] = certificate
+	id := getCertificateLocator(certificate.GetOrganizationID(), append(certificate.GetParents(), certificate.GetSerialNumber()))
+	r.certificates[id] = certificate
+	log.Printf("[Certificate:Save:%s] Saved: %v", id, certificate)
 	return certificate, nil
 }
 

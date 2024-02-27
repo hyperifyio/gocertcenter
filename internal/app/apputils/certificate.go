@@ -203,7 +203,11 @@ func NewIntermediateCertificate(
 		return nil, fmt.Errorf("NewIntermediateCertificate: failed: %w", err)
 	}
 
-	return appmodels.NewCertificate(organization.GetID(), append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()), cert), nil
+	return appmodels.NewCertificate(
+		organization.GetID(),
+		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()),
+		cert,
+	), nil
 
 }
 
@@ -285,7 +289,11 @@ func NewServerCertificate(
 		return nil, fmt.Errorf("NewServerCertificate: failed: %w", err)
 	}
 
-	return appmodels.NewCertificate(organization.GetID(), parentCertificate.GetParents(), cert), nil
+	return appmodels.NewCertificate(
+		organization.GetID(),
+		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()),
+		cert,
+	), nil
 }
 
 // NewClientCertificate creates an intermediate certificate
@@ -360,7 +368,11 @@ func NewClientCertificate(
 		return nil, fmt.Errorf("NewClientCertificate: failed: %w", err)
 	}
 
-	return appmodels.NewCertificate(organization.GetID(), parentCertificate.GetParents(), cert), nil
+	return appmodels.NewCertificate(
+		organization.GetID(),
+		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()),
+		cert,
+	), nil
 }
 
 // NewRootCertificate creates a new root certificate
@@ -427,5 +439,9 @@ func NewRootCertificate(
 		return nil, fmt.Errorf("NewRootCertificate: failed to create certificate: %w", err)
 	}
 
-	return appmodels.NewCertificate(organization.GetID(), []appmodels.ISerialNumber{}, cert), nil
+	return appmodels.NewCertificate(
+		organization.GetID(),
+		[]appmodels.ISerialNumber{},
+		cert,
+	), nil
 }

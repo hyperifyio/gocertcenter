@@ -40,5 +40,5 @@ func TestOrganizationRepository_GetExistingOrganizationNotFound(t *testing.T) {
 	// Test FindById for a non-existent organization
 	_, err := repo.FindById(id)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "organization not found")
+	assert.Contains(t, err.Error(), ": not found:")
 }

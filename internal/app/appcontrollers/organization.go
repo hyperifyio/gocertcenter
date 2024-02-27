@@ -48,9 +48,12 @@ type OrganizationController struct {
 
 func (r *OrganizationController) GetCertificateCollection() ([]appmodels.ICertificate, error) {
 	organization := r.GetOrganizationID()
-	list, err := r.certificateRepository.FindAllByOrganization(organization)
+	if r.certificateRepository == nil {
+		return nil, fmt.Errorf("[%s:GetCertificateCollection]: no certificate repository", organization)
+	}
+	list, err := r.certificateRepository.FindAllByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{})
 	if err != nil {
-		return nil, fmt.Errorf("OrganizationController(%s).GetCertificateCollection: failed: %w", organization, err)
+		return nil, fmt.Errorf("[%s:GetCertificateCollection]: failed: %w", organization, err)
 	}
 	return list, nil
 }
@@ -70,7 +73,7 @@ func (r *OrganizationController) GetApplicationController() appmodels.IApplicati
 func (r *OrganizationController) GetCertificateController(serialNumber appmodels.ISerialNumber) (appmodels.ICertificateController, error) {
 	model, err := r.GetCertificateModel(serialNumber)
 	if err != nil {
-		return nil, fmt.Errorf("OrganizationController('%s').GetCertificateController('%s'): could not find: %w", r.id, serialNumber, err)
+		return nil, fmt.Errorf("[%s:GetCertificateController:%s]: failed: %w", r.id, serialNumber, err)
 	}
 	return NewCertificateController(
 		r,
@@ -88,7 +91,7 @@ func (r *OrganizationController) GetCertificateController(serialNumber appmodels
 func (r *OrganizationController) GetCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {
 	model, err := r.certificateRepository.FindByOrganizationAndSerialNumbers(r.id, []appmodels.ISerialNumber{serialNumber})
 	if err != nil {
-		return nil, fmt.Errorf("OrganizationController('%s').GetCertificateModel('%s'): failed to fetch: %w", r.id, serialNumber.String(), err)
+		return nil, fmt.Errorf("[%s:GetCertificateModel:%s]: failed: %w", r.id, serialNumber.String(), err)
 	}
 	return model, nil
 }
@@ -103,12 +106,20 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 
 	serialNumber, err := apputils.GenerateSerialNumber(r.randomManager)
 	if err != nil {
-		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: failed to create serial number: %w", organization, err)
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: failed to create serial number: %w", organization, commonName, err)
+	}
+
+	if r.certificateRepository == nil {
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: no certificate repository", organization, commonName)
+	}
+
+	if r.privateKeyRepository == nil {
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: no certificate repository", organization, commonName)
 	}
 
 	_, err = r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
 	if err == nil {
-		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: serial number exist already: %s", organization, serialNumber.String())
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: serial number exists already: %s", organization, commonName, serialNumber.String())
 	}
 
 	keyType := r.defaultKeyType
@@ -122,7 +133,7 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 		keyType,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: failed to generate private key: %w", organization, err)
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: failed to generate private key: %w", organization, commonName, err)
 	}
 
 	cert, err := apputils.NewRootCertificate(
@@ -134,17 +145,17 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 		commonName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: failed to create certificate: %w", organization, err)
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: failed to create certificate: %w", organization, commonName, err)
 	}
 
 	_, err = r.privateKeyRepository.Save(privateKey)
 	if err != nil {
-		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: could not save private key: %w", organization, err)
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: could not save private key: %w", organization, commonName, err)
 	}
 
 	savedModel, err := r.certificateRepository.Save(cert)
 	if err != nil {
-		return nil, fmt.Errorf("[OrganizationController(%s).NewRootCertificate]: could not save certificate: %w", organization, err)
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: could not save certificate: %w", organization, commonName, err)
 	}
 
 	return savedModel, nil

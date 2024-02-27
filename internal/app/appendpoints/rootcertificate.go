@@ -16,8 +16,8 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
 )
 
-// GetOrganizationCertificateDefinitions returns OpenAPI definitions
-func (c *ApiController) GetOrganizationCertificateDefinitions() swagger.Definitions {
+// GetRootCertificateDefinitions returns OpenAPI definitions
+func (c *ApiController) GetRootCertificateDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns an root certificate",
 		Description: "",
@@ -31,32 +31,32 @@ func (c *ApiController) GetOrganizationCertificateDefinitions() swagger.Definiti
 	}
 }
 
-// GetOrganizationCertificate handles a request
-func (c *ApiController) GetOrganizationCertificate(response apitypes.IResponse, request apitypes.IRequest) error {
+// GetRootCertificate handles a request
+func (c *ApiController) GetRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error {
 	organization := request.GetVariable("organization")
-	log.Printf("[GetOrganizationCertificate] organization = %s", organization)
+	log.Printf("[GetRootCertificate] organization = %s", organization)
 
 	serialNumberString := request.GetVariable("serialNumber")
 	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
 	if err != nil {
-		return fmt.Errorf("[ApiController.GetOrganizationCertificate]: failed to parse serialNumber: %v", err)
+		return fmt.Errorf("[ApiController.GetRootCertificate]: failed to parse serialNumber: %v", err)
 	}
-	log.Printf("[GetOrganizationCertificate] serialNumber = %s", serialNumber.String())
+	log.Printf("[GetRootCertificate] serialNumber = %s", serialNumber.String())
 
 	organizationController, err := c.appController.GetOrganizationController(organization)
 	if err != nil {
-		return fmt.Errorf("[ApiController.GetOrganizationCertificate]: failed to find organizationController: %v", err)
+		return fmt.Errorf("[ApiController.GetRootCertificate]: failed to find organizationController: %v", err)
 	}
 
 	model, err := organizationController.GetCertificateModel(serialNumber)
 	if err != nil {
-		return fmt.Errorf("[ApiController.GetOrganizationCertificate]: failed to find model: %v", err)
+		return fmt.Errorf("[ApiController.GetRootCertificate]: failed to find model: %v", err)
 	}
-	log.Printf("[GetOrganizationCertificate] Request: model = %v", model)
+	log.Printf("[GetRootCertificate] Request: model = %v", model)
 	data := apputils.GetCertificateDTO(model)
 	response.Send(http.StatusOK, data)
 	return nil
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetOrganizationCertificateDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).GetOrganizationCertificate
+var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetRootCertificateDefinitions
+var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).GetRootCertificate

@@ -19,9 +19,9 @@ type IApiController interface {
 	GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest) error
 	GetOrganizationCollectionDefinitions() swagger.Definitions
 
-	GetOrganizationCertificateCollection(response apitypes.IResponse, request apitypes.IRequest) error
-	GetOrganizationCertificateCollectionDefinitions() swagger.Definitions
+	GetRootCertificateCollection(response apitypes.IResponse, request apitypes.IRequest) error
+	GetRootCertificateCollectionDefinitions() swagger.Definitions
 
-	CreateOrganizationRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error
-	CreateOrganizationRootCertificateDefinitions() swagger.Definitions
+	CreateRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error
+	CreateRootCertificateDefinitions() swagger.Definitions
 }

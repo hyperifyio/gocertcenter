@@ -37,7 +37,7 @@ func (a *ApplicationController) UsesPrivateKeyService(service appmodels.IPrivate
 func (a *ApplicationController) GetOrganizationModel(organization string) (appmodels.IOrganization, error) {
 	model, err := a.organizationRepository.FindById(organization)
 	if err != nil {
-		return nil, fmt.Errorf("ApplicationController.GetOrganizationModel: failed to fetch '%s': %w", organization, err)
+		return nil, fmt.Errorf("[GetOrganizationModel]: failed: '%s': %w", organization, err)
 	}
 	return model, nil
 }
@@ -45,7 +45,7 @@ func (a *ApplicationController) GetOrganizationModel(organization string) (appmo
 func (a *ApplicationController) GetOrganizationController(organization string) (appmodels.IOrganizationController, error) {
 	model, err := a.GetOrganizationModel(organization)
 	if err != nil {
-		return nil, fmt.Errorf("ApplicationController.GetOrganizationController: could not find organization '%s': %w", organization, err)
+		return nil, fmt.Errorf("[GetOrganizationController:%s]: not found: %w", organization, err)
 	}
 	return NewOrganizationController(
 		organization,
@@ -77,10 +77,9 @@ func (a *ApplicationController) NewOrganization(model appmodels.IOrganization) (
 func (a *ApplicationController) GetOrganizationCollection() ([]appmodels.IOrganization, error) {
 	list, err := a.organizationRepository.FindAll()
 	if err != nil {
-		return nil, fmt.Errorf("ApplicationController.GetOrganizationCollection: could not get all models: %w", err)
+		return nil, fmt.Errorf("[GetOrganizationCollection]: failed: %w", err)
 	}
 	return list, nil
-
 }
 
 // NewApplicationController implements appmodels.IApplicationController

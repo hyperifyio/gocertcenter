@@ -121,6 +121,7 @@ type IOrganizationService interface {
 // promoting loose coupling between the application's business logic and its data layer.
 type ICertificateService interface {
 	FindAllByOrganization(organization string) ([]ICertificate, error)
+	FindAllByOrganizationAndSerialNumbers(organization string, certificates []ISerialNumber) ([]ICertificate, error)
 	FindByOrganizationAndSerialNumbers(organization string, certificates []ISerialNumber) (ICertificate, error)
 	Save(certificate ICertificate) (ICertificate, error)
 }
@@ -233,6 +234,9 @@ type ICertificateController interface {
 	// GetCertificateModel returns the model of the certificate this controller
 	// controls
 	GetCertificateModel() ICertificate
+
+	// GetChildCertificateCollection returns all child certificates
+	GetChildCertificateCollection() ([]ICertificate, error)
 
 	// GetChildCertificateModel returns a child certificate model
 	//  * serialNumber - The serial number of the child certificate

@@ -48,5 +48,5 @@ func TestPrivateKeyRepository_GetExistingPrivateKeyNotFound(t *testing.T) {
 	// Test FindByOrganizationAndSerialNumbers for a non-existent key
 	_, err := repo.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
 	assert.Error(t, err)
-	assert.Contains(t, "key not found", err.Error())
+	assert.Contains(t, err.Error(), ": not found:")
 }

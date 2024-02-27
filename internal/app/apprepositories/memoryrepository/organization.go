@@ -3,7 +3,8 @@
 package memoryrepository
 
 import (
-	"errors"
+	"fmt"
+	"log"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
@@ -26,11 +27,13 @@ func (r *OrganizationRepository) FindById(id string) (appmodels.IOrganization, e
 	if organization, exists := r.organizations[id]; exists {
 		return organization, nil
 	}
-	return nil, errors.New("organization not found")
+	return nil, fmt.Errorf("[Organization:FindById]: not found: %s", id)
 }
 
 func (r *OrganizationRepository) Save(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
-	r.organizations[organization.GetID()] = organization
+	id := organization.GetID()
+	r.organizations[id] = organization
+	log.Printf("[Organization:Save:%s] Saved: %v", id, organization)
 	return organization, nil
 }
 

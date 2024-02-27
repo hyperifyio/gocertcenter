@@ -15,6 +15,11 @@ type MockCertificateController struct {
 	mock.Mock
 }
 
+func (m *MockCertificateController) GetChildCertificateCollection() ([]appmodels.ICertificate, error) {
+	args := m.Called()
+	return args.Get(0).([]appmodels.ICertificate), args.Error(2)
+}
+
 func (m *MockCertificateController) GetApplicationController() appmodels.IApplicationController {
 	args := m.Called()
 	return args.Get(0).(appmodels.IApplicationController)
