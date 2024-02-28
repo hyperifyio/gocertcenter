@@ -225,8 +225,8 @@ func NewIntermediateCertificate(
 		return nil, fmt.Errorf("NewIntermediateCertificate: parentPrivateKey: must be defined")
 	}
 
-	if commonName == "" {
-		return nil, fmt.Errorf("NewIntermediateCertificate: commonName: must be defined")
+	if err := ValidateRootCertificateCommonName(commonName); err != nil {
+		return nil, fmt.Errorf("NewIntermediateCertificate: commonName: %s", err)
 	}
 
 	certificateTemplate := x509.Certificate{
