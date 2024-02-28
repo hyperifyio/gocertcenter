@@ -198,6 +198,10 @@
   <li><a href="#organizationsGet"><code><span class="http-method">get</span> /organizations</code></a></li>
   <li><a href="#organizationsOrganizationCertificatesGet"><code><span class="http-method">get</span> /organizations/{organization}/certificates</code></a></li>
   <li><a href="#organizationsOrganizationCertificatesPost"><code><span class="http-method">post</span> /organizations/{organization}/certificates</code></a></li>
+  <li><a href="#organizationsOrganizationCertificatesRootSerialNumberCertificatesGet"><code><span class="http-method">get</span> /organizations/{organization}/certificates/{rootSerialNumber}/certificates</code></a></li>
+  <li><a href="#organizationsOrganizationCertificatesRootSerialNumberCertificatesPost"><code><span class="http-method">post</span> /organizations/{organization}/certificates/{rootSerialNumber}/certificates</code></a></li>
+  <li><a href="#organizationsOrganizationCertificatesRootSerialNumberCertificatesSerialNumberGet"><code><span class="http-method">get</span> /organizations/{organization}/certificates/{rootSerialNumber}/certificates/{serialNumber}</code></a></li>
+  <li><a href="#organizationsOrganizationCertificatesRootSerialNumberGet"><code><span class="http-method">get</span> /organizations/{organization}/certificates/{rootSerialNumber}</code></a></li>
   <li><a href="#organizationsOrganizationGet"><code><span class="http-method">get</span> /organizations/{organization}</code></a></li>
   <li><a href="#organizationsPost"><code><span class="http-method">post</span> /organizations</code></a></li>
   <li><a href="#rootGet"><code><span class="http-method">get</span> /</code></a></li>
@@ -208,7 +212,7 @@
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
     <pre class="get"><code class="huge"><span class="http-method">get</span> /organizations</code></pre></div>
-    <div class="method-summary">Returns a collection of organization entities (<span class="nickname">organizationsGet</span>)</div>
+    <div class="method-summary">Returns a specific root certificate (<span class="nickname">organizationsGet</span>)</div>
     <div class="method-notes"></div>
 
 
@@ -387,11 +391,258 @@
         <a href="#inline_response_200_3">inline_response_200_3</a>
   </div> <!-- method -->
   <hr/>
+  <div class="method"><a name="organizationsOrganizationCertificatesRootSerialNumberCertificatesGet"></a>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /organizations/{organization}/certificates/{rootSerialNumber}/certificates</code></pre></div>
+    <div class="method-summary">Returns a collection of root certificate entities (<span class="nickname">organizationsOrganizationCertificatesRootSerialNumberCertificatesGet</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">organization (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>      <div class="param">rootSerialNumber (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>    </div>  <!-- field-items -->
+
+
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#inline_response_200_2">inline_response_200_2</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "payload" : [ {
+    "commonName" : "commonName",
+    "serialNumber" : "serialNumber",
+    "signedBy" : "signedBy",
+    "isRootCertificate" : true,
+    "organization" : "organization",
+    "certificate" : "certificate",
+    "isCA" : true,
+    "isServerCertificate" : true,
+    "isIntermediateCertificate" : true,
+    "isClientCertificate" : true,
+    "parents" : [ "parents", "parents" ]
+  }, {
+    "commonName" : "commonName",
+    "serialNumber" : "serialNumber",
+    "signedBy" : "signedBy",
+    "isRootCertificate" : true,
+    "organization" : "organization",
+    "certificate" : "certificate",
+    "isCA" : true,
+    "isServerCertificate" : true,
+    "isIntermediateCertificate" : true,
+    "isClientCertificate" : true,
+    "parents" : [ "parents", "parents" ]
+  } ]
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    
+        <a href="#inline_response_200_2">inline_response_200_2</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="organizationsOrganizationCertificatesRootSerialNumberCertificatesPost"></a>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /organizations/{organization}/certificates/{rootSerialNumber}/certificates</code></pre></div>
+    <div class="method-summary">Creates another certificate under a root certificate (<span class="nickname">organizationsOrganizationCertificatesRootSerialNumberCertificatesPost</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">organization (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>      <div class="param">rootSerialNumber (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>    </div>  <!-- field-items -->
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">body <a href="#rootSerialNumber_certificates_body">rootSerialNumber_certificates_body</a> (optional)</div>
+      
+            <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash; Certificate request data </div>
+                </div>  <!-- field-items -->
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#inline_response_200_3">inline_response_200_3</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "commonName" : "commonName",
+  "serialNumber" : "serialNumber",
+  "signedBy" : "signedBy",
+  "isRootCertificate" : true,
+  "organization" : "organization",
+  "certificate" : "certificate",
+  "isCA" : true,
+  "isServerCertificate" : true,
+  "isIntermediateCertificate" : true,
+  "isClientCertificate" : true,
+  "parents" : [ "parents", "parents" ]
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    
+        <a href="#inline_response_200_3">inline_response_200_3</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="organizationsOrganizationCertificatesRootSerialNumberCertificatesSerialNumberGet"></a>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /organizations/{organization}/certificates/{rootSerialNumber}/certificates/{serialNumber}</code></pre></div>
+    <div class="method-summary">Returns a certificate entity owned by a root certificate (<span class="nickname">organizationsOrganizationCertificatesRootSerialNumberCertificatesSerialNumberGet</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">organization (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>      <div class="param">rootSerialNumber (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>      <div class="param">serialNumber (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>    </div>  <!-- field-items -->
+
+
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#organizations_body">organizations_body</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "allNames" : [ "allNames", "allNames" ],
+  "name" : "name",
+  "id" : "id"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    
+        <a href="#organizations_body">organizations_body</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="organizationsOrganizationCertificatesRootSerialNumberGet"></a>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /organizations/{organization}/certificates/{rootSerialNumber}</code></pre></div>
+    <div class="method-summary">Returns an root certificate (<span class="nickname">organizationsOrganizationCertificatesRootSerialNumberGet</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">organization (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>      <div class="param">rootSerialNumber (required)</div>
+      
+            <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  </div>    </div>  <!-- field-items -->
+
+
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#inline_response_200_3">inline_response_200_3</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "commonName" : "commonName",
+  "serialNumber" : "serialNumber",
+  "signedBy" : "signedBy",
+  "isRootCertificate" : true,
+  "organization" : "organization",
+  "certificate" : "certificate",
+  "isCA" : true,
+  "isServerCertificate" : true,
+  "isIntermediateCertificate" : true,
+  "isClientCertificate" : true,
+  "parents" : [ "parents", "parents" ]
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    
+        <a href="#inline_response_200_3">inline_response_200_3</a>
+  </div> <!-- method -->
+  <hr/>
   <div class="method"><a name="organizationsOrganizationGet"></a>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
     <pre class="get"><code class="huge"><span class="http-method">get</span> /organizations/{organization}</code></pre></div>
-    <div class="method-summary">Returns a collection of organization entities (<span class="nickname">organizationsOrganizationGet</span>)</div>
+    <div class="method-summary">Returns an organization entity (<span class="nickname">organizationsOrganizationGet</span>)</div>
     <div class="method-notes"></div>
 
     <h3 class="field-label">Path parameters</h3>
@@ -540,6 +791,7 @@
     <li><a href="#inline_response_200_3"><code>inline_response_200_3</code></a></li>
     <li><a href="#organization_certificates_body"><code>organization_certificates_body</code></a></li>
     <li><a href="#organizations_body"><code>organizations_body</code></a></li>
+    <li><a href="#rootSerialNumber_certificates_body"><code>rootSerialNumber_certificates_body</code></a></li>
   </ol>
 
   <div class="model">
@@ -587,10 +839,10 @@
     <h3><a name="organization_certificates_body"><code>organization_certificates_body</code></a> <a class="up" href="#__Models">Up</a></h3>
     
     <div class="field-items">
-      <div class="param">certificateType </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
-<div class="param">commonName </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+      <div class="param">commonName </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
 <div class="param">dnsNames </div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span>  </div>
 <div class="param">expiration </div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span>  </div>
+<div class="param">type </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
     </div>  <!-- field-items -->
   </div>
   <div class="model">
@@ -600,6 +852,16 @@
       <div class="param">allNames </div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span>  </div>
 <div class="param">id </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
 <div class="param">name </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="rootSerialNumber_certificates_body"><code>rootSerialNumber_certificates_body</code></a> <a class="up" href="#__Models">Up</a></h3>
+    
+    <div class="field-items">
+      <div class="param">commonName </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">dnsNames </div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span>  </div>
+<div class="param">expiration </div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span>  </div>
+<div class="param">type </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
     </div>  <!-- field-items -->
   </div>
   </body>
