@@ -4,6 +4,7 @@ package appmodels
 
 import (
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"math/big"
 	"time"
 )
@@ -33,6 +34,9 @@ type ICertificate interface {
 
 	// GetCommonName
 	GetCommonName() string
+
+	GetNotBefore() time.Time
+	GetNotAfter() time.Time
 
 	// IsCA -
 	IsCA() bool
@@ -102,6 +106,18 @@ type IPrivateKey interface {
 	// GetSerialNumber returns the serial number of the certificate which this
 	// key belongs to
 	GetSerialNumber() ISerialNumber
+}
+
+// IRevokedCertificate describes an interface for RevokedCertificate model
+type IRevokedCertificate interface {
+
+	// GetSerialNumber returns the serial number of the certificate which was revoked
+	GetSerialNumber() ISerialNumber
+
+	GetRevocationTime() time.Time
+	GetExpirationTime() time.Time
+
+	GetRevokedCertificate() pkix.RevokedCertificate
 }
 
 // IOrganizationService defines the interface for storing organization models,
@@ -207,6 +223,8 @@ type IOrganizationController interface {
 
 	UsesOrganizationService(service IOrganizationService) bool
 	UsesApplicationController(service IApplicationController) bool
+
+	RevokeCertificate(certificate ICertificate) (IRevokedCertificate, error)
 }
 
 // ICertificateController controls a certificate owned by the organization. It

@@ -4,6 +4,7 @@ package appmocks
 
 import (
 	"crypto/x509"
+	"time"
 
 	"github.com/stretchr/testify/mock"
 
@@ -14,6 +15,16 @@ import (
 // MockCertificate implements a mock models.ICertificate for the ICertificate interface
 type MockCertificate struct {
 	mock.Mock
+}
+
+func (c *MockCertificate) GetNotBefore() time.Time {
+	args := c.Called()
+	return args.Get(0).(time.Time)
+}
+
+func (c *MockCertificate) GetNotAfter() time.Time {
+	args := c.Called()
+	return args.Get(0).(time.Time)
 }
 
 func (c *MockCertificate) GetDTO() appdtos.CertificateDTO {

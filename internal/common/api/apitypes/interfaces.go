@@ -36,9 +36,11 @@ type IResponse interface {
 	Send(statusCode int, data interface{})
 	SendError(statusCode int, error string)
 	SendMethodNotSupportedError()
+	SendBytes([]byte) error
 	SendNotFoundError()
 	SendConflictError(error string)
 	SendInternalServerError(error string)
+	SetHeader(name, value string)
 }
 
 // IServer defines the methods available from the Server
@@ -96,6 +98,7 @@ type IRequest interface {
 	GetQueryParam(name string) string
 	Body() io.ReadCloser
 	GetBodyBytes() ([]byte, error)
+	GetHeader(name string) string
 }
 
 // RequestHandlerFunc defines the type for handlers in this API.

@@ -86,7 +86,7 @@ func TestGetCertificateDTO(t *testing.T) {
 	pemBytes := pem.EncodeToMemory(pemBlock)
 
 	// Call GetDTO and verify each field
-	dto := apputils.GetCertificateDTO(cert)
+	dto := apputils.ToCertificateDTO(cert)
 
 	if dto.CommonName != cert.GetCommonName() {
 		t.Errorf("DTO CommonName mismatch, got %v, want %v", dto.CommonName, cert.GetCommonName())

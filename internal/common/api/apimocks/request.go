@@ -21,6 +21,11 @@ type MockRequest struct {
 	BodyContentError error
 }
 
+func (m *MockRequest) GetHeader(name string) string {
+	// TODO implement me
+	panic("implement me")
+}
+
 func (m *MockRequest) Body() io.ReadCloser {
 	return io.NopCloser(bytes.NewBufferString(string(m.BodyContent)))
 }

@@ -17,6 +17,16 @@ type MockResponse struct {
 	InternalServerError     string
 }
 
+func (m *MockResponse) SendBytes(bytes []byte) error {
+	// TODO implement me
+	panic("implement me")
+}
+
+func (m *MockResponse) SetHeader(name, value string) {
+	// TODO implement me
+	panic("implement me")
+}
+
 func (m *MockResponse) Send(statusCode int, data interface{}) {
 	m.SentStatusCode = statusCode
 	m.SentData = data

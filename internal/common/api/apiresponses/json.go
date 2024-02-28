@@ -4,6 +4,7 @@ package apiresponses
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apidtos"
@@ -12,6 +13,18 @@ import (
 
 type JSONResponse struct {
 	writer http.ResponseWriter
+}
+
+func (sender *JSONResponse) SendBytes(bytes []byte) error {
+	_, err := sender.writer.Write(bytes)
+	if err != nil {
+		return fmt.Errorf("SendBytes: failed: %w", err)
+	}
+	return nil
+}
+
+func (sender *JSONResponse) SetHeader(name, value string) {
+	sender.writer.Header().Set(name, value)
 }
 
 func (sender *JSONResponse) Send(statusCode int, data interface{}) {

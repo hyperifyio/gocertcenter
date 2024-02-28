@@ -55,7 +55,7 @@ func CreateSignedCertificate(
 	return cert, nil
 }
 
-func GetCertificateDTO(c appmodels.ICertificate) appdtos.CertificateDTO {
+func ToCertificateDTO(c appmodels.ICertificate) appdtos.CertificateDTO {
 	parents := c.GetParents()
 	strings := make([]string, len(parents))
 	for i, p := range parents {
@@ -73,6 +73,27 @@ func GetCertificateDTO(c appmodels.ICertificate) appdtos.CertificateDTO {
 		c.IsServerCertificate(),
 		c.IsClientCertificate(),
 		string(GetCertificatePEMBytes(c)),
+	)
+}
+
+func ToCertificateRevokedDTO(
+	c appmodels.IRevokedCertificate,
+) appdtos.CertificateRevokedDTO {
+	return appdtos.NewCertificateRevokedDTO(
+		c.GetSerialNumber().String(),
+		c.GetRevocationTime(),
+		c.GetExpirationTime(),
+	)
+}
+
+func ToRevokedCertificate(
+	c appmodels.ICertificate,
+	revocationTime time.Time,
+) appmodels.IRevokedCertificate {
+	return appmodels.NewRevokedCertificate(
+		c.GetSerialNumber(),
+		revocationTime,
+		c.GetNotAfter(),
 	)
 }
 
@@ -99,7 +120,7 @@ func ToCertificateCreatedDTO(
 		return appdtos.CertificateCreatedDTO{}, fmt.Errorf("ToCertificateCreatedDTO: failed: %w", err)
 	}
 	return appdtos.NewCertificateCreatedDTO(
-		GetCertificateDTO(c),
+		ToCertificateDTO(c),
 		dto,
 	), nil
 }
@@ -107,7 +128,7 @@ func ToCertificateCreatedDTO(
 func ToListOfCertificateDTO(list []appmodels.ICertificate) []appdtos.CertificateDTO {
 	result := make([]appdtos.CertificateDTO, len(list))
 	for i, v := range list {
-		result[i] = GetCertificateDTO(v)
+		result[i] = ToCertificateDTO(v)
 	}
 	return result
 }

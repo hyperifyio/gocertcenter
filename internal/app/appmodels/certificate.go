@@ -5,6 +5,7 @@ package appmodels
 import (
 	"bytes"
 	"crypto/x509"
+	"time"
 )
 
 // Certificate model implements ICertificate
@@ -31,6 +32,14 @@ func NewCertificate(
 		parents:      parents,
 		certificate:  certificate,
 	}
+}
+
+func (c *Certificate) GetNotBefore() time.Time {
+	return c.certificate.NotBefore
+}
+
+func (c *Certificate) GetNotAfter() time.Time {
+	return c.certificate.NotAfter
 }
 
 func (c *Certificate) IsCA() bool {

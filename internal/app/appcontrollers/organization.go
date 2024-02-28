@@ -169,6 +169,11 @@ func (r *OrganizationController) UsesApplicationController(service appmodels.IAp
 	return r.parent == service
 }
 
+func (r *OrganizationController) RevokeCertificate(certificate appmodels.ICertificate) (appmodels.IRevokedCertificate, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
 // NewOrganizationController creates a new instance of OrganizationController
 // implementing appmodels.IOrganizationService interface.
 //

@@ -17,6 +17,10 @@ type RequestImpl struct {
 	request *http.Request
 }
 
+func (r *RequestImpl) GetHeader(name string) string {
+	return r.request.Header.Get(name)
+}
+
 func (r *RequestImpl) Body() io.ReadCloser {
 	return r.request.Body
 }

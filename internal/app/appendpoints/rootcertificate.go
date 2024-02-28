@@ -37,7 +37,7 @@ func (c *ApiController) GetRootCertificate(response apitypes.IResponse, request 
 	model := controller.GetCertificateModel()
 	c.logf(request, "model = %v", model)
 
-	dto := apputils.GetCertificateDTO(model)
+	dto := apputils.ToCertificateDTO(model)
 	return c.sendOK(response, dto)
 
 }

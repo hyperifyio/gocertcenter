@@ -63,7 +63,7 @@ func (c *ApiController) CreateRootCertificate(response apitypes.IResponse, reque
 		return c.sendInternalServerError(response, request, err)
 	}
 
-	dto := apputils.GetCertificateDTO(cert)
+	dto := apputils.ToCertificateDTO(cert)
 	return c.sendOK(response, dto)
 }
 
