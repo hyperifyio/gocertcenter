@@ -4,8 +4,12 @@ package apputils
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
+
+	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
 // ValidateRootCertificateCommonName checks if the provided common name adheres to specific rules:
@@ -125,6 +129,65 @@ func ValidateDNSNames(dnsNames []string) error {
 		if err := ValidateServerCertificateCommonName(dnsName); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// ValidateOrganizationName checks if the provided name adheres to specific rules.
+func ValidateOrganizationName(name string) error {
+	if len(name) == 0 || len(strings.TrimSpace(name)) < 2 {
+		return errors.New("must not be empty and must be at least two characters long")
+	}
+	if strings.TrimSpace(name) != name {
+		return errors.New("must not have leading or trailing spaces")
+	}
+	if strings.Contains(name, "  ") {
+		return errors.New("should not have repeating spaces")
+	}
+	if _, err := strconv.Atoi(name); err == nil {
+		return errors.New("should not be full numbers")
+	}
+	matched, _ := regexp.MatchString(`^[a-zA-Z0-9_\-. ]+$`, name)
+	if !matched {
+		return errors.New("contains invalid characters")
+	}
+	return nil
+}
+
+// ValidateOrganizationNames validates an array of DNS names using the rules for server certificates.
+func ValidateOrganizationNames(list []string) error {
+	for _, item := range list {
+		if err := ValidateOrganizationName(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ValidateOrganizationID checks if the provided ID adheres to specific rules.
+func ValidateOrganizationID(id string) error {
+	if len(id) < 2 {
+		return errors.New("must be at least two characters long")
+	}
+	if _, err := strconv.Atoi(id); err == nil {
+		return errors.New("should not be full numbers")
+	}
+	matched, _ := regexp.MatchString(`^[a-z0-9\-.]+$`, id)
+	if !matched || id != strings.Trim(id, " -.") {
+		return errors.New("contains invalid characters, or has leading/trailing spaces, '-', or '.'")
+	}
+	return nil
+}
+
+func ValidateOrganizationModel(model appmodels.IOrganization) error {
+	if err := ValidateOrganizationID(model.GetID()); err != nil {
+		return fmt.Errorf("id: %v", err)
+	}
+	if err := ValidateOrganizationName(model.GetName()); err != nil {
+		return fmt.Errorf("name: %v", err)
+	}
+	if err := ValidateOrganizationNames(model.GetNames()); err != nil {
+		return fmt.Errorf("names: %v", err)
 	}
 	return nil
 }

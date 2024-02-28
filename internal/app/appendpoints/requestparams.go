@@ -4,6 +4,7 @@ package appendpoints
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
@@ -11,8 +12,17 @@ import (
 )
 
 func (c *ApiController) getRequestOrganization(request apitypes.IRequest) string {
-	organization := apputils.Slugify(request.GetVariable("organization"))
-	c.logf(request, "organization = %s", organization)
+	organization := request.GetVariable("organization")
+	organization = strings.Trim(strings.ToLower(organization), " ")
+	if organization != "" {
+		if err := apputils.ValidateOrganizationID(organization); err != nil {
+			c.logf(request, "invalid organization: '%s': %v", organization, err)
+			return ""
+		}
+		c.logf(request, "organization = '%s'", organization)
+	} else {
+		c.logf(request, "no organization found")
+	}
 	return organization
 }
 

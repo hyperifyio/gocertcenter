@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
+	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
@@ -60,6 +61,11 @@ func (a *ApplicationController) GetOrganizationController(organization string) (
 }
 
 func (a *ApplicationController) NewOrganization(model appmodels.IOrganization) (appmodels.IOrganization, error) {
+
+	if err := apputils.ValidateOrganizationModel(model); err != nil {
+		return nil, fmt.Errorf("ApplicationController.NewOrganization: organization model invalid: %w", err)
+	}
+
 	organization := model.GetID()
 
 	_, err := a.organizationRepository.FindById(organization)
