@@ -36,6 +36,18 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 		},
 		{
 			Method:      http.MethodGet,
+			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}/crl",
+			Handler:     c.GetCertificateRevocationList,
+			Definitions: c.GetCertificateRevocationListDefinitions(),
+		},
+		{
+			Method:      http.MethodPost,
+			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}/crl",
+			Handler:     c.UpdateCertificateRevocationList,
+			Definitions: c.UpdateCertificateRevocationListDefinitions(),
+		},
+		{
+			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}",
 			Handler:     c.GetRootCertificate,
 			Definitions: c.GetRootCertificateDefinitions(),
@@ -45,18 +57,6 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 			Path:        "/organizations/{organization}/certificates",
 			Handler:     c.GetRootCertificateCollection,
 			Definitions: c.GetRootCertificateCollectionDefinitions(),
-		},
-		{
-			Method:      http.MethodGet,
-			Path:        "/organizations/{organization}/crl",
-			Handler:     c.GetCertificateRevocationList,
-			Definitions: c.GetCertificateRevocationListDefinitions(),
-		},
-		{
-			Method:      http.MethodPost,
-			Path:        "/organizations/{organization}/crl",
-			Handler:     c.UpdateCertificateRevocationList,
-			Definitions: c.UpdateCertificateRevocationListDefinitions(),
 		},
 		{
 			Method:      http.MethodPost,

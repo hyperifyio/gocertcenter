@@ -7,7 +7,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"io"
 )
 
@@ -56,19 +55,11 @@ func (m CertificateManager) DecodePEM(data []byte) (p *pem.Block, rest []byte) {
 }
 
 func (m CertificateManager) ParsePKCS8PrivateKey(der []byte) (any, error) {
-	privateKey, err := x509.ParsePKCS8PrivateKey(der)
-	if err != nil {
-		return nil, fmt.Errorf("ParsePKCS8PrivateKey: failed: %w", err)
-	}
-	return privateKey, nil
+	return x509.ParsePKCS8PrivateKey(der)
 }
 
 func (m CertificateManager) ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
-	privateKey, err := x509.ParsePKCS1PrivateKey(der)
-	if err != nil {
-		return nil, fmt.Errorf("ParsePKCS1PrivateKey: failed: %w", err)
-	}
-	return privateKey, nil
+	return x509.ParsePKCS1PrivateKey(der)
 }
 
 func NewCertificateManager(randomManager IRandomManager) CertificateManager {

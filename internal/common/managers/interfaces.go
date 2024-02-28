@@ -90,25 +90,20 @@ type ISwaggerManager interface {
 	AddRoute(method string, path string, handler http.HandlerFunc, schema swagger.Definitions) (*mux.Route, error)
 }
 
-// IFileManager implements a file system manager
+// IFile wraps up calls to lower level *os.File operations for easier testing
+type IFile interface {
+	Close() error
+	Name() string
+	Write(b []byte) (int, error)
+}
+
+// IFileManager wraps up calls to lower level a file system operations to make
+// testing other parts of the application easier
 type IFileManager interface {
-
-	// ReadBytes reads bytes from a file
-	//   - fileName string: The file where to read
-	//
-	// Returns the bytes read or nil
-	ReadBytes(fileName string) ([]byte, error)
-
-	// SaveBytes saves bytes to a file, including creating any parent directories.
-	//   - fileName string: The file where to save
-	//   - data []byte: The data to save
-	//   - filePerms os.FileMode: Permissions for file
-	//   - dirPerms os.FileMode: Permissions for directories
-	//
-	// Returns nil or error
-	SaveBytes(
-		fileName string,
-		data []byte,
-		filePerms, dirPerms os.FileMode,
-	) error
+	Rename(oldpath, newpath string) error
+	ReadFile(fileName string) ([]byte, error)
+	MkdirAll(dir string, dirPerms os.FileMode) error
+	CreateTemp(dir, pattern string) (IFile, error)
+	Remove(name string) error
+	Chmod(file string, mode os.FileMode) error
 }

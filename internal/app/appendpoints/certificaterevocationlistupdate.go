@@ -28,15 +28,17 @@ func (c *ApiController) UpdateCertificateRevocationListDefinitions() swagger.Def
 // UpdateCertificateRevocationList handles a request to get organization's certificates
 func (c *ApiController) UpdateCertificateRevocationList(response apitypes.IResponse, request apitypes.IRequest) error {
 
-	// controller, err := c.getOrganizationController(request)
-	// if err != nil {
-	// 	return c.sendNotFound(response, request, err)
-	// }
-	//
-	// list, err := controller.GetCertificateCollection()
-	// if err != nil {
-	// 	return c.sendInternalServerError(response, request, err)
-	// }
+	// Fetch root certificate controller
+	rootCertificateController, err := c.getRootCertificateController(request)
+	if rootCertificateController == nil {
+		return c.sendNotFound(response, request, err)
+	}
+
+	// Get a list of revoked certificates
+
+	// Sign a CRL
+
+	// Save a CRL
 
 	return nil
 }

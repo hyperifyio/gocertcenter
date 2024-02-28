@@ -28,15 +28,11 @@ func (c *ApiController) GetCertificateRevocationListDefinitions() swagger.Defini
 // GetCertificateRevocationList handles a request to get organization's certificates
 func (c *ApiController) GetCertificateRevocationList(response apitypes.IResponse, request apitypes.IRequest) error {
 
-	// controller, err := c.getOrganizationController(request)
-	// if err != nil {
-	// 	return c.sendNotFound(response, request, err)
-	// }
-	//
-	// list, err := controller.GetCertificateCollection()
-	// if err != nil {
-	// 	return c.sendInternalServerError(response, request, err)
-	// }
+	// Fetch root certificate controller
+	rootCertificateController, err := c.getRootCertificateController(request)
+	if rootCertificateController == nil {
+		return c.sendNotFound(response, request, err)
+	}
 
 	response.SetHeader("Content-Type", "application/pkix-crl")
 

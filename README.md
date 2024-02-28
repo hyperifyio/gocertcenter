@@ -75,7 +75,7 @@ Available from http://localhost:8080/documentation/json
 
 ## Development
 
-### Internal Go modules
+### Internal modules
 
 #### `./internal/app/` - Internal modules for application business
 
@@ -103,14 +103,15 @@ Available from http://localhost:8080/documentation/json
 | `appendpoints`    | Application end-point implementations (the main package) |
 | `indexendpoint`   | Index end-point implementation                           |
 
-#### `./internal/common/` - Internal modules for other common 3rd party dependencies
+#### `./internal/common/` - Internal modules for common use cases
 
-| Module         | Description                                                        |
-|----------------|--------------------------------------------------------------------|
-| `hashutils`    | Hashing utils                                                      |
-| `mainutils`    | Main utils, eg. environment handling                               |
-| `commonmocks`  | Mocks for testing                                                  |
-| `managers`     | Managers to decouple 3rd party dependencies from application logic |
+| Module        | Description                                                        |
+|---------------|--------------------------------------------------------------------|
+| `fsutils`     | Utilities handling higher level file operations                    |
+| `hashutils`   | Hashing utils                                                      |
+| `mainutils`   | Main utils, eg. environment handling                               |
+| `commonmocks` | Mocks for testing                                                  |
+| `managers`    | Managers to decouple 3rd party dependencies from application logic |
 
 #### `./internal/common/api/` -- Internal modules for the REST API framework
 
@@ -126,6 +127,12 @@ Available from http://localhost:8080/documentation/json
 
 ### Application Design
 
+#### Managers
+
+In `gocertcenter` *managers* are intended to handle all outside dependencies 
+which would be otherwise hard to test, like file system operations and x509 
+certificate operations.
+
 #### Controllers
 
 | Module                             | Description                    | Child controllers                                 | Parent relations                                    |
@@ -134,6 +141,11 @@ Available from http://localhost:8080/documentation/json
 | `OrganizationController`           | Controls an organization model | `[]CertificateController`                         | `ApplicationController`                             |
 | `CertificateController`            | Controls a certificate model   | `[]CertificateController`, `PrivateKeyController` | `OrganizationController` or `CertificateController` |
 | `PrivateKeyController`             | Controls a private key model   |                                                   | `CertificateController`                             |
+
+#### Models
+
+#### DTOs
+
 
 ## License
 

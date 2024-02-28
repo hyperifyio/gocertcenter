@@ -3,84 +3,43 @@
 package managers
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
 
-// CertificateManager implements operations to manage x509 certificates by
-// implementing models.ICertificateManager. This is intended to wrap low level
-// external library operations for easier testing by using mocks. Any higher
-// level operations shouldn't be implemented inside it.
-type FileManager struct {
+// FileManager wraps up operations to file system for easier testing
+// See fsutils for higher level utilities.
+type FileManager struct{}
+
+// ReadFile wraps up a call to os.ReadFile
+func (f *FileManager) ReadFile(fileName string) ([]byte, error) {
+	return os.ReadFile(filepath.Clean(fileName))
 }
 
-// ReadBytes reads bytes from a file
-//   - fileName string: The file where to read
-//
-// Returns the bytes read or error
-func (f FileManager) ReadBytes(fileName string) ([]byte, error) {
-	data, err := os.ReadFile(filepath.Clean(fileName))
-	if err != nil {
-		return nil, fmt.Errorf("failed to read a file: %s: %w", fileName, err)
-	}
-	return data, nil
+// MkdirAll wraps up a call to os.MkdirAll
+func (f *FileManager) MkdirAll(dir string, dirPerms os.FileMode) error {
+	return os.MkdirAll(dir, dirPerms)
 }
 
-// SaveBytes saves bytes to a file. It will first create any parent directories.
-//   - fileName string: The file where to save
-//   - data []byte: The data to save
-//   - filePerms os.FileMode: Permissions for file
-//   - dirPerms os.FileMode: Permissions for directories
-//
-// Returns nil or error
-func (f FileManager) SaveBytes(fileName string, data []byte, filePerms, dirPerms os.FileMode) error {
+// CreateTemp wraps up a call to os.CreateTemp
+func (f *FileManager) CreateTemp(dir, pattern string) (IFile, error) {
+	file, err := os.CreateTemp(dir, pattern)
+	return NewFile(file), err
+}
 
-	fileName = filepath.Clean(fileName)
+// Remove wraps up a call to os.Remove
+func (f *FileManager) Remove(name string) error {
+	return os.Remove(name)
+}
 
-	// Ensure the directory exists
-	dir := filepath.Dir(fileName)
-	if err := os.MkdirAll(dir, dirPerms); err != nil {
-		return fmt.Errorf("failed to create a directory %s: %w", dir, err)
-	}
+// Rename wraps up a call to os.Rename
+func (f *FileManager) Rename(oldpath, newpath string) error {
+	return os.Rename(oldpath, newpath)
+}
 
-	// Create a temporary file within the final file's directory
-	tmpFile, err := os.CreateTemp(dir, "*.tmp")
-	if err != nil {
-		return fmt.Errorf("failed to create a temporary file: %w", err)
-	}
-	defer tmpFile.Close()
-
-	// Flag to check if rename was successful
-	renameSuccessful := false
-
-	// Cleanup function to remove the temporary file if rename fails
-	defer func() {
-		if !renameSuccessful {
-			_ = os.Remove(tmpFile.Name()) // Ignore error here as it's cleanup
-		}
-	}()
-
-	// FIXME: Set file permissions
-
-	// Write the data to the temporary file
-	if _, err := tmpFile.Write(data); err != nil {
-		return fmt.Errorf("failed to write to the temporary file: %w", err)
-	}
-
-	// Close the file to ensure all writes are flushed to disk
-	if err := tmpFile.Close(); err != nil {
-		return fmt.Errorf("failed to close the temporary file: %w", err)
-	}
-
-	// Move the temporary file to the final location
-	if err := os.Rename(tmpFile.Name(), fileName); err != nil {
-		return fmt.Errorf("failed to move the temporary file to %s: %w", fileName, err)
-	}
-
-	renameSuccessful = true
-	return nil
-
+// Chmod wraps up a call to os.Chmod
+func (f *FileManager) Chmod(file string, mode os.FileMode) error {
+	return os.Chmod(file, mode)
 }
 
 func NewFileManager() FileManager {
