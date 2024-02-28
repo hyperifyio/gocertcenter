@@ -3,10 +3,6 @@
 package appendpoints
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
 	swagger "github.com/davidebianchi/gswagger"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
@@ -31,23 +27,20 @@ func (c *ApiController) GetRootCertificateCollectionDefinitions() swagger.Defini
 
 // GetRootCertificateCollection handles a request to get organization's certificates
 func (c *ApiController) GetRootCertificateCollection(response apitypes.IResponse, request apitypes.IRequest) error {
-	organization := request.GetVariable("organization")
 
-	controller, err := c.appController.GetOrganizationController(organization)
+	controller, err := c.getOrganizationController(request)
 	if err != nil {
-		return fmt.Errorf("[GetRootCertificateCollection]: could not get a controller: %w", err)
+		return c.sendNotFound(response, request, err)
 	}
 
 	list, err := controller.GetCertificateCollection()
 	if err != nil {
-		return fmt.Errorf("[GetRootCertificateCollection]: could not get a collection: %w", err)
+		return c.sendInternalServerError(response, request, err)
 	}
 
-	log.Printf("[GetRootCertificateCollection]: Request: list = %d", len(list))
-	data := apputils.ToCertificateListDTO(list)
-	response.Send(http.StatusOK, data)
-
-	return nil
+	c.logf(request, "list len = %d", len(list))
+	dto := apputils.ToCertificateListDTO(list)
+	return c.sendOK(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetRootCertificateCollectionDefinitions

@@ -3,14 +3,9 @@
 package appendpoints
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
 	swagger "github.com/davidebianchi/gswagger"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
-	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
@@ -35,42 +30,25 @@ func (c *ApiController) GetCertificateCollection(response apitypes.IResponse, re
 
 	// certificateType is server, client, root or intermediate
 	certificateType := request.GetQueryParam("type")
-
-	// Get organization ID
-	organization := request.GetVariable("organization")
-
-	// Parse serial number
-	serialNumberString := request.GetVariable("serialNumber")
-	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
-	if err != nil {
-		return fmt.Errorf("[GetCertificateCollection]: failed to parse serialNumber: %v", err)
-	}
-	log.Printf("[GetCertificateCollection] serialNumber = %s", serialNumber.String())
-
-	// Get Organization controller
-	organizationController, err := c.appController.GetOrganizationController(organization)
-	if err != nil {
-		return fmt.Errorf("[GetCertificateCollection]: could not get a controller: %w", err)
+	if !(certificateType == "" || certificateType == "server" || certificateType == "client" || certificateType == "root") {
+		return c.sendBadRequest(response, request, "query param invalid: type", nil)
 	}
 
-	// Fetch certificate controller
-	certificateController, err := organizationController.GetCertificateController(serialNumber)
+	// Fetch root certificate controller
+	controller, err := c.getRootCertificateController(request)
 	if err != nil {
-		return fmt.Errorf("[GetCertificateCollection]: failed to find certificate controller: %v", err)
+		return c.sendNotFound(response, request, err)
 	}
 
 	// Get certificate list
-	list, err := certificateController.GetChildCertificateCollection(certificateType)
+	list, err := controller.GetChildCertificateCollection(certificateType)
 	if err != nil {
-		return fmt.Errorf("[GetCertificateCollection]: could not get a collection: %w", err)
+		return c.sendInternalServerError(response, request, err)
 	}
 
-	log.Printf("[GetCertificateCollection]: Request: list = %d", len(list))
-
-	data := apputils.ToCertificateListDTO(list)
-	response.Send(http.StatusOK, data)
-
-	return nil
+	c.logf(request, "list len = %d", len(list))
+	dto := apputils.ToCertificateListDTO(list)
+	return c.sendOK(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetCertificateCollectionDefinitions

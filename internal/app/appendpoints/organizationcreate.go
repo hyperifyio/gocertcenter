@@ -3,10 +3,6 @@
 package appendpoints
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
 	swagger "github.com/davidebianchi/gswagger"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
@@ -44,9 +40,7 @@ func (c *ApiController) CreateOrganization(response apitypes.IResponse, request 
 
 	body, err := c.DecodeOrganizationFromRequestBody(request)
 	if err != nil {
-		log.Printf("Request body invalid: %v", err)
-		response.SendError(400, "request body invalid")
-		return nil
+		return c.sendBadRequest(response, request, "body invalid", err)
 	}
 
 	id := body.ID
@@ -68,26 +62,25 @@ func (c *ApiController) CreateOrganization(response apitypes.IResponse, request 
 	}
 
 	id = apputils.Slugify(id)
-	
+
 	model := appmodels.NewOrganization(id, names)
 
 	savedModel, err := c.appController.NewOrganization(model)
 	if err != nil {
-		return fmt.Errorf("ApiController.CreateOrganization: saving failed: %v", err)
+		return c.sendConflict(response, request, err, "organization")
 	}
 
 	keyDTOs, err := apputils.ToPrivateKeyDTOList(c.certManager, keys)
 	if err != nil {
-		return fmt.Errorf("ApiController.CreateOrganization: ToPrivateKeyDTOList failed: %v", err)
+		return c.sendInternalServerError(response, request, err)
 	}
 
-	data := appdtos.NewOrganizationCreatedDTO(
+	dto := appdtos.NewOrganizationCreatedDTO(
 		apputils.GetOrganizationDTO(savedModel),
 		apputils.ToListOfCertificateDTO(certificates),
 		keyDTOs,
 	)
-	response.Send(http.StatusOK, data)
-	return nil
+	return c.sendOK(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateOrganizationDefinitions

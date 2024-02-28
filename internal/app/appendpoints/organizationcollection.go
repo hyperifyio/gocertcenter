@@ -3,10 +3,6 @@
 package appendpoints
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
 	swagger "github.com/davidebianchi/gswagger"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
@@ -33,12 +29,11 @@ func (c *ApiController) GetOrganizationCollectionDefinitions() swagger.Definitio
 func (c *ApiController) GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest) error {
 	list, err := c.appController.GetOrganizationCollection()
 	if err != nil {
-		return fmt.Errorf("[ApiController.GetOrganization]: failed to find a collection: %v", err)
+		return c.sendInternalServerError(response, request, err)
 	}
-	log.Printf("[GetOrganizationCollection] Request: list = %d", len(list))
-	data := apputils.ToOrganizationListDTO(list)
-	response.Send(http.StatusOK, data)
-	return nil
+	c.logf(request, "list len = %d", len(list))
+	dto := apputils.ToOrganizationListDTO(list)
+	return c.sendOK(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetOrganizationCollectionDefinitions

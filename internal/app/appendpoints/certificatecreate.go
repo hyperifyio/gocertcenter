@@ -4,8 +4,6 @@ package appendpoints
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 
 	swagger "github.com/davidebianchi/gswagger"
 
@@ -45,87 +43,68 @@ func (c *ApiController) CreateCertificate(response apitypes.IResponse, request a
 	// Decode request body
 	body, err := c.DecodeCertificateRequestFromRequestBody(request)
 	if err != nil {
-		log.Printf("[ApiController.CreateCertificate]: Request body invalid: %v", err)
-		response.SendError(400, "[ApiController.CreateCertificate]: request body invalid")
-		return nil
+		return c.sendBadRequest(response, request, "body invalid", err)
 	}
 
 	// Parse common name
 	commonName := body.CommonName
-	log.Printf("[ApiController.CreateCertificate] commonName = %s", commonName)
+	c.logf(request, "commonName = %s", commonName)
 
 	// Parse certificate type
 	certificateType := body.CertificateType
 	if certificateType == "" {
 		certificateType = appdtos.ClientCertificate
 	}
-	log.Printf("[ApiController.CreateCertificate] certificateType = %s", certificateType)
+	c.logf(request, "certificateType = %s", certificateType)
 
 	// Check certificate type is not a root certificate
 	if certificateType == appdtos.RootCertificate {
-		response.SendError(400, "[ApiController.CreateCertificate]: cannot create a root certificate")
-		return nil
+		return c.sendBadRequest(response, request, "body type invalid", err)
 	}
 
-	// Get organization ID
-	organization := request.GetVariable("organization")
-	log.Printf("[GetRootCertificate] organization = %s", organization)
-
-	// Parse serial number
-	serialNumberString := request.GetVariable("serialNumber")
-	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
-	if err != nil {
-		return fmt.Errorf("[ApiController.CreateCertificate]: failed to parse serialNumber: %v", err)
-	}
-	log.Printf("[ApiController.CreateCertificate] serialNumber = %s", serialNumber.String())
-
-	// Fetch organization controller
-	organizationController, err := c.appController.GetOrganizationController(organization)
-	if err != nil {
-		return fmt.Errorf("[ApiController.CreateCertificate]: failed to find organization controller: %v", err)
-	}
-
-	// Fetch certificate controller
-	certificateController, err := organizationController.GetCertificateController(serialNumber)
-	if err != nil {
-		return fmt.Errorf("[ApiController.CreateCertificate]: failed to find certificate controller: %v", err)
+	// Fetch root certificate controller
+	rootCertificateController, err := c.getRootCertificateController(request)
+	if rootCertificateController == nil {
+		return c.sendNotFound(response, request, err)
 	}
 
 	var cert appmodels.ICertificate
 	var privateKey appmodels.IPrivateKey
 
 	if certificateType == appdtos.ClientCertificate {
-		cert, privateKey, err = certificateController.NewClientCertificate(commonName)
+
+		cert, privateKey, err = rootCertificateController.NewClientCertificate(commonName)
 		if err != nil {
-			return fmt.Errorf("[ApiController.CreateCertificate]: failed to create client certificate: %w", err)
+			return c.sendInternalServerError(response, request, err)
 		}
-		log.Printf("[ApiController.CreateCertificate] created client certificate")
+		c.logf(request, "created client certificate: %s", cert.GetSerialNumber())
 
 	} else if certificateType == appdtos.ServerCertificate {
-		cert, privateKey, err = certificateController.NewServerCertificate(commonName)
+
+		cert, privateKey, err = rootCertificateController.NewServerCertificate(commonName)
 		if err != nil {
-			return fmt.Errorf("[ApiController.CreateCertificate]: failed to create server certificate: %w", err)
+			return c.sendInternalServerError(response, request, err)
 		}
-		log.Printf("[ApiController.CreateCertificate] created server certificate")
+		c.logf(request, "created server certificate: %s", cert.GetSerialNumber())
 
 	} else if certificateType == appdtos.IntermediateCertificate {
-		cert, privateKey, err = certificateController.NewIntermediateCertificate(commonName)
+
+		cert, privateKey, err = rootCertificateController.NewIntermediateCertificate(commonName)
 		if err != nil {
-			return fmt.Errorf("[ApiController.CreateCertificate]: failed to create intermediate certificate: %w", err)
+			return c.sendInternalServerError(response, request, err)
 		}
-		log.Printf("[ApiController.CreateCertificate] created intermediate certificate")
+		c.logf(request, "created intermediate certificate: %s", cert.GetSerialNumber())
 
 	} else {
-		return fmt.Errorf("[ApiController.CreateCertificate]: Unsupported cert type: %s", certificateType)
+		return c.sendBadRequest(response, request, fmt.Sprintf("unsupported cert type: %s", certificateType), err)
 	}
 
-	data, err := apputils.ToCertificateCreatedDTO(c.certManager, cert, privateKey)
+	dto, err := apputils.ToCertificateCreatedDTO(c.certManager, cert, privateKey)
 	if err != nil {
-		return fmt.Errorf("[ApiController.CreateCertificate]: failed to create a DTO: %w", err)
+		return c.sendInternalServerError(response, request, err)
 	}
 
-	response.Send(http.StatusOK, data)
-	return nil
+	return c.sendOK(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateCertificateDefinitions

@@ -18,19 +18,19 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 		},
 		{
 			Method:      http.MethodGet,
-			Path:        "/organizations/{organization}/certificates/{serialNumber}/certificates",
+			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}/certificates",
 			Handler:     c.GetCertificateCollection,
 			Definitions: c.GetCertificateCollectionDefinitions(),
 		},
 		{
 			Method:      http.MethodPost,
-			Path:        "/organizations/{organization}/certificates/{serialNumber}/certificates",
+			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}/certificates",
 			Handler:     c.CreateCertificate,
 			Definitions: c.CreateCertificateDefinitions(),
 		},
 		{
 			Method:      http.MethodGet,
-			Path:        "/organizations/{organization}/certificates/{serialNumber}",
+			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}",
 			Handler:     c.GetRootCertificate,
 			Definitions: c.GetRootCertificateDefinitions(),
 		},

@@ -3,10 +3,6 @@
 package appendpoints
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
 	swagger "github.com/davidebianchi/gswagger"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
@@ -43,38 +39,32 @@ func (c *ApiController) CreateRootCertificate(response apitypes.IResponse, reque
 
 	body, err := c.DecodeCertificateRequestFromRequestBody(request)
 	if err != nil {
-		log.Printf("[ApiController.CreateRootCertificate]: Request body invalid: %v", err)
-		response.SendError(400, "[ApiController.CreateRootCertificate]: request body invalid")
-		return nil
+		return c.sendBadRequest(response, request, "body invalid", err)
 	}
 
+	// Parse certificate type from body
 	certificateType := body.CertificateType
 	if certificateType == "" {
 		certificateType = appdtos.RootCertificate
 	}
-
 	if certificateType != appdtos.RootCertificate {
-		response.SendError(400, "[ApiController.CreateRootCertificate]: only root certificate type supported")
-		return nil
+		return c.sendBadRequest(response, request, "body type invalid", nil)
 	}
 
-	organization := request.GetVariable("organization")
-
-	organizationController, err := c.appController.GetOrganizationController(organization)
+	organizationController, err := c.getOrganizationController(request)
 	if err != nil {
-		return fmt.Errorf("[ApiController.CreateRootCertificate]: failed to find organization controller: %w", err)
+		return c.sendNotFound(response, request, err)
 	}
 
 	commonName := body.CommonName
 
 	cert, err := organizationController.NewRootCertificate(commonName)
 	if err != nil {
-		return fmt.Errorf("[ApiController.CreateRootCertificate]: [OrganizationController(%s).NewRootCertificate]: failed: %w", organization, err)
+		return c.sendInternalServerError(response, request, err)
 	}
 
-	data := apputils.GetCertificateDTO(cert)
-	response.Send(http.StatusOK, data)
-	return nil
+	dto := apputils.GetCertificateDTO(cert)
+	return c.sendOK(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateRootCertificateDefinitions
