@@ -465,8 +465,8 @@ func NewRootCertificate(
 		return nil, fmt.Errorf("NewRootCertificate: privateKey: must be defined")
 	}
 
-	if commonName == "" {
-		return nil, fmt.Errorf("NewRootCertificate: commonName: must be defined")
+	if err := ValidateRootCertificateCommonName(commonName); err != nil {
+		return nil, fmt.Errorf("NewRootCertificate: commonName: %s", err)
 	}
 
 	certificateTemplate := x509.Certificate{

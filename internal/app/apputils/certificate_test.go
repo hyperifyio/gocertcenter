@@ -986,5 +986,5 @@ func TestNewRootCertificate_EmptyCommonName(t *testing.T) {
 		"", // commonName is empty
 	)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "commonName: must be defined")
+	assert.Contains(t, err.Error(), "commonName: cannot be empty")
 }
