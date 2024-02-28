@@ -13,10 +13,24 @@ import (
 // - Should only have a-z, A-Z, _, -, ., space, 0-9
 // - No repeating spaces
 // - Must not be empty
+// - No prefix or suffix spaces
 func ValidateRootCertificateCommonName(commonName string) error {
 
-	if len(commonName) <= 0 {
+	if commonName == "" {
 		return errors.New("cannot be empty")
+	}
+
+	if strings.HasPrefix(commonName, " ") {
+		return errors.New("cannot start with a space")
+	}
+
+	if strings.HasSuffix(commonName, " ") {
+		return errors.New("cannot end with a space")
+	}
+
+	// Check for repeating spaces
+	if strings.Contains(commonName, "  ") {
+		return errors.New("should not have repeating spaces")
 	}
 
 	// Check if commonName is full numbers
@@ -31,9 +45,37 @@ func ValidateRootCertificateCommonName(commonName string) error {
 		return errors.New("contains invalid characters")
 	}
 
+	return nil
+}
+
+// ValidateClientCertificateCommonName checks if the provided common name adheres to specific rules:
+// - Should only have characters: a-z, A-Z, _, -, ., space, 0-9, @
+// - No repeating spaces
+// - No leading spaces
+// - No starting spaces
+func ValidateClientCertificateCommonName(commonName string) error {
+
+	if commonName == "" {
+		return errors.New("cannot be empty")
+	}
+
+	if strings.HasPrefix(commonName, " ") {
+		return errors.New("cannot start with a space")
+	}
+
+	if strings.HasSuffix(commonName, " ") {
+		return errors.New("cannot end with a space")
+	}
+
 	// Check for repeating spaces
 	if strings.Contains(commonName, "  ") {
 		return errors.New("should not have repeating spaces")
+	}
+
+	// Regular expression to check for valid characters
+	validCharsRegex := regexp.MustCompile(`^[a-zA-Z0-9_\-\. @]+$`)
+	if !validCharsRegex.MatchString(commonName) {
+		return errors.New("contains invalid characters")
 	}
 
 	return nil

@@ -395,8 +395,8 @@ func NewClientCertificate(
 		return nil, fmt.Errorf("NewClientCertificate: parentPrivateKey: must be defined")
 	}
 
-	if commonName == "" {
-		return nil, fmt.Errorf("NewClientCertificate: commonName: must be defined")
+	if err := ValidateClientCertificateCommonName(commonName); err != nil {
+		return nil, fmt.Errorf("NewClientCertificate: commonName: %s", err)
 	}
 
 	certificateTemplate := x509.Certificate{
