@@ -255,7 +255,7 @@ func TestNewServerCertificate(t *testing.T) {
 	mockPublicKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 
 	parentPrivateKey := &appmocks.MockPrivateKey{}
-	commonName := "Server Certificate"
+	commonName := "server.example.com"
 	dnsNames := []string{"www.example.com", "example.com"}
 
 	organizationId := "TestOrgServer"
@@ -557,7 +557,7 @@ func TestNewIntermediateCertificate_EmptyCommonName(t *testing.T) {
 		"", // commonName is empty
 	)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "commonName: must be defined")
+	assert.Contains(t, err.Error(), "commonName: cannot be empty")
 }
 
 func TestNewIntermediateCertificate_FailingCreateCertificate(t *testing.T) {
@@ -696,7 +696,7 @@ func TestNewServerCertificate_EmptyCommonName(t *testing.T) {
 		"www.example.com",
 	)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "commonName: must be defined")
+	assert.Contains(t, err.Error(), "commonName: cannot be empty")
 }
 
 func TestNewServerCertificate_NilDnsNames(t *testing.T) {
@@ -710,7 +710,7 @@ func TestNewServerCertificate_NilDnsNames(t *testing.T) {
 		appmocks.NewMockRsaPublicKey(),
 		&appmocks.MockCertificate{},
 		&appmocks.MockPrivateKey{},
-		"Server Certificate",
+		"example.com",
 		dnsNames..., // dnsNames is nil
 	)
 	assert.Error(t, err)
@@ -724,7 +724,7 @@ func TestNewServerCertificate_FailingCreateCertificate(t *testing.T) {
 	organization := &appmocks.MockOrganization{}
 	parentCertificate := &appmocks.MockCertificate{}
 	parentPrivateKey := &appmocks.MockPrivateKey{}
-	commonName := "Server CA"
+	commonName := "my.example.com"
 
 	organizationId := "TestOrg"
 
@@ -917,7 +917,7 @@ func TestNewClientCertificate_EmptyCommonName(t *testing.T) {
 		"", // commonName is empty
 	)
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "commonName: must be defined")
+	assert.Contains(t, err.Error(), "commonName: cannot be empty")
 }
 
 func TestNewRootCertificate_NilManager(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
@@ -226,7 +227,7 @@ func NewIntermediateCertificate(
 	}
 
 	if err := ValidateRootCertificateCommonName(commonName); err != nil {
-		return nil, fmt.Errorf("NewIntermediateCertificate: commonName: %s", err)
+		return nil, fmt.Errorf("NewIntermediateCertificate: commonName: %s: %s", err, commonName)
 	}
 
 	certificateTemplate := x509.Certificate{
@@ -311,12 +312,16 @@ func NewServerCertificate(
 		return nil, fmt.Errorf("NewServerCertificate: parentPrivateKey: must be defined")
 	}
 
-	if commonName == "" {
-		return nil, fmt.Errorf("NewServerCertificate: commonName: must be defined")
+	if err := ValidateServerCertificateCommonName(commonName); err != nil {
+		return nil, fmt.Errorf("NewServerCertificate: commonName: %s: %s", err, commonName)
 	}
 
 	if dnsNames == nil || len(dnsNames) <= 0 {
 		return nil, fmt.Errorf("NewServerCertificate: dnsNames: must be defined")
+	}
+
+	if err := ValidateDNSNames(dnsNames); err != nil {
+		return nil, fmt.Errorf("NewServerCertificate: dnsNames: %s: %s", err, strings.Join(dnsNames, " | "))
 	}
 
 	certificateTemplate := x509.Certificate{
@@ -396,7 +401,7 @@ func NewClientCertificate(
 	}
 
 	if err := ValidateClientCertificateCommonName(commonName); err != nil {
-		return nil, fmt.Errorf("NewClientCertificate: commonName: %s", err)
+		return nil, fmt.Errorf("NewClientCertificate: commonName: %s: %s", err, commonName)
 	}
 
 	certificateTemplate := x509.Certificate{
@@ -466,7 +471,7 @@ func NewRootCertificate(
 	}
 
 	if err := ValidateRootCertificateCommonName(commonName); err != nil {
-		return nil, fmt.Errorf("NewRootCertificate: commonName: %s", err)
+		return nil, fmt.Errorf("NewRootCertificate: commonName: %s: %s", err, commonName)
 	}
 
 	certificateTemplate := x509.Certificate{

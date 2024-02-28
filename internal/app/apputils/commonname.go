@@ -80,3 +80,51 @@ func ValidateClientCertificateCommonName(commonName string) error {
 
 	return nil
 }
+
+// ValidateServerCertificateCommonName checks if the provided common name adheres to specific rules for server certificates.
+//   - Check if common name starts with a wildcard
+//   - Check for invalid start or end characters
+//   - Check for repeating periods
+//   - Check for valid characters [a-z0-9\-\.]
+//   - Check last TLD length
+func ValidateServerCertificateCommonName(commonName string) error {
+
+	if strings.HasPrefix(commonName, "*.") {
+		commonName = commonName[2:] // Remove the wildcard for further validation.
+	}
+
+	if commonName == "" {
+		return errors.New("cannot be empty")
+	}
+
+	if strings.HasPrefix(commonName, "-") || strings.HasPrefix(commonName, ".") || strings.HasSuffix(commonName, "-") || strings.HasSuffix(commonName, ".") {
+		return errors.New("cannot start or end with '-' or '.'")
+	}
+
+	if strings.Contains(commonName, "..") {
+		return errors.New("cannot have repeating '.'")
+	}
+
+	validCharsRegex := regexp.MustCompile(`^[a-z0-9\-.]+$`)
+	if !validCharsRegex.MatchString(commonName) {
+		return errors.New("contains invalid characters")
+	}
+
+	// Check last TLD length.
+	parts := strings.Split(commonName, ".")
+	if len(parts[len(parts)-1]) < 2 {
+		return errors.New("last TLD must be at least two characters")
+	}
+
+	return nil
+}
+
+// ValidateDNSNames validates an array of DNS names using the rules for server certificates.
+func ValidateDNSNames(dnsNames []string) error {
+	for _, dnsName := range dnsNames {
+		if err := ValidateServerCertificateCommonName(dnsName); err != nil {
+			return err
+		}
+	}
+	return nil
+}
