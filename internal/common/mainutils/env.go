@@ -4,7 +4,7 @@ package mainutils
 
 import "os"
 
-func GetEnvOrDefault(key, defaultValue string) string {
+func EnvOrDefault(key, defaultValue string) string {
 	value := os.Getenv(key)
 	if value == "" {
 		return defaultValue

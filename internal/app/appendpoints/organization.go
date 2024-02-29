@@ -11,8 +11,8 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
 )
 
-// GetOrganizationDefinitions returns OpenAPI definitions
-func (c *HttpApiController) GetOrganizationDefinitions() swagger.Definitions {
+// OrganizationDefinitions returns OpenAPI definitions
+func (c *HttpApiController) OrganizationDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns an organization entity",
 		Description: "",
@@ -26,17 +26,17 @@ func (c *HttpApiController) GetOrganizationDefinitions() swagger.Definitions {
 	}
 }
 
-// GetOrganization handles a request
-func (c *HttpApiController) GetOrganization(response apitypes.Response, request apitypes.Request) error {
-	controller, err := c.getOrganizationController(request)
+// Organization handles a request
+func (c *HttpApiController) Organization(response apitypes.Response, request apitypes.Request) error {
+	controller, err := c.organizationController(request)
 	if err != nil {
-		return c.sendNotFound(response, request, err)
+		return c.notFound(response, request, err)
 	}
 	model := controller.Organization()
 	c.logf(request, "model = %v", model)
-	dto := apputils.GetOrganizationDTO(model)
-	return c.sendOK(response, dto)
+	dto := apputils.ToOrganizationDTO(model)
+	return c.ok(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetOrganizationDefinitions
-var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetOrganization
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).OrganizationDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).Organization

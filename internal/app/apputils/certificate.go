@@ -72,7 +72,7 @@ func ToCertificateDTO(c appmodels.Certificate) appdtos.CertificateDTO {
 		c.IsIntermediateCertificate(),
 		c.IsServerCertificate(),
 		c.IsClientCertificate(),
-		string(GetCertificatePEMBytes(c)),
+		string(CertificateToPEMBytes(c)),
 	)
 }
 
@@ -194,7 +194,7 @@ func ToCertificateListDTO(list []appmodels.Certificate) appdtos.CertificateListD
 	return appdtos.NewCertificateListDTO(payload)
 }
 
-func GetCertificatePEMBytes(c appmodels.Certificate) []byte {
+func CertificateToPEMBytes(c appmodels.Certificate) []byte {
 	// Convert the certificate to a PEM block
 	pemBlock := &pem.Block{
 		Type:  "CERTIFICATE",

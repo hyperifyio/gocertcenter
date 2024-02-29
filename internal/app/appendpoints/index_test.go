@@ -21,13 +21,13 @@ const ExpectedDescriptionText = "This includes the software name and a version"
 
 func TestIndex(t *testing.T) {
 	mockResponse := &apimocks.MockResponse{}
-	mockRequest := &apimocks.MockRequest{IsGet: true}
+	mockRequest := &apimocks.MockRequest{MockIsGet: true}
 	mockServer := apimocks.NewMockServer()
 	certManager := new(commonmocks.MockCertificateManager)
 	mockApp := new(appmocks.MockApplicationController)
 	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 
-	controller.GetIndex(mockResponse, mockRequest)
+	controller.Index(mockResponse, mockRequest)
 
 	if mockResponse.SentStatusCode != ExpectedStatusCode {
 		t.Errorf("Expected status code %d, got %d", ExpectedStatusCode, mockResponse.SentStatusCode)
@@ -44,7 +44,7 @@ func TestIndexDefinitions(t *testing.T) {
 	certManager := new(commonmocks.MockCertificateManager)
 	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 
-	defs := controller.GetIndexDefinitions()
+	defs := controller.IndexDefinitions()
 
 	// Check the summary and description
 	if defs.Summary != ExpectedSummaryText {

@@ -40,7 +40,7 @@ func (c *HttpApiController) CreateOrganization(response apitypes.Response, reque
 
 	body, err := c.DecodeOrganizationFromRequestBody(request)
 	if err != nil {
-		return c.sendBadRequest(response, request, "body invalid", err)
+		return c.badRequest(response, request, "body invalid", err)
 	}
 
 	id := body.ID
@@ -67,20 +67,20 @@ func (c *HttpApiController) CreateOrganization(response apitypes.Response, reque
 
 	savedModel, err := c.appController.NewOrganization(model)
 	if err != nil {
-		return c.sendConflict(response, request, err, "organization")
+		return c.conflict(response, request, err, "organization")
 	}
 
 	keyDTOs, err := apputils.ToPrivateKeyDTOList(c.certManager, keys)
 	if err != nil {
-		return c.sendInternalServerError(response, request, err)
+		return c.internalServerError(response, request, err)
 	}
 
 	dto := appdtos.NewOrganizationCreatedDTO(
-		apputils.GetOrganizationDTO(savedModel),
+		apputils.ToOrganizationDTO(savedModel),
 		apputils.ToListOfCertificateDTO(certificates),
 		keyDTOs,
 	)
-	return c.sendOK(response, dto)
+	return c.ok(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CreateOrganizationDefinitions

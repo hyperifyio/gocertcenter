@@ -10,7 +10,7 @@ import (
 
 // MethodNotAllowed handles not found errors
 func MethodNotAllowed(response apitypes.Response, request apitypes.Request) error {
-	log.Printf("[MethodNotAllowed] %s %s", request.GetMethod(), request.GetURL())
+	log.Printf("[MethodNotAllowed] %s %s", request.Method(), request.URL())
 	response.SendMethodNotSupportedError()
 	return nil
 }

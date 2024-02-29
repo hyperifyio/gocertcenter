@@ -20,10 +20,10 @@ func TestGetRoutes(t *testing.T) {
 
 	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 
-	routes := controller.GetRoutes()
+	routes := controller.Routes()
 
 	if len(routes) == 0 {
-		t.Fatalf("GetRoutes returned no routes")
+		t.Fatalf("Routes returned no routes")
 	}
 
 	expectedPath := "/"

@@ -33,7 +33,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey(t *testing.T) {
 	organization := "TestOrg"
 	certificates := []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}
 
-	fileName := filerepository.GetPrivateKeyPemPath(tempDir, organization, certificates)
+	fileName := filerepository.PrivateKeyPemPath(tempDir, organization, certificates)
 
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	assert.NoError(t, err)
@@ -124,7 +124,7 @@ func TestPrivateKeyRepository_GetFilePath(t *testing.T) {
 	fileManager := managers.NewFileManager()
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, expectedFilePath)
 
-	actualFilePath := repo.GetFilePath()
+	actualFilePath := repo.FilePath()
 
-	assert.Equal(t, expectedFilePath, actualFilePath, "The file path returned by GetFilePath should match the path set during repository creation")
+	assert.Equal(t, expectedFilePath, actualFilePath, "The file path returned by FilePath should match the path set during repository creation")
 }

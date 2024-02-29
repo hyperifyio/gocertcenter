@@ -13,9 +13,9 @@ import (
 // MockServer is a mock implementation of apitypes.Server interface for testing purposes.
 type MockServer struct {
 	mock.Mock
-	Address string
-	URL     string
-	Info    *openapi3.Info
+	MockAddress string
+	MockURL     string
+	MockInfo    *openapi3.Info
 }
 
 func (m *MockServer) IsStarted() bool {
@@ -24,7 +24,7 @@ func (m *MockServer) IsStarted() bool {
 }
 
 // GetAddress returns a mock server address.
-func (m *MockServer) GetAddress() string {
+func (m *MockServer) Address() string {
 	args := m.Called()
 	return args.String(0)
 }
@@ -33,14 +33,14 @@ func (m *MockServer) SetInfo(info *openapi3.Info) {
 	m.Called(info)
 }
 
-func (m *MockServer) GetInfo() *openapi3.Info {
+func (m *MockServer) Info() *openapi3.Info {
 	args := m.Called()
 	info, _ := args.Get(0).(*openapi3.Info)
 	return info
 }
 
-// GetURL returns a mock server URL.
-func (m *MockServer) GetURL() string {
+// URL returns a mock server MockURL.
+func (m *MockServer) URL() string {
 	args := m.Called()
 	return args.String(0)
 }
@@ -102,9 +102,9 @@ func NewMockServer() *MockServer {
 	mockServer := &MockServer{}
 	// Setup default return values for methods if needed
 	mockServer.On("IsStarted").Return(false)
-	mockServer.On("GetAddress").Return(":8080")
-	mockServer.On("GetURL").Return("http://localhost:8080")
-	mockServer.On("GetInfo").Return(&openapi3.Info{
+	mockServer.On("Address").Return(":8080")
+	mockServer.On("MockURL").Return("http://localhost:8080")
+	mockServer.On("Info").Return(&openapi3.Info{
 		Title:   "Mock title",
 		Version: "0.0.0",
 	})

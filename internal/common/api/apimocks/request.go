@@ -12,46 +12,46 @@ import (
 
 // MockRequest implements the apitypes.Request interface
 type MockRequest struct {
-	IsGet            bool
-	Method           string
-	URL              *url.URL
-	Vars             map[string]string
-	QueryParams      map[string]string
-	BodyContent      []byte
-	BodyContentError error
+	MockIsGet            bool
+	MockMethod           string
+	MockURL              *url.URL
+	MockVars             map[string]string
+	MockQueryParams      map[string]string
+	MockBodyContent      []byte
+	MockBodyContentError error
 }
 
-func (m *MockRequest) GetHeader(name string) string {
+func (m *MockRequest) Header(name string) string {
 	// TODO implement me
 	panic("implement me")
 }
 
 func (m *MockRequest) Body() io.ReadCloser {
-	return io.NopCloser(bytes.NewBufferString(string(m.BodyContent)))
+	return io.NopCloser(bytes.NewBufferString(string(m.MockBodyContent)))
 }
 
-func (m *MockRequest) GetBodyBytes() ([]byte, error) {
-	return m.BodyContent, m.BodyContentError
+func (m *MockRequest) BodyBytes() ([]byte, error) {
+	return m.MockBodyContent, m.MockBodyContentError
 }
 
-func (m *MockRequest) IsMethodGet() bool {
-	return m.IsGet
+func (m *MockRequest) IsGet() bool {
+	return m.MockIsGet
 }
 
-func (m *MockRequest) GetURL() *url.URL {
-	return m.URL
+func (m *MockRequest) URL() *url.URL {
+	return m.MockURL
 }
 
-func (m *MockRequest) GetMethod() string {
-	return m.Method
+func (m *MockRequest) Method() string {
+	return m.MockMethod
 }
 
-func (m *MockRequest) GetVariable(name string) string {
-	return m.Vars[name]
+func (m *MockRequest) Variable(name string) string {
+	return m.MockVars[name]
 }
 
-func (m *MockRequest) GetQueryParam(name string) string {
-	return m.QueryParams[name]
+func (m *MockRequest) QueryParam(name string) string {
+	return m.MockQueryParams[name]
 }
 
 var _ apitypes.Request = (*MockRequest)(nil)

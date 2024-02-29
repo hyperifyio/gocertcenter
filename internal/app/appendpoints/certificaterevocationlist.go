@@ -10,8 +10,8 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 )
 
-// GetCertificateRevocationListDefinitions returns OpenAPI definitions
-func (c *HttpApiController) GetCertificateRevocationListDefinitions() swagger.Definitions {
+// CertificateRevocationListDefinitions returns OpenAPI definitions
+func (c *HttpApiController) CertificateRevocationListDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns the certificate revocation list",
 		Description: "",
@@ -25,13 +25,13 @@ func (c *HttpApiController) GetCertificateRevocationListDefinitions() swagger.De
 	}
 }
 
-// GetCertificateRevocationList handles a request to get organization's certificates
-func (c *HttpApiController) GetCertificateRevocationList(response apitypes.Response, request apitypes.Request) error {
+// CertificateRevocationList handles a request to get organization's certificates
+func (c *HttpApiController) CertificateRevocationList(response apitypes.Response, request apitypes.Request) error {
 
 	// Fetch root certificate controller
-	rootCertificateController, err := c.getRootCertificateController(request)
+	rootCertificateController, err := c.rootCertificateController(request)
 	if rootCertificateController == nil {
-		return c.sendNotFound(response, request, err)
+		return c.notFound(response, request, err)
 	}
 
 	response.SetHeader("Content-Type", "application/pkix-crl")
@@ -39,5 +39,5 @@ func (c *HttpApiController) GetCertificateRevocationList(response apitypes.Respo
 	return nil
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetCertificateRevocationListDefinitions
-var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetCertificateRevocationList
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CertificateRevocationListDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).CertificateRevocationList

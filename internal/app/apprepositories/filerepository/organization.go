@@ -24,7 +24,7 @@ func (r *FileOrganizationRepository) FindAll() ([]appmodels.Organization, error)
 }
 
 func (r *FileOrganizationRepository) FindById(id string) (appmodels.Organization, error) {
-	fileName := GetOrganizationJsonPath(r.filePath, id)
+	fileName := OrganizationJsonPath(r.filePath, id)
 	dto, err := ReadOrganizationJsonFile(r.fileManager, fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read saved organization '%s': %w", id, err)
@@ -38,8 +38,8 @@ func (r *FileOrganizationRepository) FindById(id string) (appmodels.Organization
 
 func (r *FileOrganizationRepository) Save(organization appmodels.Organization) (appmodels.Organization, error) {
 	id := organization.ID()
-	fileName := GetOrganizationJsonPath(r.filePath, id)
-	err := SaveOrganizationJsonFile(r.fileManager, fileName, apputils.GetOrganizationDTO(organization))
+	fileName := OrganizationJsonPath(r.filePath, id)
+	err := SaveOrganizationJsonFile(r.fileManager, fileName, apputils.ToOrganizationDTO(organization))
 	if err != nil {
 		return nil, fmt.Errorf("organization creation failed: %w", err)
 	}

@@ -39,7 +39,7 @@ func (c *HttpApiController) CreateRootCertificate(response apitypes.Response, re
 
 	body, err := c.DecodeCertificateRequestFromRequestBody(request)
 	if err != nil {
-		return c.sendBadRequest(response, request, "body invalid", err)
+		return c.badRequest(response, request, "body invalid", err)
 	}
 
 	// Parse certificate type from body
@@ -48,23 +48,23 @@ func (c *HttpApiController) CreateRootCertificate(response apitypes.Response, re
 		certificateType = appdtos.RootCertificate
 	}
 	if certificateType != appdtos.RootCertificate {
-		return c.sendBadRequest(response, request, "body type invalid", nil)
+		return c.badRequest(response, request, "body type invalid", nil)
 	}
 
-	organizationController, err := c.getOrganizationController(request)
+	organizationController, err := c.organizationController(request)
 	if err != nil {
-		return c.sendNotFound(response, request, err)
+		return c.notFound(response, request, err)
 	}
 
 	commonName := body.CommonName
 
 	cert, err := organizationController.NewRootCertificate(commonName)
 	if err != nil {
-		return c.sendInternalServerError(response, request, err)
+		return c.internalServerError(response, request, err)
 	}
 
 	dto := apputils.ToCertificateDTO(cert)
-	return c.sendOK(response, dto)
+	return c.ok(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CreateRootCertificateDefinitions

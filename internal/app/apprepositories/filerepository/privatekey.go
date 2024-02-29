@@ -19,7 +19,7 @@ type FilePrivateKeyRepository struct {
 	fileManager managers.FileManager
 }
 
-func (r *FilePrivateKeyRepository) GetFilePath() string {
+func (r *FilePrivateKeyRepository) FilePath() string {
 	return r.filePath
 }
 
@@ -30,7 +30,7 @@ func (r *FilePrivateKeyRepository) FindByOrganizationAndSerialNumbers(
 	if len(certificates) <= 0 {
 		return nil, errors.New("no certificate serial numbers provided")
 	}
-	fileName := GetPrivateKeyPemPath(r.filePath, organization, certificates)
+	fileName := PrivateKeyPemPath(r.filePath, organization, certificates)
 	privkey, keyType, err := ReadPrivateKeyFile(r.fileManager, r.certManager, fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read private key: %w", err)
@@ -45,7 +45,7 @@ func (r *FilePrivateKeyRepository) Save(key appmodels.PrivateKey) (appmodels.Pri
 	serialNumber := key.SerialNumber()
 
 	// Determine file path for the private key
-	fileName := GetPrivateKeyPemPath(r.filePath, organization, append(certificates, serialNumber))
+	fileName := PrivateKeyPemPath(r.filePath, organization, append(certificates, serialNumber))
 
 	// Serialize the private key into PEM format
 	pemData, err := apputils.MarshalPrivateKeyAsPEM(r.certManager, key.PrivateKey())

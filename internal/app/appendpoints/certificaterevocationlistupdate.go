@@ -29,9 +29,9 @@ func (c *HttpApiController) UpdateCertificateRevocationListDefinitions() swagger
 func (c *HttpApiController) UpdateCertificateRevocationList(response apitypes.Response, request apitypes.Request) error {
 
 	// Fetch root certificate controller
-	rootCertificateController, err := c.getRootCertificateController(request)
+	rootCertificateController, err := c.rootCertificateController(request)
 	if rootCertificateController == nil {
-		return c.sendNotFound(response, request, err)
+		return c.notFound(response, request, err)
 	}
 
 	// Get a list of revoked certificates

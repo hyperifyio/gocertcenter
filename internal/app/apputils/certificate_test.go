@@ -43,7 +43,7 @@ func TestGetCertificatePEMBytes(t *testing.T) {
 
 	modelCert := appmodels.NewCertificate("Org123", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, cert)
 
-	pemBytes := apputils.GetCertificatePEMBytes(modelCert)
+	pemBytes := apputils.CertificateToPEMBytes(modelCert)
 
 	// Decode the PEM to verify it's correctly encoded
 	block, _ := pem.Decode(pemBytes)

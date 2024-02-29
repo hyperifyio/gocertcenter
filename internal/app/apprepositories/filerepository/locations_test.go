@@ -17,7 +17,7 @@ func TestGetOrganizationDirectory(t *testing.T) {
 	dir := "/data"
 	organization := "HangoverGames"
 	expected := "/data/organizations/HangoverGames"
-	result := filerepository.GetOrganizationDirectory(dir, organization)
+	result := filerepository.OrganizationDirectory(dir, organization)
 	assert.Equal(t, expected, result)
 }
 
@@ -25,7 +25,7 @@ func TestGetOrganizationJsonPath(t *testing.T) {
 	dir := "/data"
 	organization := "HangoverGames"
 	expected := "/data/organizations/HangoverGames/organization.json"
-	result := filerepository.GetOrganizationJsonPath(dir, organization)
+	result := filerepository.OrganizationJsonPath(dir, organization)
 	assert.Equal(t, expected, result)
 }
 
@@ -36,7 +36,7 @@ func TestGetPrivateKeyPemPathWithTwoCertificates(t *testing.T) {
 	organization := "HangoverGames"
 	certificates := []appmodels.SerialNumber{a, b}
 	expected := "/data/organizations/HangoverGames/certificates/123/certificates/456/privkey.pem"
-	result := filerepository.GetPrivateKeyPemPath(dir, organization, certificates)
+	result := filerepository.PrivateKeyPemPath(dir, organization, certificates)
 	assert.Equal(t, expected, result)
 }
 
@@ -47,7 +47,7 @@ func TestGetCertificatePemPathWithTwoCertificates(t *testing.T) {
 	organization := "HangoverGames"
 	certificates := []appmodels.SerialNumber{a, b}
 	expected := "/data/organizations/HangoverGames/certificates/123/certificates/456/cert.pem"
-	result := filerepository.GetCertificatePemPath(dir, organization, certificates)
+	result := filerepository.CertificatePemPath(dir, organization, certificates)
 	assert.Equal(t, expected, result)
 }
 
@@ -58,7 +58,7 @@ func TestGetCertificateDirectoryWithTwoCertificates(t *testing.T) {
 	organization := "HangoverGames"
 	certificates := []appmodels.SerialNumber{a, b}
 	expected := "/data/organizations/HangoverGames/certificates/123/certificates/456"
-	result := filerepository.GetCertificateDirectory(dir, organization, certificates)
+	result := filerepository.CertificateDirectory(dir, organization, certificates)
 	assert.Equal(t, expected, result)
 }
 
@@ -68,7 +68,7 @@ func TestGetPrivateKeyPemPathWithOneCertificate(t *testing.T) {
 	organization := "HangoverGames"
 	certificates := []appmodels.SerialNumber{a}
 	expected := "/data/organizations/HangoverGames/certificates/123/privkey.pem"
-	result := filerepository.GetPrivateKeyPemPath(dir, organization, certificates)
+	result := filerepository.PrivateKeyPemPath(dir, organization, certificates)
 	assert.Equal(t, expected, result)
 }
 
@@ -78,7 +78,7 @@ func TestGetCertificatePemPathWithOneCertificate(t *testing.T) {
 	organization := "HangoverGames"
 	certificates := []appmodels.SerialNumber{a}
 	expected := "/data/organizations/HangoverGames/certificates/123/cert.pem"
-	result := filerepository.GetCertificatePemPath(dir, organization, certificates)
+	result := filerepository.CertificatePemPath(dir, organization, certificates)
 	assert.Equal(t, expected, result)
 }
 
@@ -88,6 +88,6 @@ func TestGetCertificateDirectoryWithOneCertificate(t *testing.T) {
 	organization := "HangoverGames"
 	certificates := []appmodels.SerialNumber{a}
 	expected := "/data/organizations/HangoverGames/certificates/123"
-	result := filerepository.GetCertificateDirectory(dir, organization, certificates)
+	result := filerepository.CertificateDirectory(dir, organization, certificates)
 	assert.Equal(t, expected, result)
 }

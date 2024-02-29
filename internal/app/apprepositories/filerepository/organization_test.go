@@ -28,7 +28,7 @@ func TestOrganizationRepository_GetExistingOrganization(t *testing.T) {
 	orgID := "org123"
 	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
-	orgJsonPath := filerepository.GetOrganizationJsonPath(filePath, orgID)
+	orgJsonPath := filerepository.OrganizationJsonPath(filePath, orgID)
 
 	err := filerepository.SaveOrganizationJsonFile(
 		fileManager,
@@ -75,7 +75,7 @@ func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 	assert.NotNil(t, org)
 	// Perform more assertions based on the mockOrg and the expected behaviors
 
-	orgJsonPath := filerepository.GetOrganizationJsonPath(filePath, orgID)
+	orgJsonPath := filerepository.OrganizationJsonPath(filePath, orgID)
 
 	savedOrg, err := filerepository.ReadOrganizationJsonFile(fileManager, orgJsonPath)
 	assert.NoError(t, err, "Should be able to retrieve the newly created organization without error")

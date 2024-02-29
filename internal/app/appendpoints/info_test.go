@@ -37,7 +37,7 @@ func TestApiController_GetInfo(t *testing.T) {
 
 	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 
-	info := controller.GetInfo()
+	info := controller.Info()
 
 	if info.Title != expectedInfo.Title ||
 		info.Version != expectedInfo.Version ||
@@ -47,6 +47,6 @@ func TestApiController_GetInfo(t *testing.T) {
 		info.Contact.Name != expectedInfo.Contact.Name ||
 		info.Contact.URL != expectedInfo.Contact.URL ||
 		info.Contact.Email != expectedInfo.Contact.Email {
-		t.Errorf("GetInfo returned unexpected values")
+		t.Errorf("Info returned unexpected values")
 	}
 }

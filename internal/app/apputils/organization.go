@@ -7,7 +7,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-func GetOrganizationDTO(o appmodels.Organization) appdtos.OrganizationDTO {
+func ToOrganizationDTO(o appmodels.Organization) appdtos.OrganizationDTO {
 	return appdtos.NewOrganizationDTO(
 		o.ID(),
 		o.Name(),
@@ -18,7 +18,7 @@ func GetOrganizationDTO(o appmodels.Organization) appdtos.OrganizationDTO {
 func ToListOfOrganizationDTO(list []appmodels.Organization) []appdtos.OrganizationDTO {
 	result := make([]appdtos.OrganizationDTO, len(list))
 	for i, v := range list {
-		result[i] = GetOrganizationDTO(v)
+		result[i] = ToOrganizationDTO(v)
 	}
 	return result
 }

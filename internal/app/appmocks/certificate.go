@@ -8,7 +8,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
@@ -25,11 +24,6 @@ func (c *MockCertificate) NotBefore() time.Time {
 func (c *MockCertificate) NotAfter() time.Time {
 	args := c.Called()
 	return args.Get(0).(time.Time)
-}
-
-func (c *MockCertificate) GetDTO() appdtos.CertificateDTO {
-	args := c.Called()
-	return args.Get(0).(appdtos.CertificateDTO)
 }
 
 func (m *MockCertificate) IsCA() bool {
@@ -100,11 +94,6 @@ func (m *MockCertificate) IsServerCertificate() bool {
 func (m *MockCertificate) IsClientCertificate() bool {
 	args := m.Called()
 	return args.Bool(0)
-}
-
-func (m *MockCertificate) GetPEM() []byte {
-	args := m.Called()
-	return args.Get(0).([]byte)
 }
 
 var _ appmodels.Certificate = (*MockCertificate)(nil)

@@ -13,17 +13,17 @@ import (
 // end-points, while apitypes.AppController defines common non-application
 // specific methods.
 type GoCertCenterController interface {
-	GetInfo() *openapi3.Info
-	GetRoutes() []apitypes.Route
+	Info() *openapi3.Info
+	Routes() []apitypes.Route
 
-	GetIndexDefinitions() swagger.Definitions
-	GetIndex(response apitypes.Response, request apitypes.Request) error
+	IndexDefinitions() swagger.Definitions
+	Index(response apitypes.Response, request apitypes.Request) error
 
-	GetOrganizationCollection(response apitypes.Response, request apitypes.Request) error
-	GetOrganizationCollectionDefinitions() swagger.Definitions
+	OrganizationCollection(response apitypes.Response, request apitypes.Request) error
+	OrganizationCollectionDefinitions() swagger.Definitions
 
-	GetRootCertificateCollection(response apitypes.Response, request apitypes.Request) error
-	GetRootCertificateCollectionDefinitions() swagger.Definitions
+	RootCertificateCollection(response apitypes.Response, request apitypes.Request) error
+	RootCertificateCollectionDefinitions() swagger.Definitions
 
 	CreateRootCertificate(response apitypes.Response, request apitypes.Request) error
 	CreateRootCertificateDefinitions() swagger.Definitions

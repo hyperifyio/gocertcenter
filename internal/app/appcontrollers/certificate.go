@@ -355,7 +355,7 @@ func (r *CertCertificateController) UsesCertificateService(service appmodels.Cer
 	return r.certificateRepository == service
 }
 
-func (r *CertCertificateController) GetExistingCertificate(organization string, certificates []appmodels.SerialNumber) (appmodels.Certificate, error) {
+func (r *CertCertificateController) FindCertificate(organization string, certificates []appmodels.SerialNumber) (appmodels.Certificate, error) {
 	return r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, certificates)
 }
 

@@ -12,11 +12,11 @@ import (
 
 func (c *HttpApiController) logf(request apitypes.Request, format string, args ...interface{}) {
 
-	// Prepend the request method and URL to the format
+	// Prepend the request method and MockURL to the format
 	fullFormat := "[%s %s]: " + format
 
-	// Prepend the request method and URL to the args
-	fullArgs := append([]interface{}{request.GetMethod(), request.GetURL()}, args...)
+	// Prepend the request method and MockURL to the args
+	fullArgs := append([]interface{}{request.Method(), request.URL()}, args...)
 
 	// Use log.Printf to log the formatted string
 	log.Printf(fullFormat, fullArgs...)
@@ -34,7 +34,7 @@ func (c *HttpApiController) log(request apitypes.Request, args ...interface{}) {
 	// Join the string representations of all arguments with spaces
 	argsStr := strings.Join(stringArgs, " ")
 
-	// Log the message with the request method and URL, and the joined arguments string
-	log.Printf("[%s %s]: %s", request.GetMethod(), request.GetURL(), argsStr)
+	// Log the message with the request method and MockURL, and the joined arguments string
+	log.Printf("[%s %s]: %s", request.Method(), request.URL(), argsStr)
 
 }

@@ -45,7 +45,7 @@ func TestCertificateRepository_GetExistingCertificate(t *testing.T) {
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	assert.NoError(t, err)
 
-	certPath := filerepository.GetCertificatePemPath(filePath, organization, serialNumbers)
+	certPath := filerepository.CertificatePemPath(filePath, organization, serialNumbers)
 	fmt.Println("Expected certificate path:", certPath)
 
 	// Create a dummy certificate for testing

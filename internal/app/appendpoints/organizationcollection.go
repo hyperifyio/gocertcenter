@@ -10,8 +10,8 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-// GetOrganizationCollectionDefinitions returns OpenAPI definitions
-func (c *HttpApiController) GetOrganizationCollectionDefinitions() swagger.Definitions {
+// OrganizationCollectionDefinitions returns OpenAPI definitions
+func (c *HttpApiController) OrganizationCollectionDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns a specific root certificate",
 		Description: "",
@@ -25,16 +25,16 @@ func (c *HttpApiController) GetOrganizationCollectionDefinitions() swagger.Defin
 	}
 }
 
-// GetOrganizationCollection handles a request
-func (c *HttpApiController) GetOrganizationCollection(response apitypes.Response, request apitypes.Request) error {
+// OrganizationCollection handles a request
+func (c *HttpApiController) OrganizationCollection(response apitypes.Response, request apitypes.Request) error {
 	list, err := c.appController.OrganizationCollection()
 	if err != nil {
-		return c.sendInternalServerError(response, request, err)
+		return c.internalServerError(response, request, err)
 	}
 	c.logf(request, "list len = %d", len(list))
 	dto := apputils.ToOrganizationListDTO(list)
-	return c.sendOK(response, dto)
+	return c.ok(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetOrganizationCollectionDefinitions
-var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetOrganizationCollection
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).OrganizationCollectionDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).OrganizationCollection

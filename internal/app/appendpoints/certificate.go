@@ -11,8 +11,8 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
 )
 
-// GetCertificateDefinitions returns OpenAPI definitions
-func (c *HttpApiController) GetCertificateDefinitions() swagger.Definitions {
+// CertificateDefinitions returns OpenAPI definitions
+func (c *HttpApiController) CertificateDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns a certificate entity owned by a root certificate",
 		Description: "",
@@ -26,19 +26,19 @@ func (c *HttpApiController) GetCertificateDefinitions() swagger.Definitions {
 	}
 }
 
-// GetCertificate handles a request
-func (c *HttpApiController) GetCertificate(response apitypes.Response, request apitypes.Request) error {
+// Certificate handles a request
+func (c *HttpApiController) Certificate(response apitypes.Response, request apitypes.Request) error {
 
 	// Fetch the certificate controller
-	controller, err := c.getInnerCertificateController(request)
+	controller, err := c.innerCertificateController(request)
 	if err != nil {
-		return c.sendNotFound(response, request, err)
+		return c.notFound(response, request, err)
 	}
 
 	model := controller.Certificate()
 	dto := apputils.ToCertificateDTO(model)
-	return c.sendOK(response, dto)
+	return c.ok(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetCertificateDefinitions
-var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetCertificate
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CertificateDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).Certificate

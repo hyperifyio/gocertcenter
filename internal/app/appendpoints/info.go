@@ -9,7 +9,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-func (c *HttpApiController) GetInfo() *openapi3.Info {
+func (c *HttpApiController) Info() *openapi3.Info {
 	return &openapi3.Info{
 		Title:   gocertcenter.Name,
 		Version: gocertcenter.Version,
@@ -26,4 +26,4 @@ func (c *HttpApiController) GetInfo() *openapi3.Info {
 	}
 }
 
-var _ apitypes.ApplicationInfoFunc = (*HttpApiController)(nil).GetInfo
+var _ apitypes.ApplicationInfoFunc = (*HttpApiController)(nil).Info

@@ -50,7 +50,7 @@ func (s *ApplicationServer) IsStarted() bool {
 	return s.server != nil
 }
 
-func (s *ApplicationServer) GetAddress() string {
+func (s *ApplicationServer) Address() string {
 	return s.listen
 }
 
@@ -58,7 +58,7 @@ func (s *ApplicationServer) SetInfo(info *openapi3.Info) {
 	s.info = info
 }
 
-func (s *ApplicationServer) GetInfo() *openapi3.Info {
+func (s *ApplicationServer) Info() *openapi3.Info {
 	if s.info == nil {
 		s.info = &openapi3.Info{
 			Title:   DefaultOpenApiTitle,
@@ -68,7 +68,7 @@ func (s *ApplicationServer) GetInfo() *openapi3.Info {
 	return s.info
 }
 
-func (s *ApplicationServer) GetURL() string {
+func (s *ApplicationServer) URL() string {
 	url := s.listen
 	if strings.HasPrefix(url, ":") {
 		return fmt.Sprintf("%s://%s%s", DefaultProtocol, DefaultHostname, url)
@@ -103,9 +103,9 @@ func (s *ApplicationServer) InitSetup() error {
 		swaggerManager, err := s.swaggerFactory(
 			s.router,
 			s.context,
-			s.GetURL(),
+			s.URL(),
 			"ApplicationServer location",
-			s.GetInfo(),
+			s.Info(),
 		)
 		if err != nil {
 			return fmt.Errorf("[server] failed to create swagger router: %v", err)
@@ -173,7 +173,7 @@ func (s *ApplicationServer) Start() error {
 		return errors.New("[server] Already listening")
 	}
 
-	address := s.listen
+	listen := s.listen
 
 	if s.router == nil {
 		if err := s.InitSetup(); err != nil {
@@ -185,22 +185,22 @@ func (s *ApplicationServer) Start() error {
 		return fmt.Errorf("[server] failed to finalize the setup: %v", err)
 	}
 
-	if address == "" {
-		address = ":http"
+	if listen == "" {
+		listen = ":http"
 	}
 
 	if s.serverFactory == nil {
 		s.serverFactory = managers.NewHttpServerManager
 	}
 
-	s.server = s.serverFactory(address, s.router)
+	s.server = s.serverFactory(listen, s.router)
 	if s.server == nil {
-		return fmt.Errorf("[server] failed to initialize server for %s", address)
+		return fmt.Errorf("[server] failed to initialize server for %s", listen)
 	}
 
-	ln, err := net.Listen("tcp", address)
+	ln, err := net.Listen("tcp", listen)
 	if err != nil {
-		return fmt.Errorf("[server] failed to listen the address %s: %v", address, err)
+		return fmt.Errorf("[server] failed to listen the address %s: %v", listen, err)
 	}
 	s.listener = &ln
 
@@ -208,7 +208,7 @@ func (s *ApplicationServer) Start() error {
 	startErrors := make(chan error, 1)
 
 	var logErrorHandler = func(err error) {
-		log.Printf("[server] Could not start serving at %s: %v", address, err)
+		log.Printf("[server] Could not start serving at %s: %v", listen, err)
 	}
 
 	var channelErrorHandler = func(err error) {
@@ -219,12 +219,12 @@ func (s *ApplicationServer) Start() error {
 
 	go func() {
 		if s.server != nil {
-			log.Printf("[server] Starting server at %s", address)
+			log.Printf("[server] Starting server at %s", listen)
 			if err := s.server.Serve(ln); err != http.ErrServerClosed {
 				startErrorHandler(err)
 			}
 		}
-		log.Printf("[server] Stopped server at %s", address)
+		log.Printf("[server] Stopped server at %s", listen)
 		s.server = nil
 		startErrorHandler = nil
 	}()
@@ -278,8 +278,8 @@ func (s *ApplicationServer) UnSetup() error {
 	return nil
 }
 
-// GetInternalHash returns a hash value representing the current internal state of the server
-func (s *ApplicationServer) GetInternalHash() (uint64, error) {
+// InternalHash returns a hash value representing the current internal state of the server
+func (s *ApplicationServer) InternalHash() (uint64, error) {
 	if s.hashFactory == nil {
 		s.hashFactory = fnv.New64a
 	}

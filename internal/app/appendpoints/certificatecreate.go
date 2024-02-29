@@ -43,7 +43,7 @@ func (c *HttpApiController) CreateCertificate(response apitypes.Response, reques
 	// Decode request body
 	body, err := c.DecodeCertificateRequestFromRequestBody(request)
 	if err != nil {
-		return c.sendBadRequest(response, request, "body invalid", err)
+		return c.badRequest(response, request, "body invalid", err)
 	}
 
 	// Parse common name
@@ -59,13 +59,13 @@ func (c *HttpApiController) CreateCertificate(response apitypes.Response, reques
 
 	// Check certificate type is not a root certificate
 	if certificateType == appdtos.RootCertificate {
-		return c.sendBadRequest(response, request, "body type invalid", err)
+		return c.badRequest(response, request, "body type invalid", err)
 	}
 
 	// Fetch root certificate controller
-	rootCertificateController, err := c.getRootCertificateController(request)
+	rootCertificateController, err := c.rootCertificateController(request)
 	if rootCertificateController == nil {
-		return c.sendNotFound(response, request, err)
+		return c.notFound(response, request, err)
 	}
 
 	var cert appmodels.Certificate
@@ -75,7 +75,7 @@ func (c *HttpApiController) CreateCertificate(response apitypes.Response, reques
 
 		cert, privateKey, err = rootCertificateController.NewClientCertificate(commonName)
 		if err != nil {
-			return c.sendInternalServerError(response, request, err)
+			return c.internalServerError(response, request, err)
 		}
 		c.logf(request, "created client certificate: %s", cert.SerialNumber())
 
@@ -83,7 +83,7 @@ func (c *HttpApiController) CreateCertificate(response apitypes.Response, reques
 
 		cert, privateKey, err = rootCertificateController.NewServerCertificate(commonName)
 		if err != nil {
-			return c.sendInternalServerError(response, request, err)
+			return c.internalServerError(response, request, err)
 		}
 		c.logf(request, "created server certificate: %s", cert.SerialNumber())
 
@@ -91,20 +91,20 @@ func (c *HttpApiController) CreateCertificate(response apitypes.Response, reques
 
 		cert, privateKey, err = rootCertificateController.NewIntermediateCertificate(commonName)
 		if err != nil {
-			return c.sendInternalServerError(response, request, err)
+			return c.internalServerError(response, request, err)
 		}
 		c.logf(request, "created intermediate certificate: %s", cert.SerialNumber())
 
 	} else {
-		return c.sendBadRequest(response, request, fmt.Sprintf("unsupported cert type: %s", certificateType), err)
+		return c.badRequest(response, request, fmt.Sprintf("unsupported cert type: %s", certificateType), err)
 	}
 
 	dto, err := apputils.ToCertificateCreatedDTO(c.certManager, cert, privateKey)
 	if err != nil {
-		return c.sendInternalServerError(response, request, err)
+		return c.internalServerError(response, request, err)
 	}
 
-	return c.sendOK(response, dto)
+	return c.ok(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CreateCertificateDefinitions

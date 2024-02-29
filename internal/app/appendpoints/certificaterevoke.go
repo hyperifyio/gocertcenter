@@ -30,19 +30,19 @@ func (c *HttpApiController) RevokeCertificateDefinitions() swagger.Definitions {
 func (c *HttpApiController) RevokeCertificate(response apitypes.Response, request apitypes.Request) error {
 
 	// Fetch the certificate controller
-	controller, err := c.getInnerCertificateController(request)
+	controller, err := c.innerCertificateController(request)
 	if err != nil {
-		return c.sendNotFound(response, request, err)
+		return c.notFound(response, request, err)
 	}
 
 	cert := controller.Certificate()
 	model, err := controller.OrganizationController().RevokeCertificate(cert)
 	if err != nil {
-		return c.sendInternalServerError(response, request, err)
+		return c.internalServerError(response, request, err)
 	}
 
 	dto := apputils.ToCertificateRevokedDTO(model)
-	return c.sendOK(response, dto)
+	return c.ok(response, dto)
 }
 
 var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).RevokeCertificateDefinitions

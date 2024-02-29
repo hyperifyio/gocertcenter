@@ -14,12 +14,12 @@ import (
 func TestNotFound(t *testing.T) {
 	requestURL, err := url.Parse("https://example.com/nonexistent")
 	if err != nil {
-		t.Fatalf("Error parsing URL: %v", err)
+		t.Fatalf("Error parsing MockURL: %v", err)
 	}
 
 	request := &apimocks.MockRequest{
-		Method: "GET",
-		URL:    requestURL,
+		MockMethod: "GET",
+		MockURL:    requestURL,
 	}
 
 	response := &apimocks.MockResponse{}

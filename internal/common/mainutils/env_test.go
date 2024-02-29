@@ -22,10 +22,10 @@ func TestGetEnvOrDefault_VariableSet(t *testing.T) {
 	// Ensure the environment variable is cleaned up after the test
 	defer os.Unsetenv(testKey)
 
-	// Test GetEnvOrDefault
-	got := mainutils.GetEnvOrDefault(testKey, "default value")
+	// Test EnvOrDefault
+	got := mainutils.EnvOrDefault(testKey, "default value")
 	if got != testValue {
-		t.Errorf("GetEnvOrDefault(%q, %q) = %q, want %q", testKey, "default value", got, testValue)
+		t.Errorf("EnvOrDefault(%q, %q) = %q, want %q", testKey, "default value", got, testValue)
 	}
 }
 
@@ -39,9 +39,9 @@ func TestGetEnvOrDefault_VariableNotSet(t *testing.T) {
 		t.Fatalf("Failed to unset environment variable: %v", err)
 	}
 
-	// Test GetEnvOrDefault
-	got := mainutils.GetEnvOrDefault(testKey, defaultValue)
+	// Test EnvOrDefault
+	got := mainutils.EnvOrDefault(testKey, defaultValue)
 	if got != defaultValue {
-		t.Errorf("GetEnvOrDefault(%q, %q) = %q, want %q", testKey, defaultValue, got, defaultValue)
+		t.Errorf("EnvOrDefault(%q, %q) = %q, want %q", testKey, defaultValue, got, defaultValue)
 	}
 }

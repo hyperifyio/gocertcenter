@@ -11,8 +11,8 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-func (c *HttpApiController) getRequestOrganization(request apitypes.Request) string {
-	organization := request.GetVariable("organization")
+func (c *HttpApiController) requestOrganization(request apitypes.Request) string {
+	organization := request.Variable("organization")
 	organization = strings.Trim(strings.ToLower(organization), " ")
 	if organization != "" {
 		if err := apputils.ValidateOrganizationID(organization); err != nil {
@@ -26,73 +26,73 @@ func (c *HttpApiController) getRequestOrganization(request apitypes.Request) str
 	return organization
 }
 
-func (c *HttpApiController) getRootSerialNumber(request apitypes.Request) (appmodels.SerialNumber, error) {
-	serialNumberString := request.GetVariable("rootSerialNumber")
+func (c *HttpApiController) rootSerialNumber(request apitypes.Request) (appmodels.SerialNumber, error) {
+	serialNumberString := request.Variable("rootSerialNumber")
 	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to parse rootSerialNumber: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to parse rootSerialNumber: %v", request.Method(), request.URL(), err)
 	}
 	c.logf(request, "rootSerialNumber = %s", serialNumber.String())
 	return serialNumber, nil
 }
 
-func (c *HttpApiController) getSerialNumber(request apitypes.Request) (appmodels.SerialNumber, error) {
-	serialNumberString := request.GetVariable("serialNumber")
+func (c *HttpApiController) serialNumber(request apitypes.Request) (appmodels.SerialNumber, error) {
+	serialNumberString := request.Variable("serialNumber")
 	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to parse serialNumber: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to parse serialNumber: %v", request.Method(), request.URL(), err)
 	}
 	c.logf(request, "serialNumber = %s", serialNumber.String())
 	return serialNumber, nil
 }
 
-func (c *HttpApiController) getOrganizationController(request apitypes.Request) (appmodels.OrganizationController, error) {
-	organization := c.getRequestOrganization(request)
+func (c *HttpApiController) organizationController(request apitypes.Request) (appmodels.OrganizationController, error) {
+	organization := c.requestOrganization(request)
 	if organization == "" {
-		return nil, fmt.Errorf("[%s %s]: failed to find organization id", request.GetMethod(), request.GetURL())
+		return nil, fmt.Errorf("[%s %s]: failed to find organization id", request.Method(), request.URL())
 	}
 	controller, err := c.appController.OrganizationController(organization)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to find organization controller: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to find organization controller: %v", request.Method(), request.URL(), err)
 	}
 	return controller, nil
 }
 
-func (c *HttpApiController) getRootCertificateController(request apitypes.Request) (appmodels.CertificateController, error) {
+func (c *HttpApiController) rootCertificateController(request apitypes.Request) (appmodels.CertificateController, error) {
 
-	controller, err := c.getOrganizationController(request)
+	controller, err := c.organizationController(request)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to find organization controller: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to find organization controller: %v", request.Method(), request.URL(), err)
 	}
 
-	rootSerialNumber, err := c.getRootSerialNumber(request)
+	rootSerialNumber, err := c.rootSerialNumber(request)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to find root serial number: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to find root serial number: %v", request.Method(), request.URL(), err)
 	}
 
 	rootCertificateController, err := controller.CertificateController(rootSerialNumber)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to find root certificate controller: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to find root certificate controller: %v", request.Method(), request.URL(), err)
 	}
 
 	return rootCertificateController, nil
 }
 
-func (c *HttpApiController) getInnerCertificateController(request apitypes.Request) (appmodels.CertificateController, error) {
+func (c *HttpApiController) innerCertificateController(request apitypes.Request) (appmodels.CertificateController, error) {
 
-	rootCertificateController, err := c.getRootCertificateController(request)
+	rootCertificateController, err := c.rootCertificateController(request)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to find root certificate controller: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to find root certificate controller: %v", request.Method(), request.URL(), err)
 	}
 
-	serialNumber, err := c.getSerialNumber(request)
+	serialNumber, err := c.serialNumber(request)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to find inner serial number: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to find inner serial number: %v", request.Method(), request.URL(), err)
 	}
 
 	certificateController, err := rootCertificateController.ChildCertificateController(serialNumber)
 	if err != nil {
-		return nil, fmt.Errorf("[%s %s]: failed to find inner certificate controller: %v", request.GetMethod(), request.GetURL(), err)
+		return nil, fmt.Errorf("[%s %s]: failed to find inner certificate controller: %v", request.Method(), request.URL(), err)
 	}
 
 	return certificateController, nil

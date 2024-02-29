@@ -17,7 +17,7 @@ type HttpRequest struct {
 	request *http.Request
 }
 
-func (r *HttpRequest) GetHeader(name string) string {
+func (r *HttpRequest) Header(name string) string {
 	return r.request.Header.Get(name)
 }
 
@@ -25,32 +25,32 @@ func (r *HttpRequest) Body() io.ReadCloser {
 	return r.request.Body
 }
 
-func (r *HttpRequest) GetBodyBytes() ([]byte, error) {
+func (r *HttpRequest) BodyBytes() ([]byte, error) {
 	bytes, err := io.ReadAll(r.request.Body)
 	if err != nil {
-		return nil, fmt.Errorf("GetBodyBytes: failed: %w", err)
+		return nil, fmt.Errorf("BodyBytes: failed: %w", err)
 	}
 	_ = r.request.Body.Close()
 	return bytes, nil
 }
 
-func (r *HttpRequest) IsMethodGet() bool {
+func (r *HttpRequest) IsGet() bool {
 	return r.request.Method == http.MethodGet
 }
 
-func (r *HttpRequest) GetURL() *url.URL {
+func (r *HttpRequest) URL() *url.URL {
 	return r.request.URL
 }
 
-func (r *HttpRequest) GetMethod() string {
+func (r *HttpRequest) Method() string {
 	return r.request.Method
 }
 
-func (r *HttpRequest) GetVariable(name string) string {
+func (r *HttpRequest) Variable(name string) string {
 	return mux.Vars(r.request)[name]
 }
 
-func (r *HttpRequest) GetQueryParam(name string) string {
+func (r *HttpRequest) QueryParam(name string) string {
 	queryParams := r.request.URL.Query()
 	return queryParams.Get(name)
 }

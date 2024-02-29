@@ -10,7 +10,7 @@ import (
 
 // NotFound handles not found errors
 func NotFound(response apitypes.Response, request apitypes.Request) error {
-	log.Printf("[NotFound] %s %s", request.GetMethod(), request.GetURL())
+	log.Printf("[NotFound] %s %s", request.Method(), request.URL())
 	response.SendNotFoundError()
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-func (c *HttpApiController) GetRoutes() []apitypes.Route {
+func (c *HttpApiController) Routes() []apitypes.Route {
 	return []apitypes.Route{
 		{
 			Method:      http.MethodDelete,
@@ -19,14 +19,14 @@ func (c *HttpApiController) GetRoutes() []apitypes.Route {
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}/certificates/{serialNumber}",
-			Handler:     c.GetCertificate,
-			Definitions: c.GetCertificateDefinitions(),
+			Handler:     c.Certificate,
+			Definitions: c.CertificateDefinitions(),
 		},
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}/certificates",
-			Handler:     c.GetCertificateCollection,
-			Definitions: c.GetCertificateCollectionDefinitions(),
+			Handler:     c.CertificateCollection,
+			Definitions: c.CertificateCollectionDefinitions(),
 		},
 		{
 			Method:      http.MethodPost,
@@ -37,8 +37,8 @@ func (c *HttpApiController) GetRoutes() []apitypes.Route {
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}/crl",
-			Handler:     c.GetCertificateRevocationList,
-			Definitions: c.GetCertificateRevocationListDefinitions(),
+			Handler:     c.CertificateRevocationList,
+			Definitions: c.CertificateRevocationListDefinitions(),
 		},
 		{
 			Method:      http.MethodPost,
@@ -49,14 +49,14 @@ func (c *HttpApiController) GetRoutes() []apitypes.Route {
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates/{rootSerialNumber}",
-			Handler:     c.GetRootCertificate,
-			Definitions: c.GetRootCertificateDefinitions(),
+			Handler:     c.RootCertificate,
+			Definitions: c.RootCertificateDefinitions(),
 		},
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}/certificates",
-			Handler:     c.GetRootCertificateCollection,
-			Definitions: c.GetRootCertificateCollectionDefinitions(),
+			Handler:     c.RootCertificateCollection,
+			Definitions: c.RootCertificateCollectionDefinitions(),
 		},
 		{
 			Method:      http.MethodPost,
@@ -67,14 +67,14 @@ func (c *HttpApiController) GetRoutes() []apitypes.Route {
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations/{organization}",
-			Handler:     c.GetOrganization,
-			Definitions: c.GetOrganizationDefinitions(),
+			Handler:     c.Organization,
+			Definitions: c.OrganizationDefinitions(),
 		},
 		{
 			Method:      http.MethodGet,
 			Path:        "/organizations",
-			Handler:     c.GetOrganizationCollection,
-			Definitions: c.GetOrganizationCollectionDefinitions(),
+			Handler:     c.OrganizationCollection,
+			Definitions: c.OrganizationCollectionDefinitions(),
 		},
 		{
 			Method:      http.MethodPost,
@@ -85,10 +85,10 @@ func (c *HttpApiController) GetRoutes() []apitypes.Route {
 		{
 			Method:      http.MethodGet,
 			Path:        "/",
-			Handler:     c.GetIndex,
-			Definitions: c.GetIndexDefinitions(),
+			Handler:     c.Index,
+			Definitions: c.IndexDefinitions(),
 		},
 	}
 }
 
-var _ apitypes.ApplicationRoutesFunc = (*HttpApiController)(nil).GetRoutes
+var _ apitypes.ApplicationRoutesFunc = (*HttpApiController)(nil).Routes

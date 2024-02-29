@@ -21,8 +21,8 @@ import (
 )
 
 var (
-	listenPort = flag.String("port", mainutils.GetEnvOrDefault("PORT", "8080"), "port on which the server listens")
-	dataDir    = flag.String("data-dir", mainutils.GetEnvOrDefault("DATA_DIR", "./tmp/data"), "application data directory")
+	listenPort = flag.String("port", mainutils.EnvOrDefault("PORT", "8080"), "port on which the server listens")
+	dataDir    = flag.String("data-dir", mainutils.EnvOrDefault("DATA_DIR", "./tmp/data"), "application data directory")
 )
 
 func main() {
@@ -58,9 +58,9 @@ func main() {
 
 	apiController := appendpoints.NewHttpApiController(server, appController, certManager)
 
-	server.SetInfo(apiController.GetInfo())
+	server.SetInfo(apiController.Info())
 
-	if err := server.SetupRoutes(apiController.GetRoutes()); err != nil {
+	if err := server.SetupRoutes(apiController.Routes()); err != nil {
 		log.Fatalf("[main]: Failed to setup routes: %v", err)
 	}
 
@@ -75,13 +75,13 @@ func main() {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
-	log.Printf("[main]: Starting server: %s", server.GetAddress())
+	log.Printf("[main]: Starting server: %s", server.Address())
 	if err := server.Start(); err != nil {
 		log.Printf("[main]: Failed to start server: %v", err)
 	}
 
 	<-shutdown
-	log.Printf("[main]: Shutting down: %s", server.GetAddress())
+	log.Printf("[main]: Shutting down: %s", server.Address())
 	if err := shutdownHandler(); err != nil {
 		log.Printf("[main]: Failed to close server: %v", err)
 	}

@@ -200,7 +200,7 @@ type OrganizationController interface {
 	// ApplicationController returns the parent controller who owns this organization controller
 	ApplicationController() ApplicationController
 
-	// GetCertificateCollection returns all the root level certificates for the organization
+	// CertificateCollection returns all the root level certificates for the organization
 	CertificateCollection() ([]Certificate, error)
 
 	// CertificateController returns a controller for a root certificate specified by its serial number

@@ -10,8 +10,8 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-// GetCertificateCollectionDefinitions returns OpenAPI definitions
-func (c *HttpApiController) GetCertificateCollectionDefinitions() swagger.Definitions {
+// CertificateCollectionDefinitions returns OpenAPI definitions
+func (c *HttpApiController) CertificateCollectionDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns a collection of root certificate entities",
 		Description: "",
@@ -25,31 +25,31 @@ func (c *HttpApiController) GetCertificateCollectionDefinitions() swagger.Defini
 	}
 }
 
-// GetCertificateCollection handles a request to get organization's certificates
-func (c *HttpApiController) GetCertificateCollection(response apitypes.Response, request apitypes.Request) error {
+// CertificateCollection handles a request to get organization's certificates
+func (c *HttpApiController) CertificateCollection(response apitypes.Response, request apitypes.Request) error {
 
 	// certificateType is server, client, root or intermediate
-	certificateType := request.GetQueryParam("type")
+	certificateType := request.QueryParam("type")
 	if !(certificateType == "" || certificateType == "server" || certificateType == "client" || certificateType == "root") {
-		return c.sendBadRequest(response, request, "query param invalid: type", nil)
+		return c.badRequest(response, request, "query param invalid: type", nil)
 	}
 
 	// Fetch root certificate controller
-	controller, err := c.getRootCertificateController(request)
+	controller, err := c.rootCertificateController(request)
 	if err != nil {
-		return c.sendNotFound(response, request, err)
+		return c.notFound(response, request, err)
 	}
 
 	// Get certificate list
 	list, err := controller.ChildCertificateCollection(certificateType)
 	if err != nil {
-		return c.sendInternalServerError(response, request, err)
+		return c.internalServerError(response, request, err)
 	}
 
 	c.logf(request, "list len = %d", len(list))
 	dto := apputils.ToCertificateListDTO(list)
-	return c.sendOK(response, dto)
+	return c.ok(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetCertificateCollectionDefinitions
-var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetCertificateCollection
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CertificateCollectionDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).CertificateCollection

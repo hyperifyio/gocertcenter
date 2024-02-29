@@ -36,7 +36,7 @@ func (r *FileCertificateRepository) FindByOrganizationAndSerialNumbers(
 		return nil, errors.New("no certificate serial numbers provided")
 	}
 
-	fileName := GetCertificatePemPath(r.filePath, organization, certificates)
+	fileName := CertificatePemPath(r.filePath, organization, certificates)
 	cert, err := ReadCertificateFile(r.fileManager, r.certManager, fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read certificate: %w", err)
@@ -50,7 +50,7 @@ func (r *FileCertificateRepository) Save(certificate appmodels.Certificate) (app
 	parents := certificate.Parents()
 	serialNumber := certificate.SerialNumber()
 	fullPath := append(parents, serialNumber)
-	fileName := GetCertificatePemPath(
+	fileName := CertificatePemPath(
 		r.filePath,
 		organization,
 		fullPath,

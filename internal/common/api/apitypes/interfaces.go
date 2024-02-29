@@ -51,10 +51,10 @@ type Server interface {
 	IsStarted() bool
 
 	// GetAddress returns the address where this service will listen on
-	GetAddress() string
+	Address() string
 
-	// GetURL returns the full URL for the server
-	GetURL() string
+	// URL returns the full MockURL for the server
+	URL() string
 
 	// InitSetup can be called to initialize default values before calling
 	// other Setup methods. This is not normally required, since it is called in
@@ -75,7 +75,7 @@ type Server interface {
 	// SetupNotFoundHandler can be used to configure the Not Found error handler
 	SetupNotFoundHandler(handler RequestHandlerFunc)
 
-	// SetupMethodNotAllowedHandler can be used to configure the Method Not Allowed handler
+	// SetupMethodNotAllowedHandler can be used to configure the MockMethod Not Allowed handler
 	SetupMethodNotAllowedHandler(handler RequestHandlerFunc)
 
 	// FinalizeSetup can be called after calling other Setup routes to finalize
@@ -91,14 +91,14 @@ type Server interface {
 }
 
 type Request interface {
-	IsMethodGet() bool
-	GetMethod() string
-	GetURL() *url.URL
-	GetVariable(name string) string
-	GetQueryParam(name string) string
+	IsGet() bool
+	Method() string
+	URL() *url.URL
+	Variable(name string) string
+	QueryParam(name string) string
 	Body() io.ReadCloser
-	GetBodyBytes() ([]byte, error)
-	GetHeader(name string) string
+	BodyBytes() ([]byte, error)
+	Header(name string) string
 }
 
 // RequestHandlerFunc defines the type for handlers in this API.
@@ -124,7 +124,7 @@ type Hash64FactoryFunc func() hash.Hash64
 // AppController defines common methods for each application end-point
 // controller
 type AppController interface {
-	GetInfo() *openapi3.Info
+	Info() *openapi3.Info
 
-	GetRoutes() []Route
+	Routes() []Route
 }

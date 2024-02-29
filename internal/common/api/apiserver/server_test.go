@@ -32,8 +32,8 @@ func TestNewServer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
-	if server.GetAddress() != listen {
-		t.Errorf("NewServer listen = %s; want %s", server.GetAddress(), listen)
+	if server.Address() != listen {
+		t.Errorf("NewServer listen = %s; want %s", server.Address(), listen)
 	}
 }
 
@@ -110,9 +110,9 @@ func TestGetURL(t *testing.T) {
 			t.Fatalf("Failed to create server: %v", err)
 		}
 
-		got := server.GetURL()
+		got := server.URL()
 		if got != tt.want {
-			t.Errorf("GetURL() = %v, want %v", got, tt.want)
+			t.Errorf("MockURL() = %v, want %v", got, tt.want)
 		}
 	}
 }
@@ -185,7 +185,7 @@ func TestStart_ListenerAlreadyExists(t *testing.T) {
 	defer server.Stop()
 
 	// Manually create a listener to simulate already listening state
-	ln, err := net.Listen("tcp", server.GetAddress())
+	ln, err := net.Listen("tcp", server.Address())
 	if err != nil {
 		t.Fatalf("Failed to manually listen on address: %v", err)
 	}
@@ -256,14 +256,14 @@ func TestServer_InitSetup_Idempotent(t *testing.T) {
 	}
 
 	// Get the initial hash of the server state
-	initialHash, err := server.GetInternalHash()
+	initialHash, err := server.InternalHash()
 	if err != nil {
 		t.Fatalf("Failed to hash server state: %v", err)
 	}
 
 	server.InitSetup() // Second initialization
 
-	secondHash, err := server.GetInternalHash()
+	secondHash, err := server.InternalHash()
 	if err != nil {
 		t.Fatalf("Failed to hash server state again: %v", err)
 	}
@@ -891,22 +891,22 @@ func TestServer_SetInfo(t *testing.T) {
 		t.Fatalf("Failed to create server: %v", err)
 	}
 
-	// Create a new Info object to set on the server.
+	// Create a new MockInfo object to set on the server.
 	newInfo := &openapi3.Info{
 		Title:       "New API Title",
 		Version:     "1.0.1",
 		Description: "A new description for the API.",
 	}
 
-	// Call SetInfo on the server with the new Info object.
+	// Call SetInfo on the server with the new MockInfo object.
 	server.SetInfo(newInfo)
 
-	// Retrieve the Info from the server to verify it was set correctly.
-	setInfo := server.GetInfo()
+	// Retrieve the MockInfo from the server to verify it was set correctly.
+	setInfo := server.Info()
 
-	// Assert that the Info set on the server matches the new Info object.
+	// Assert that the MockInfo set on the server matches the new MockInfo object.
 	if setInfo.Title != newInfo.Title || setInfo.Version != newInfo.Version || setInfo.Description != newInfo.Description {
-		t.Errorf("SetInfo did not correctly update the server's Info field")
+		t.Errorf("SetInfo did not correctly update the server's MockInfo field")
 	}
 }
 
@@ -928,7 +928,7 @@ func TestServer_SetSwaggerFactory(t *testing.T) {
 		t.Fatalf("Failed to create server: %v", err)
 	}
 
-	hash, err := server.GetInternalHash()
+	hash, err := server.InternalHash()
 	if err != nil {
 		t.Fatalf("Failed to hash server state: %v", err)
 	}
@@ -936,7 +936,7 @@ func TestServer_SetSwaggerFactory(t *testing.T) {
 	// Call SetSwaggerFactory on the server with the mock factory function.
 	server.SetSwaggerFactory(factory)
 
-	nextHash, err := server.GetInternalHash()
+	nextHash, err := server.InternalHash()
 	if err != nil {
 		t.Fatalf("Failed to hash server state again: %v", err)
 	}

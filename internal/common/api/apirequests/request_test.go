@@ -38,8 +38,8 @@ func TestRequestImpl_IsMethodGet(t *testing.T) {
 			}
 
 			requestImpl := apirequests.NewRequest(req)
-			if got := requestImpl.IsMethodGet(); got != test.expected {
-				t.Errorf("IsMethodGet() = %v, want %v for method %s", got, test.expected, test.method)
+			if got := requestImpl.IsGet(); got != test.expected {
+				t.Errorf("IsGet() = %v, want %v for method %s", got, test.expected, test.method)
 			}
 		})
 	}
@@ -54,8 +54,8 @@ func TestRequestImpl_GetURL(t *testing.T) {
 	}
 
 	requestImpl := apirequests.NewRequest(req)
-	if gotURL := requestImpl.GetURL(); gotURL.String() != expectedURL {
-		t.Errorf("GetURL() = %v, want %v", gotURL, expectedURL)
+	if gotURL := requestImpl.URL(); gotURL.String() != expectedURL {
+		t.Errorf("MockURL() = %v, want %v", gotURL, expectedURL)
 	}
 }
 
@@ -70,8 +70,8 @@ func TestRequestImpl_GetMethod(t *testing.T) {
 			}
 
 			requestImpl := apirequests.NewRequest(req)
-			if gotMethod := requestImpl.GetMethod(); gotMethod != method {
-				t.Errorf("GetMethod() = %v, want %v", gotMethod, method)
+			if gotMethod := requestImpl.Method(); gotMethod != method {
+				t.Errorf("Method() = %v, want %v", gotMethod, method)
 			}
 		})
 	}
@@ -81,7 +81,7 @@ func TestRequestImpl_GetVariable(t *testing.T) {
 	r := mux.NewRouter()
 	r.HandleFunc("/test/{var}", func(w http.ResponseWriter, r *http.Request) {
 		requestImpl := apirequests.NewRequest(r)
-		value := requestImpl.GetVariable("var")
+		value := requestImpl.Variable("var")
 		if value != "value" {
 			t.Errorf("GetVars() did not return the expected value, got %v", value)
 		}
@@ -105,9 +105,9 @@ func TestRequestImpl_GetHeader(t *testing.T) {
 	req.Header.Set(headerName, headerValue)
 
 	requestImpl := apirequests.NewRequest(req)
-	gotHeaderValue := requestImpl.GetHeader(headerName)
+	gotHeaderValue := requestImpl.Header(headerName)
 	if gotHeaderValue != headerValue {
-		t.Errorf("GetHeader() got = %v, want %v", gotHeaderValue, headerValue)
+		t.Errorf("Header() got = %v, want %v", gotHeaderValue, headerValue)
 	}
 }
 
@@ -117,13 +117,13 @@ func TestRequestImpl_BodyAndGetBodyBytes(t *testing.T) {
 
 	requestImpl := apirequests.NewRequest(req)
 
-	// Testing GetBodyBytes which also verifies Body() indirectly
-	bodyBytes, err := requestImpl.GetBodyBytes()
+	// Testing BodyBytes which also verifies Body() indirectly
+	bodyBytes, err := requestImpl.BodyBytes()
 	if err != nil {
-		t.Fatalf("GetBodyBytes() error = %v", err)
+		t.Fatalf("BodyBytes() error = %v", err)
 	}
 	if gotBodyContent := string(bodyBytes); gotBodyContent != bodyContent {
-		t.Errorf("GetBodyBytes() got = %v, want %v", gotBodyContent, bodyContent)
+		t.Errorf("BodyBytes() got = %v, want %v", gotBodyContent, bodyContent)
 	}
 }
 
@@ -133,9 +133,9 @@ func TestRequestImpl_GetQueryParam(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/?%s=%s", queryParamName, queryParamValue), nil)
 
 	requestImpl := apirequests.NewRequest(req)
-	gotQueryParamValue := requestImpl.GetQueryParam(queryParamName)
+	gotQueryParamValue := requestImpl.QueryParam(queryParamName)
 	if gotQueryParamValue != queryParamValue {
-		t.Errorf("GetQueryParam() got = %v, want %v", gotQueryParamValue, queryParamValue)
+		t.Errorf("QueryParam() got = %v, want %v", gotQueryParamValue, queryParamValue)
 	}
 }
 
@@ -171,10 +171,10 @@ func TestRequestImpl_GetBodyBytes_ReadError(t *testing.T) {
 	requestImpl := apirequests.NewRequest(req)
 
 	// Attempt to get body bytes, expecting an error
-	_, err = requestImpl.GetBodyBytes()
+	_, err = requestImpl.BodyBytes()
 	if err == nil {
-		t.Error("Expected an error from GetBodyBytes, got nil")
-	} else if !strings.Contains(err.Error(), "GetBodyBytes: failed") {
+		t.Error("Expected an error from BodyBytes, got nil")
+	} else if !strings.Contains(err.Error(), "BodyBytes: failed") {
 		t.Errorf("Error message does not match expected, got: %v", err)
 	}
 }

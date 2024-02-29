@@ -16,28 +16,28 @@ const (
 	PrivateKeyPemName          = "privkey.pem"
 )
 
-// GetOrganizationDirectory returns a path like `{dir}/organizations/{organization}`
-func GetOrganizationDirectory(dir, organization string) string {
+// OrganizationDirectory returns a path like `{dir}/organizations/{organization}`
+func OrganizationDirectory(dir, organization string) string {
 	return filepath.Join(dir, OrganizationsDirectoryName, organization)
 }
 
-// GetOrganizationJsonPath returns a path like `{dir}/organizations/{organization}/organization.json`
-func GetOrganizationJsonPath(dir, organization string) string {
+// OrganizationJsonPath returns a path like `{dir}/organizations/{organization}/organization.json`
+func OrganizationJsonPath(dir, organization string) string {
 	return filepath.Join(dir, OrganizationsDirectoryName, organization, OrganizationJsonName)
 }
 
-// GetPrivateKeyPemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/privkey.pem`
-func GetPrivateKeyPemPath(dir, organization string, certificates []appmodels.SerialNumber) string {
-	return filepath.Join(GetCertificateDirectory(dir, organization, certificates), PrivateKeyPemName)
+// PrivateKeyPemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/privkey.pem`
+func PrivateKeyPemPath(dir, organization string, certificates []appmodels.SerialNumber) string {
+	return filepath.Join(CertificateDirectory(dir, organization, certificates), PrivateKeyPemName)
 }
 
-// GetCertificatePemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/cert.pem`
-func GetCertificatePemPath(dir, organization string, certificates []appmodels.SerialNumber) string {
-	return filepath.Join(GetCertificateDirectory(dir, organization, certificates), CertificatePemName)
+// CertificatePemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/cert.pem`
+func CertificatePemPath(dir, organization string, certificates []appmodels.SerialNumber) string {
+	return filepath.Join(CertificateDirectory(dir, organization, certificates), CertificatePemName)
 }
 
-// GetCertificateDirectory returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+`
-func GetCertificateDirectory(
+// CertificateDirectory returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+`
+func CertificateDirectory(
 	dir, organization string,
 	certificates []appmodels.SerialNumber,
 ) string {
