@@ -108,17 +108,17 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 
 	organization := r.GetOrganizationID()
 
-	serialNumber, err := apputils.GenerateSerialNumber(r.randomManager)
-	if err != nil {
-		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: failed to create serial number: %w", organization, commonName, err)
-	}
-
 	if r.certificateRepository == nil {
 		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: no certificate repository", organization, commonName)
 	}
 
 	if r.privateKeyRepository == nil {
 		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: no certificate repository", organization, commonName)
+	}
+
+	serialNumber, err := apputils.GenerateSerialNumber(r.randomManager)
+	if err != nil {
+		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: failed to create serial number: %w", organization, commonName, err)
 	}
 
 	_, err = r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
@@ -132,7 +132,7 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 	}
 
 	privateKey, err := apputils.GeneratePrivateKey(
-		r.GetOrganizationID(),
+		organization,
 		[]appmodels.ISerialNumber{serialNumber},
 		keyType,
 	)

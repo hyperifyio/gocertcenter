@@ -232,3 +232,152 @@ func TestOrganizationController_RevokeCertificate_NotImplemented(t *testing.T) {
 	assert.Error(t, err, "Expected not implemented error for RevokeCertificate")
 	// Further assertions once implemented
 }
+
+func TestOrganizationController_GetCertificateCollection_Failure(t *testing.T) {
+	organizationID := "testOrg"
+	expectedErr := fmt.Errorf("database error")
+
+	// Mocking Organization and its repositories
+	mockOrganization := &appmocks.MockOrganization{}
+	mockCertificateRepository := new(appmocks.MockCertificateService)
+	mockPrivateKeyRepository := new(appmocks.MockPrivateKeyService)
+	mockCertManager := commonmocks.NewMockCertificateManager()
+	mockRandomManager := commonmocks.NewMockRandomManager()
+	mockApplicationController := new(appmocks.MockApplicationController)
+
+	// Setup: OrganizationController with mocked dependencies
+	controller := appcontrollers.NewOrganizationController(
+		organizationID,
+		mockOrganization,
+		new(appmocks.MockOrganizationService),
+		mockCertificateRepository,
+		mockPrivateKeyRepository,
+		mockCertManager,
+		mockRandomManager,
+		24*time.Hour,
+		mockApplicationController,
+	)
+
+	// Mock the behavior of FindAllByOrganizationAndSerialNumbers to return an error
+	mockCertificateRepository.On("FindAllByOrganizationAndSerialNumbers", organizationID, []appmodels.ISerialNumber{}).Return(nil, expectedErr)
+
+	// Execute: Call the method we're testing
+	certificates, err := controller.GetCertificateCollection()
+
+	// Assert: Check that the error is as expected and no certificates are returned
+	assert.Nil(t, certificates, "Expected no certificates to be returned on error")
+	assert.Error(t, err, "Expected an error to be returned")
+	assert.Contains(t, err.Error(), "database error", "Expected the error to be propagated from the certificate repository")
+
+	// Verify that the mocked method was called with expected parameters
+	mockCertificateRepository.AssertCalled(t, "FindAllByOrganizationAndSerialNumbers", organizationID, []appmodels.ISerialNumber{})
+}
+
+func TestOrganizationController_GetCertificateController(t *testing.T) {
+	organizationID := "testOrg"
+	serialNumber := appmodels.NewSerialNumber(big.NewInt(12345))
+
+	// Mocking Organization and its repositories
+	mockCertificate := &appmocks.MockCertificate{}
+	mockOrganization := &appmocks.MockOrganization{}
+	mockCertificateRepository := new(appmocks.MockCertificateService)
+	mockPrivateKeyRepository := new(appmocks.MockPrivateKeyService)
+	mockCertManager := commonmocks.NewMockCertificateManager()
+	mockRandomManager := commonmocks.NewMockRandomManager()
+	mockApplicationController := new(appmocks.MockApplicationController)
+
+	// Setup: OrganizationController with mocked dependencies
+	controller := appcontrollers.NewOrganizationController(
+		organizationID,
+		mockOrganization,
+		new(appmocks.MockOrganizationService),
+		mockCertificateRepository,
+		mockPrivateKeyRepository,
+		mockCertManager,
+		mockRandomManager,
+		24*time.Hour,
+		mockApplicationController,
+	)
+
+	// Mock the behavior of FindByOrganizationAndSerialNumbers to return an error
+	mockCertificateRepository.On("FindByOrganizationAndSerialNumbers", organizationID, []appmodels.ISerialNumber{serialNumber}).Return(mockCertificate, nil)
+
+	// Execute: Call the method we're testing
+	certificateController, err := controller.GetCertificateController(serialNumber)
+
+	// Assert: Check that the error is as expected and no certificate controller is returned
+	assert.NotNil(t, certificateController, "Expected no certificate controller to be returned on error")
+	assert.NoError(t, err, "Expected success")
+
+	// Verify that the mocked method was called with expected parameters
+	mockCertificateRepository.AssertCalled(t, "FindByOrganizationAndSerialNumbers", organizationID, []appmodels.ISerialNumber{serialNumber})
+}
+
+func TestNewRootCertificate_SerialNumberGenerationFail(t *testing.T) {
+	// Mock dependencies
+	mockRandomManager := new(commonmocks.MockRandomManager)
+	mockOrganization := new(appmocks.MockOrganization)
+	mockCertificateRepository := new(appmocks.MockCertificateService)
+	mockPrivateKeyRepository := new(appmocks.MockPrivateKeyService)
+	mockCertManager := commonmocks.NewMockCertificateManager()
+	organizationID := "testOrg"
+
+	// Setup the OrganizationController with mocked dependencies
+	controller := appcontrollers.NewOrganizationController(
+		organizationID,
+		mockOrganization,
+		new(appmocks.MockOrganizationService),
+		mockCertificateRepository,
+		mockPrivateKeyRepository,
+		mockCertManager,
+		mockRandomManager,
+		24*time.Hour,
+		new(appmocks.MockApplicationController),
+	)
+
+	// Simulate failure in GenerateSerialNumber
+	mockRandomManager.On("CreateBigInt", mock.Anything).Return(nil, fmt.Errorf("random generation fail"))
+
+	_, err := controller.NewRootCertificate("Common Name")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to create serial number")
+}
+
+func TestNewRootCertificate_NoCertificateRepository(t *testing.T) {
+	// Setup the OrganizationController without a certificate repository
+	controller := appcontrollers.NewOrganizationController(
+		"testOrg",
+		new(appmocks.MockOrganization),
+		new(appmocks.MockOrganizationService),
+		nil, // No certificate repository
+		new(appmocks.MockPrivateKeyService),
+		commonmocks.NewMockCertificateManager(),
+		commonmocks.NewMockRandomManager(),
+		24*time.Hour,
+		new(appmocks.MockApplicationController),
+	)
+
+	_, err := controller.NewRootCertificate("Common Name")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "no certificate repository")
+}
+
+func TestNewRootCertificate_NoPrivateKeyRepository(t *testing.T) {
+
+	// Setup the OrganizationController without a private key repository
+	controller := appcontrollers.NewOrganizationController(
+		"testOrg",
+		new(appmocks.MockOrganization),
+		new(appmocks.MockOrganizationService),
+		new(appmocks.MockCertificateService),
+		nil, // No private key repository
+		commonmocks.NewMockCertificateManager(),
+		commonmocks.NewMockRandomManager(),
+		24*time.Hour,
+		new(appmocks.MockApplicationController),
+	)
+
+	_, err := controller.NewRootCertificate("Common Name")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "no certificate repository")
+}
