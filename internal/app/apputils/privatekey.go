@@ -267,8 +267,8 @@ func ParsePrivateKeyFromPEMBlock(
 	return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("ParsePrivateKeyFromPEMBlock: unsupported block type: %s", block.Type)
 }
 
-func parsePKCS8PrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
-	privateKey, err := certManager.ParsePKCS8PrivateKey(bytes)
+func parsePKCS8PrivateKey(certManager managers.ICertificateManager, der []byte) (any, appmodels.KeyType, error) {
+	privateKey, err := certManager.ParsePKCS8PrivateKey(der)
 	if err != nil {
 		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("failed to parse private key: %w", err)
 	}

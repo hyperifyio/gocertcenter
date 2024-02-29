@@ -8,6 +8,8 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"math/big"
 	"testing"
@@ -604,4 +606,120 @@ func TestDetermineKeyType(t *testing.T) {
 	if _, err := apputils.DetermineKeyType(unsupportedKey); err == nil {
 		t.Errorf("DetermineKeyType() with unsupported key type did not return an error")
 	}
+}
+
+func TestParsePrivateKeyFromPEMBytes(t *testing.T) {
+	tests := []struct {
+		name    string
+		keyType appmodels.KeyType
+		setup   func(certManager *commonmocks.MockCertificateManager) ([]byte, error)
+	}{
+		{
+			name:    "RSA",
+			keyType: appmodels.RSA_2048,
+			setup: func(certManager *commonmocks.MockCertificateManager) ([]byte, error) {
+
+				key, err := rsa.GenerateKey(rand.Reader, 2048)
+				if err != nil {
+					return nil, err
+				}
+				der := x509.MarshalPKCS1PrivateKey(key)
+				if der == nil {
+					return nil, fmt.Errorf("failed to marshal RSA to DER")
+				}
+				pemBlock := &pem.Block{
+					Type:  "RSA PRIVATE KEY",
+					Bytes: der,
+				}
+
+				pemBytes := pem.EncodeToMemory(pemBlock)
+
+				certManager.On("DecodePEM", pemBytes).Return(pemBlock, []byte(nil))
+				certManager.On("ParsePKCS1PrivateKey", der).Return(key, nil)
+
+				return pemBytes, nil
+
+			},
+		},
+		{
+			name:    "ECDSA",
+			keyType: appmodels.ECDSA_P256,
+			setup: func(certManager *commonmocks.MockCertificateManager) ([]byte, error) {
+				key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+				if err != nil {
+					return nil, err
+				}
+				der, err := x509.MarshalECPrivateKey(key)
+				if err != nil {
+					return nil, err
+				}
+				if der == nil {
+					return nil, fmt.Errorf("failed to marshal ECDSA to DER")
+				}
+				pemBlock := &pem.Block{
+					Type:  "EC PRIVATE KEY",
+					Bytes: der,
+				}
+
+				pemBytes := pem.EncodeToMemory(pemBlock)
+				certManager.On("DecodePEM", pemBytes).Return(pemBlock, []byte(nil))
+				certManager.On("ParseECPrivateKey", der).Return(key, nil)
+
+				return pemBytes, nil
+			},
+		},
+		{
+			name:    "Ed25519",
+			keyType: appmodels.Ed25519,
+			setup: func(certManager *commonmocks.MockCertificateManager) ([]byte, error) {
+				_, key, err := ed25519.GenerateKey(rand.Reader)
+				if err != nil {
+					return nil, err
+				}
+				assert.NoError(t, err)
+				der, err := x509.MarshalPKCS8PrivateKey(key)
+				if err != nil {
+					return nil, err
+				}
+				if der == nil {
+					return nil, fmt.Errorf("failed to marshal Ed25519 to DER")
+				}
+				pemBlock := &pem.Block{
+					Type:  "PRIVATE KEY",
+					Bytes: der,
+				}
+				pemBytes := pem.EncodeToMemory(pemBlock)
+
+				certManager.On("DecodePEM", pemBytes).Return(pemBlock, []byte(nil))
+				certManager.On("ParsePKCS8PrivateKey", der).Return(key, nil)
+
+				return pemBytes, nil
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockCertManager := &commonmocks.MockCertificateManager{}
+			pemBytes, err := tt.setup(mockCertManager)
+			assert.NoError(t, err)
+
+			// Call the function under test
+			gotKey, gotKeyType, gotErr := apputils.ParsePrivateKeyFromPEMBytes(mockCertManager, pemBytes)
+
+			assert.NoError(t, gotErr)
+			assert.NotNil(t, gotKey)
+			assert.Equal(t, tt.keyType, gotKeyType)
+		})
+	}
+
+	// Test with invalid PEM data
+	t.Run("Invalid PEM", func(t *testing.T) {
+		mockCertManager := &commonmocks.MockCertificateManager{}
+		mockCertManager.On("DecodePEM", mock.Anything).Return(nil, []byte(nil))
+
+		_, _, err := apputils.ParsePrivateKeyFromPEMBytes(mockCertManager, []byte("invalid pem data"))
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "failed to decode PEM block containing the private key")
+	})
 }
