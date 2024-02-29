@@ -17,11 +17,11 @@ type CertificateRepository struct {
 }
 
 func (r *CertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) ([]appmodels.ICertificate, error) {
-	targetLocator := getCertificateLocator(organization, certificates)
 	var result []appmodels.ICertificate
 	if r.certificates == nil {
 		return result, nil
 	}
+	targetLocator := getCertificateLocator(organization, certificates)
 	for _, cert := range r.certificates {
 		parentLocator := getCertificateLocator(organization, cert.GetParents())
 		if parentLocator == targetLocator {

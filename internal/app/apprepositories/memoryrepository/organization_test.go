@@ -42,3 +42,44 @@ func TestOrganizationRepository_GetExistingOrganizationNotFound(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), ": not found:")
 }
+
+func TestOrganizationRepository_FindAll(t *testing.T) {
+	repo := memoryrepository.NewOrganizationRepository()
+
+	// Mock organizations
+	mockOrg1 := new(appmocks.MockOrganization)
+	mockOrg2 := new(appmocks.MockOrganization)
+
+	id1 := "orgId1"
+	id2 := "orgId2"
+
+	// Setting up expectations for the mock organizations
+	mockOrg1.On("GetID").Return(id1)
+	mockOrg2.On("GetID").Return(id2)
+
+	// Save mock organizations to the repository
+	_, err1 := repo.Save(mockOrg1)
+	assert.NoError(t, err1)
+
+	_, err2 := repo.Save(mockOrg2)
+	assert.NoError(t, err2)
+
+	// Test FindAll
+	organizations, err := repo.FindAll()
+	assert.NoError(t, err)
+	assert.Len(t, organizations, 2, "Expected to find 2 organizations")
+
+	// Verify that returned organizations match saved ones
+	// Since map iteration order is not guaranteed, use a map to verify existence
+	foundIds := make(map[string]bool)
+	for _, org := range organizations {
+		foundIds[org.GetID()] = true
+	}
+
+	assert.True(t, foundIds[id1], "Expected to find organization with ID %s", id1)
+	assert.True(t, foundIds[id2], "Expected to find organization with ID %s", id2)
+
+	// Verify expectations were met for the mock organizations
+	mockOrg1.AssertExpectations(t)
+	mockOrg2.AssertExpectations(t)
+}
