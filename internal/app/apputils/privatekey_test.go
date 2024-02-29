@@ -537,17 +537,6 @@ func TestDetermineRSATypeFromKey(t *testing.T) {
 		})
 	}
 
-	t.Run("NonRSAType", func(t *testing.T) {
-		ecdsaKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		if err != nil {
-			t.Fatalf("Failed to generate ECDSA key: %v", err)
-		}
-
-		_, err = apputils.DetermineRSATypeFromKey(ecdsaKey)
-		if err == nil {
-			t.Errorf("DetermineRSATypeFromKey() expected error, got nil")
-		}
-	})
 }
 
 func TestDetermineKeyType(t *testing.T) {
@@ -722,4 +711,250 @@ func TestParsePrivateKeyFromPEMBytes(t *testing.T) {
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "failed to decode PEM block containing the private key")
 	})
+}
+
+func TestParseECPrivateKey_Success(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	testBytes := []byte("dummy key data")
+	expectedKeyType := appmodels.ECDSA_P256
+
+	// Simulate successful parsing of EC private key
+	privateKey := &ecdsa.PrivateKey{PublicKey: ecdsa.PublicKey{Curve: elliptic.P256()}}
+	mockCertManager.On("ParseECPrivateKey", testBytes).Return(privateKey, nil)
+
+	privateKeyResult, keyType, err := apputils.ParseECPrivateKey(mockCertManager, testBytes)
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedKeyType, keyType)
+	assert.Equal(t, privateKey, privateKeyResult)
+	mockCertManager.AssertExpectations(t)
+}
+
+func TestToPrivateKeyDTO_MarshalError(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	mockPrivateKey := new(appmocks.MockPrivateKey)
+	privateKey := &rsa.PrivateKey{}
+
+	mockPrivateKey.On("GetPrivateKey").Return(privateKey)
+
+	// serialNumber := appmocks.NewMockSerialNumber()
+	// mockPrivateKey.On("GetSerialNumber").Return(serialNumber)
+	// mockPrivateKey.On("GetKeyType").Return(appmodels.RSA_2048)
+
+	mockCertManager.On("MarshalPKCS1PrivateKey", privateKey).Return(nil)
+
+	_, err := apputils.ToPrivateKeyDTO(mockCertManager, mockPrivateKey)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to marshal RSA private key")
+
+	mockCertManager.AssertExpectations(t)
+	mockPrivateKey.AssertExpectations(t)
+}
+
+func TestToPrivateKeyDTOList_Error(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+
+	privateKey1 := &rsa.PrivateKey{}
+
+	mockPrivateKey1 := new(appmocks.MockPrivateKey)
+	mockPrivateKey2 := new(appmocks.MockPrivateKey)
+
+	// Setup private keys and their expected types
+	mockPrivateKey1.On("GetPrivateKey").Return(privateKey1)
+
+	// Assuming PEM marshalling and encoding are successful
+	mockCertManager.On("MarshalPKCS1PrivateKey", privateKey1).Return(nil)
+
+	// Create a list of IPrivateKey interfaces
+	privateKeys := []appmodels.IPrivateKey{mockPrivateKey1, mockPrivateKey2}
+
+	// Execute ToPrivateKeyDTOList
+	dtoList, err := apputils.ToPrivateKeyDTOList(mockCertManager, privateKeys)
+
+	// Assertions
+	assert.Error(t, err)
+	assert.Nil(t, dtoList)
+	assert.Contains(t, err.Error(), "failed to marshal RSA private key")
+
+	mockCertManager.AssertExpectations(t)
+	mockPrivateKey1.AssertExpectations(t)
+	mockPrivateKey2.AssertExpectations(t)
+}
+
+func TestDetermineRSATypeFromKey_UnsupportedKeySize(t *testing.T) {
+	// Generate an RSA private key with an unsupported size (e.g., 500 bits)
+	// Note: In real scenarios, generating a key with a custom size like this might not be straightforward,
+	// so we're using the rsa.GenerateKey function and not focusing on the actual size.
+	// This is for demonstration purposes only.
+	privateKey, err := rsa.GenerateKey(rand.Reader, 500) // Using 500 bits size for demonstration
+	if err != nil {
+		t.Fatalf("Failed to generate RSA private key: %v", err)
+	}
+
+	// Call DetermineRSATypeFromKey with the custom-sized RSA private key
+	keyType, err := apputils.DetermineRSATypeFromKey(privateKey)
+
+	// Verify that the function returns the expected error
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "DetermineRSATypeFromSize: RSA key size not supported")
+}
+
+func TestDetermineKeyType_UnsupportedKeyType(t *testing.T) {
+	unsupportedKey := "this is not a private key"
+
+	keyType, err := apputils.DetermineKeyType(unsupportedKey)
+
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "DetermineKeyType: unknown or unsupported key type")
+}
+
+func TestDetermineKeyType_UnsupportedRSAKeyType(t *testing.T) {
+	mockNilKey := &rsa.PrivateKey{}
+
+	keyType, err := apputils.DetermineKeyType(mockNilKey)
+
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "RSA key size not supported: 0")
+}
+
+func TestDetermineKeyType_UnsupportedEllipticCurve(t *testing.T) {
+	// Generating an ECDSA private key with a custom curve is not straightforward,
+	// so let's focus on the logic to simulate an unsupported curve.
+	key := &ecdsa.PrivateKey{}
+	key.Curve = nil
+	keyType, err := apputils.DetermineKeyType(key) // Passing nil to simulate unsupported curve
+
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "DetermineECDSACurve: unsupported EC curve")
+}
+
+func TestReadRSAKeySize_NilKey(t *testing.T) {
+	var key *rsa.PrivateKey // nil key
+
+	size := apputils.ReadRSAKeySize(key)
+
+	if size != 0 {
+		t.Errorf("ReadRSAKeySize with nil key expected to return 0, got %d", size)
+	}
+}
+
+func TestReadRSAKeySize_NilKeyN(t *testing.T) {
+	key := &rsa.PrivateKey{} // Key with nil N
+
+	size := apputils.ReadRSAKeySize(key)
+
+	if size != 0 {
+		t.Errorf("ReadRSAKeySize with key.N nil expected to return 0, got %d", size)
+	}
+}
+
+func TestParsePrivateKeyFromPEMBlock_UnsupportedBlockType(t *testing.T) {
+	// Create a mock certificate manager
+	mockCertManager := new(commonmocks.MockCertificateManager)
+
+	// Create a PEM block with an unsupported type
+	unsupportedBlock := &pem.Block{
+		Type:  "UNSUPPORTED KEY TYPE",
+		Bytes: []byte("dummy key data"),
+	}
+
+	// Call the function with the unsupported block type
+	_, keyType, err := apputils.ParsePrivateKeyFromPEMBlock(mockCertManager, unsupportedBlock)
+
+	// Assert that an error was returned and the keyType is NIL_KEY_TYPE
+	assert.Error(t, err, "Expected an error for unsupported block type")
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType, "Expected keyType to be NIL_KEY_TYPE for unsupported block type")
+	assert.Contains(t, err.Error(), "unsupported block type", "Error message should indicate the unsupported block type")
+}
+
+func TestParsePKCS8PrivateKey_FailParse(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	der := []byte("invalid PKCS8 data")
+
+	mockCertManager.On("ParsePKCS8PrivateKey", der).Return(nil, fmt.Errorf("parse error"))
+
+	_, keyType, err := apputils.ParsePKCS8PrivateKey(mockCertManager, der)
+
+	assert.Error(t, err)
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Contains(t, err.Error(), "failed to parse private key")
+}
+
+func TestParsePKCS8PrivateKey_FailDetection(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+
+	key := big.NewInt(123) // Invalid key
+	var der []byte
+
+	mockCertManager.On("ParsePKCS8PrivateKey", der).Return(key, nil)
+
+	// Injecting an EC key with unsupported curve to simulate failure in DetermineECDSACurve
+	_, keyType, err := apputils.ParsePKCS8PrivateKey(mockCertManager, der)
+
+	assert.Error(t, err)
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Contains(t, err.Error(), "could not detect key type")
+}
+
+func TestParseRSAPrivateKey_FailParse(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	bytes := []byte("invalid RSA data")
+
+	mockCertManager.On("ParsePKCS1PrivateKey", bytes).Return(nil, fmt.Errorf("parse error"))
+
+	_, keyType, err := apputils.ParseRSAPrivateKey(mockCertManager, bytes)
+
+	assert.Error(t, err)
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Contains(t, err.Error(), "ParseRSAPrivateKey: failed to parse RSA private key")
+}
+
+func TestParseRSAPrivateKey_FailTypeDetermination(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	rsaKey, _ := rsa.GenerateKey(rand.Reader, 512) // Using 512 to ensure success on key generation, but fail in type detection
+	bytes := x509.MarshalPKCS1PrivateKey(rsaKey)
+
+	mockCertManager.On("ParsePKCS1PrivateKey", bytes).Return(rsaKey, nil)
+
+	// Injecting an RSA key with unsupported size to simulate failure in DetermineRSATypeFromKey
+	_, keyType, err := apputils.ParseRSAPrivateKey(mockCertManager, bytes)
+
+	assert.Error(t, err)
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	// The error message should reflect failure in RSA type determination, adjust based on your implementation
+	assert.Contains(t, err.Error(), "ParseRSAPrivateKey: failed to parse RSA type")
+}
+
+func TestParseECPrivateKey_FailParse(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	bytes := []byte("invalid EC data")
+
+	mockCertManager.On("ParseECPrivateKey", bytes).Return(nil, fmt.Errorf("parse error"))
+
+	_, keyType, err := apputils.ParseECPrivateKey(mockCertManager, bytes)
+
+	assert.Error(t, err)
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Contains(t, err.Error(), "failed to parse EC private key")
+}
+
+func TestParseECPrivateKey_FailCurveDetermination(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+
+	ecKey := &ecdsa.PrivateKey{}
+	ecKey.Curve = nil
+	var der []byte
+
+	mockCertManager.On("ParseECPrivateKey", der).Return(ecKey, nil)
+
+	// Injecting an EC key with unsupported curve to simulate failure in DetermineECDSACurve
+	_, keyType, err := apputils.ParseECPrivateKey(mockCertManager, der)
+
+	assert.Error(t, err)
+	assert.Equal(t, appmodels.NIL_KEY_TYPE, keyType)
+	assert.Contains(t, err.Error(), "could not detect key type")
 }

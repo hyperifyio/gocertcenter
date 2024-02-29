@@ -198,18 +198,13 @@ func DetermineECDSACurve(curve elliptic.Curve) (appmodels.KeyType, error) {
 	}
 }
 
-func DetermineRSATypeFromKey(privateKey any) (appmodels.KeyType, error) {
-	switch key := privateKey.(type) {
-	case *rsa.PrivateKey:
-		keySize := ReadRSAKeySize(key)
-		keyType, err := DetermineRSATypeFromSize(keySize)
-		if err != nil {
-			return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineRSATypeFromKey: failed: %w", err)
-		}
-		return keyType, nil
-	default:
-		return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineRSATypeFromKey: not an RSA key")
+func DetermineRSATypeFromKey(key *rsa.PrivateKey) (appmodels.KeyType, error) {
+	keySize := ReadRSAKeySize(key)
+	keyType, err := DetermineRSATypeFromSize(keySize)
+	if err != nil {
+		return appmodels.NIL_KEY_TYPE, fmt.Errorf("DetermineRSATypeFromKey: failed: %w", err)
 	}
+	return keyType, nil
 }
 
 func DetermineKeyType(privateKey any) (appmodels.KeyType, error) {
@@ -239,6 +234,12 @@ func DetermineKeyType(privateKey any) (appmodels.KeyType, error) {
 }
 
 func ReadRSAKeySize(key *rsa.PrivateKey) int {
+	if key == nil {
+		return 0
+	}
+	if key.N == nil {
+		return 0
+	}
 	return key.N.BitLen()
 }
 
@@ -258,16 +259,16 @@ func ParsePrivateKeyFromPEMBlock(
 	block *pem.Block,
 ) (any, appmodels.KeyType, error) {
 	if block.Type == "PRIVATE KEY" {
-		return parsePKCS8PrivateKey(certManager, block.Bytes)
+		return ParsePKCS8PrivateKey(certManager, block.Bytes)
 	} else if block.Type == "RSA PRIVATE KEY" {
-		return parseRSAPrivateKey(certManager, block.Bytes)
+		return ParseRSAPrivateKey(certManager, block.Bytes)
 	} else if block.Type == "EC PRIVATE KEY" {
-		return parseECPrivateKey(certManager, block.Bytes)
+		return ParseECPrivateKey(certManager, block.Bytes)
 	}
 	return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("ParsePrivateKeyFromPEMBlock: unsupported block type: %s", block.Type)
 }
 
-func parsePKCS8PrivateKey(certManager managers.ICertificateManager, der []byte) (any, appmodels.KeyType, error) {
+func ParsePKCS8PrivateKey(certManager managers.ICertificateManager, der []byte) (any, appmodels.KeyType, error) {
 	privateKey, err := certManager.ParsePKCS8PrivateKey(der)
 	if err != nil {
 		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("failed to parse private key: %w", err)
@@ -279,19 +280,19 @@ func parsePKCS8PrivateKey(certManager managers.ICertificateManager, der []byte) 
 	return privateKey, keyType, nil
 }
 
-func parseRSAPrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
+func ParseRSAPrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
 	privateKey, err := certManager.ParsePKCS1PrivateKey(bytes)
 	if err != nil {
-		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("parseRSAPrivateKey: failed to parse RSA private key: %w", err)
+		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("ParseRSAPrivateKey: failed to parse RSA private key: %w", err)
 	}
 	keyType, err := DetermineRSATypeFromKey(privateKey)
 	if err != nil {
-		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("parseRSAPrivateKey: failed to parse RSA type: %w", err)
+		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("ParseRSAPrivateKey: failed to parse RSA type: %w", err)
 	}
 	return privateKey, keyType, nil
 }
 
-func parseECPrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
+func ParseECPrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
 	privateKey, err := certManager.ParseECPrivateKey(bytes)
 	if err != nil {
 		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("failed to parse EC private key: %w", err)

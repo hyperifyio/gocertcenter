@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
 	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
 
@@ -987,4 +988,441 @@ func TestNewRootCertificate_EmptyCommonName(t *testing.T) {
 	)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "commonName: cannot be empty")
+}
+
+func TestToCertificateRevokedDTO(t *testing.T) {
+	serialNumber := appmodels.NewSerialNumber(big.NewInt(1234))
+	serialNumberString := serialNumber.String()
+	revocationTime := time.Now()
+	expirationTime := revocationTime.Add(365 * 24 * time.Hour)
+
+	mockRevokedCert := new(appmocks.MockRevokedCertificate)
+	mockRevokedCert.On("GetSerialNumber").Return(serialNumber)
+	mockRevokedCert.On("GetRevocationTime").Return(revocationTime)
+	mockRevokedCert.On("GetExpirationTime").Return(expirationTime)
+
+	dto := apputils.ToCertificateRevokedDTO(mockRevokedCert)
+
+	assert.Equal(t, serialNumberString, dto.SerialNumber, "Serial numbers should match")
+	assert.Equal(t, revocationTime, dto.RevocationTime, "Revocation times should match")
+	assert.Equal(t, expirationTime, dto.ExpirationTime, "Expiration times should match")
+}
+
+func TestToRevokedCertificate(t *testing.T) {
+	serialNumber := appmodels.NewSerialNumber(big.NewInt(1234))
+	serialNumberString := serialNumber.String()
+	notAfter := time.Now().Add(365 * 24 * time.Hour)
+	revocationTime := time.Now()
+
+	mockCert := new(appmocks.MockCertificate)
+	mockCert.On("GetSerialNumber").Return(serialNumber)
+	mockCert.On("NotAfter").Return(notAfter)
+
+	revokedCert := apputils.ToRevokedCertificate(mockCert, revocationTime)
+
+	assert.Equal(t, serialNumberString, revokedCert.GetSerialNumber().String(), "Serial numbers should match")
+	assert.Equal(t, revocationTime, revokedCert.GetRevocationTime(), "Revocation times should match")
+	assert.Equal(t, notAfter, revokedCert.GetExpirationTime(), "Expiration times should match")
+}
+
+func TestToCertificateCreatedDTO(t *testing.T) {
+	var privKey = &rsa.PrivateKey{}
+	var der []byte = []byte{1, 2, 3}
+	var pemData []byte = []byte("PRIVATE_KEY_PEM")
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	mockCertificate := new(appmocks.MockCertificate)
+	mockPrivateKey := new(appmocks.MockPrivateKey)
+
+	mockPrivateKey.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(123456789)))
+	mockPrivateKey.On("GetKeyType").Return(appmodels.RSA_2048)
+	mockPrivateKey.On("GetPrivateKey").Return(privKey)
+
+	// Setup mock certificate behavior
+	mockCertificate.On("GetCertificate").Return(&x509.Certificate{})
+	mockCertificate.On("GetParents").Return([]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
+	mockCertificate.On("GetCommonName").Return("www.example.com")
+	mockCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(123456789)))
+	mockCertificate.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
+	mockCertificate.On("GetOrganizationName").Return("Example Org")
+	mockCertificate.On("IsCA").Return(false)
+	mockCertificate.On("IsRootCertificate").Return(false)
+	mockCertificate.On("IsIntermediateCertificate").Return(false)
+	mockCertificate.On("IsServerCertificate").Return(true)
+	mockCertificate.On("IsClientCertificate").Return(false)
+
+	// Setup mock private key behavior
+	privateKeyDTO := appdtos.PrivateKeyDTO{
+		Certificate: "123456789",
+		Type:        "RSA_2048",
+		PrivateKey:  "PRIVATE_KEY_PEM",
+	}
+
+	mockCertManager.On("MarshalPKCS1PrivateKey", privKey).Return(der)
+	mockCertManager.On("EncodePEMToMemory", mock.Anything).Return(pemData)
+
+	mockCertManager.On("ToPrivateKeyDTO", mock.Anything).Return(privateKeyDTO, nil)
+
+	// Successful conversion
+	expectedDTO := appdtos.CertificateCreatedDTO{
+		Certificate: appdtos.CertificateDTO{
+			CommonName:                "www.example.com",
+			SerialNumber:              "123456789",
+			Parents:                   []string{"987654321"},
+			SignedBy:                  "987654321",
+			Organization:              "Example Org",
+			IsCA:                      false,
+			IsRootCertificate:         false,
+			IsIntermediateCertificate: false,
+			IsServerCertificate:       true,
+			IsClientCertificate:       false,
+			Certificate:               "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n",
+		},
+		PrivateKey: privateKeyDTO,
+	}
+
+	result, err := apputils.ToCertificateCreatedDTO(mockCertManager, mockCertificate, mockPrivateKey)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedDTO, result)
+
+	// Test error cases
+	t.Run("NilCertManager", func(t *testing.T) {
+		_, err := apputils.ToCertificateCreatedDTO(nil, mockCertificate, mockPrivateKey)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "cert manager not defined")
+	})
+
+	t.Run("NilCertificate", func(t *testing.T) {
+		_, err := apputils.ToCertificateCreatedDTO(mockCertManager, nil, mockPrivateKey)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "certificate not defined")
+	})
+
+	t.Run("NilPrivateKey", func(t *testing.T) {
+		_, err := apputils.ToCertificateCreatedDTO(mockCertManager, mockCertificate, nil)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "private key not defined")
+	})
+
+	t.Run("ToPrivateKeyDTOError", func(t *testing.T) {
+
+		mockCertManager.Mock = mock.Mock{}
+
+		var nilbyted []byte = nil
+		key2 := &rsa.PrivateKey{}
+		mockPrivateKey.On("GetPrivateKey").Return(key2)
+
+		mockCertManager.On("MarshalPKCS1PrivateKey", privKey).Return(nilbyted)
+		_, err := apputils.ToCertificateCreatedDTO(mockCertManager, mockCertificate, mockPrivateKey)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ToCertificateCreatedDTO: failed")
+	})
+}
+
+func TestToListOfCertificateDTO(t *testing.T) {
+	// Setup mock certificates
+	mockCert1 := new(appmocks.MockCertificate)
+	mockCert2 := new(appmocks.MockCertificate)
+
+	commonName1 := "www.example.com"
+	commonName2 := "www.test.com"
+
+	mockCert1.On("GetCommonName").Return(commonName1)
+	mockCert1.On("GetCertificate").Return(&x509.Certificate{})
+	mockCert1.On("GetParents").Return([]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
+	mockCert1.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(123456789)))
+	mockCert1.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
+	mockCert1.On("GetOrganizationName").Return("Example Org")
+	mockCert1.On("IsCA").Return(false)
+	mockCert1.On("IsRootCertificate").Return(false)
+	mockCert1.On("IsIntermediateCertificate").Return(false)
+	mockCert1.On("IsServerCertificate").Return(true)
+	mockCert1.On("IsClientCertificate").Return(false)
+
+	mockCert2.On("GetCommonName").Return(commonName2)
+	mockCert2.On("GetCertificate").Return(&x509.Certificate{})
+	mockCert2.On("GetParents").Return([]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
+	mockCert2.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(123456789)))
+	mockCert2.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
+	mockCert2.On("GetOrganizationName").Return("Example Org")
+	mockCert2.On("IsCA").Return(false)
+	mockCert2.On("IsRootCertificate").Return(false)
+	mockCert2.On("IsIntermediateCertificate").Return(false)
+	mockCert2.On("IsServerCertificate").Return(true)
+	mockCert2.On("IsClientCertificate").Return(false)
+
+	// Assume other necessary mocks here as per ToCertificateDTO usage
+
+	list := []appmodels.ICertificate{mockCert1, mockCert2}
+
+	// Call function
+	result := apputils.ToListOfCertificateDTO(list)
+
+	// Assert results
+	assert.Len(t, result, 2)
+	assert.Equal(t, commonName1, result[0].CommonName)
+	assert.Equal(t, commonName2, result[1].CommonName)
+
+	// Ensure mock expectations are met
+	mockCert1.AssertExpectations(t)
+	mockCert2.AssertExpectations(t)
+}
+
+func TestFilterRootCertificates(t *testing.T) {
+	// Setup mock certificates
+	mockCert1 := new(appmocks.MockCertificate)
+	mockCert2 := new(appmocks.MockCertificate)
+	mockCert3 := new(appmocks.MockCertificate)
+
+	// Mock behavior: Only mockCert1 and mockCert3 are root certificates
+	mockCert1.On("IsRootCertificate").Return(true)
+	mockCert2.On("IsRootCertificate").Return(false)
+	mockCert3.On("IsRootCertificate").Return(true)
+
+	certificates := []appmodels.ICertificate{mockCert1, mockCert2, mockCert3}
+
+	// Call the function under test
+	filteredCerts := apputils.FilterRootCertificates(certificates)
+
+	// Assert that the result contains only the root certificates (mockCert1 and mockCert3)
+	assert.Len(t, filteredCerts, 2, "Expected two certificates in the filtered list")
+	assert.Contains(t, filteredCerts, mockCert1, "Filtered certificates should include mockCert1")
+	assert.Contains(t, filteredCerts, mockCert3, "Filtered certificates should include mockCert3")
+	assert.NotContains(t, filteredCerts, mockCert2, "Filtered certificates should not include mockCert2")
+
+	// Ensure mock expectations are met
+	mockCert1.AssertExpectations(t)
+	mockCert2.AssertExpectations(t)
+	mockCert3.AssertExpectations(t)
+}
+
+func TestFilterClientCertificates(t *testing.T) {
+	// Setup mock certificates
+	mockCert1 := new(appmocks.MockCertificate)
+	mockCert2 := new(appmocks.MockCertificate)
+	mockCert3 := new(appmocks.MockCertificate)
+
+	// Mock behavior: Only mockCert2 is a client certificate
+	mockCert1.On("IsClientCertificate").Return(false)
+	mockCert2.On("IsClientCertificate").Return(true)
+	mockCert3.On("IsClientCertificate").Return(false)
+
+	certificates := []appmodels.ICertificate{mockCert1, mockCert2, mockCert3}
+
+	// Call the function under test
+	filteredCerts := apputils.FilterClientCertificates(certificates)
+
+	// Assert that the result contains only the client certificates (mockCert2)
+	assert.Len(t, filteredCerts, 1, "Expected one certificate in the filtered list")
+	assert.Contains(t, filteredCerts, mockCert2, "Filtered certificates should include mockCert2")
+
+	// Ensure mock expectations are met
+	mockCert1.AssertExpectations(t)
+	mockCert2.AssertExpectations(t)
+	mockCert3.AssertExpectations(t)
+}
+
+func TestFilterServerCertificates(t *testing.T) {
+	// Setup mock certificates
+	mockCert1 := new(appmocks.MockCertificate)
+	mockCert2 := new(appmocks.MockCertificate)
+	mockCert3 := new(appmocks.MockCertificate)
+
+	// Mock behavior: Only mockCert3 is a server certificate
+	mockCert1.On("IsServerCertificate").Return(false)
+	mockCert2.On("IsServerCertificate").Return(false)
+	mockCert3.On("IsServerCertificate").Return(true)
+
+	certificates := []appmodels.ICertificate{mockCert1, mockCert2, mockCert3}
+
+	// Call the function under test
+	filteredCerts := apputils.FilterServerCertificates(certificates)
+
+	// Assert that the result contains only the server certificates (mockCert3)
+	assert.Len(t, filteredCerts, 1, "Expected one certificate in the filtered list")
+	assert.Contains(t, filteredCerts, mockCert3, "Filtered certificates should include mockCert3")
+
+	// Ensure mock expectations are met
+	mockCert1.AssertExpectations(t)
+	mockCert2.AssertExpectations(t)
+	mockCert3.AssertExpectations(t)
+}
+
+func TestFilterIntermediateCertificates(t *testing.T) {
+	// Setup mock certificates
+	mockCert1 := new(appmocks.MockCertificate)
+	mockCert2 := new(appmocks.MockCertificate)
+	mockCert3 := new(appmocks.MockCertificate)
+
+	// Mock behavior: mockCert1 and mockCert3 are intermediate certificates
+	mockCert1.On("IsIntermediateCertificate").Return(true)
+	mockCert2.On("IsIntermediateCertificate").Return(false)
+	mockCert3.On("IsIntermediateCertificate").Return(true)
+
+	certificates := []appmodels.ICertificate{mockCert1, mockCert2, mockCert3}
+
+	// Call the function under test
+	filteredCerts := apputils.FilterIntermediateCertificates(certificates)
+
+	// Assert that the result contains only the intermediate certificates (mockCert1 and mockCert3)
+	assert.Len(t, filteredCerts, 2, "Expected two certificates in the filtered list")
+	assert.Contains(t, filteredCerts, mockCert1, "Filtered certificates should include mockCert1")
+	assert.Contains(t, filteredCerts, mockCert3, "Filtered certificates should include mockCert3")
+
+	// Ensure mock expectations are met
+	mockCert1.AssertExpectations(t)
+	mockCert2.AssertExpectations(t)
+	mockCert3.AssertExpectations(t)
+}
+
+func TestFilterCertificatesByType(t *testing.T) {
+	// Setup mock certificates
+	mockRootCert := new(appmocks.MockCertificate)
+	mockClientCert := new(appmocks.MockCertificate)
+	mockServerCert := new(appmocks.MockCertificate)
+	mockIntermediateCert := new(appmocks.MockCertificate)
+
+	// Setup the behavior for the mock certificates
+	mockRootCert.On("IsRootCertificate").Return(true)
+	mockClientCert.On("IsClientCertificate").Return(true)
+	mockServerCert.On("IsServerCertificate").Return(true)
+	mockIntermediateCert.On("IsIntermediateCertificate").Return(true)
+
+	// Other types return false
+	mockRootCert.On("IsClientCertificate").Return(false)
+	mockRootCert.On("IsServerCertificate").Return(false)
+	mockRootCert.On("IsIntermediateCertificate").Return(false)
+
+	mockClientCert.On("IsRootCertificate").Return(false)
+	mockClientCert.On("IsServerCertificate").Return(false)
+	mockClientCert.On("IsIntermediateCertificate").Return(false)
+
+	mockServerCert.On("IsRootCertificate").Return(false)
+	mockServerCert.On("IsClientCertificate").Return(false)
+	mockServerCert.On("IsIntermediateCertificate").Return(false)
+
+	mockIntermediateCert.On("IsRootCertificate").Return(false)
+	mockIntermediateCert.On("IsClientCertificate").Return(false)
+	mockIntermediateCert.On("IsServerCertificate").Return(false)
+
+	certificates := []appmodels.ICertificate{mockRootCert, mockClientCert, mockServerCert, mockIntermediateCert}
+
+	tests := []struct {
+		name             string
+		certificateType  string
+		expectedFiltered []appmodels.ICertificate
+	}{
+		{"Root", "root", []appmodels.ICertificate{mockRootCert}},
+		{"Client", "client", []appmodels.ICertificate{mockClientCert}},
+		{"Server", "server", []appmodels.ICertificate{mockServerCert}},
+		{"Intermediate", "intermediate", []appmodels.ICertificate{mockIntermediateCert}},
+		{"Unknown", "unknown", []appmodels.ICertificate{}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			filteredCerts := apputils.FilterCertificatesByType(certificates, tt.certificateType)
+			assert.Equal(t, tt.expectedFiltered, filteredCerts, "Filtered certificates should match expected")
+		})
+	}
+
+	// Ensure mock expectations are met
+	mockRootCert.AssertExpectations(t)
+	mockClientCert.AssertExpectations(t)
+	mockServerCert.AssertExpectations(t)
+	mockIntermediateCert.AssertExpectations(t)
+}
+
+func TestToCertificateListDTO(t *testing.T) {
+	// Setup mock certificates
+	mockCert1 := new(appmocks.MockCertificate)
+	mockCert2 := new(appmocks.MockCertificate)
+
+	// Mock behaviors for the certificates
+	mockCert1.On("GetCommonName").Return("www.example1.com")
+	mockCert1.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(100)))
+	mockCert1.On("GetCertificate").Return(&x509.Certificate{})
+	mockCert1.On("GetParents").Return([]appmodels.ISerialNumber{})
+	mockCert1.On("IsCA").Return(false)
+	mockCert1.On("IsRootCertificate").Return(false)
+	mockCert1.On("IsIntermediateCertificate").Return(false)
+	mockCert1.On("IsServerCertificate").Return(true)
+	mockCert1.On("IsClientCertificate").Return(false)
+	mockCert1.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
+	mockCert1.On("GetOrganizationName").Return("Example Org")
+
+	mockCert2.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(100)))
+	mockCert2.On("GetCommonName").Return("www.example2.com")
+	mockCert2.On("GetCertificate").Return(&x509.Certificate{})
+	mockCert2.On("GetParents").Return([]appmodels.ISerialNumber{})
+	mockCert2.On("IsCA").Return(false)
+	mockCert2.On("IsRootCertificate").Return(false)
+	mockCert2.On("IsIntermediateCertificate").Return(true)
+	mockCert2.On("IsServerCertificate").Return(false)
+	mockCert2.On("IsClientCertificate").Return(false)
+	mockCert2.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
+	mockCert2.On("GetOrganizationName").Return("Example Org")
+
+	certificates := []appmodels.ICertificate{mockCert1, mockCert2}
+
+	// Call function
+	result := apputils.ToCertificateListDTO(certificates)
+
+	// Assert result is as expected
+	// Note: You might need to adjust these assertions based on the exact output of ToCertificateDTO and NewCertificateListDTO.
+	// These are placeholders to illustrate the concept.
+	assert.NotNil(t, result, "Resulting CertificateListDTO should not be nil")
+	assert.Len(t, result.Payload, 2, "There should be two certificates in the result")
+	assert.Equal(t, "www.example1.com", result.Payload[0].CommonName, "The first certificate common name should match")
+	assert.Equal(t, "www.example2.com", result.Payload[1].CommonName, "The second certificate common name should match")
+
+	// Ensure mock expectations are met
+	mockCert1.AssertExpectations(t)
+	mockCert2.AssertExpectations(t)
+}
+
+func TestNewServerCertificate_ValidateDNSNamesError(t *testing.T) {
+	// Mock dependencies
+	mockManager := new(commonmocks.MockCertificateManager)
+	mockSerialNumber := new(appmocks.MockSerialNumber)
+	mockOrganization := new(appmocks.MockOrganization)
+	mockPublicKey := new(appmocks.MockPublicKey)
+	mockParentCertificate := new(appmocks.MockCertificate)
+	mockParentPrivateKey := new(appmocks.MockPrivateKey)
+
+	// Setup mock returns for the required inputs
+	// mockSerialNumber.On("Value").Return(big.NewInt(12345))
+	// mockOrganization.On("GetNames").Return([]string{"Test Organization"})
+	// mockParentCertificate.On("GetCertificate").Return(&x509.Certificate{})
+	// mockPublicKey.On("GetPublicKey").Return(&rsa.PublicKey{})
+	// mockParentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+	// mockParentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	// mockParentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(1)))
+
+	// Invalid DNS names to trigger the ValidateDNSNames error
+	invalidDNSNames := []string{"!invalid_dns_name"}
+
+	// Attempt to create a new server certificate with invalid DNS names
+	_, err := apputils.NewServerCertificate(
+		mockManager,
+		mockSerialNumber,
+		mockOrganization,
+		365*24*time.Hour,
+		mockPublicKey,
+		mockParentCertificate,
+		mockParentPrivateKey,
+		"www.example.com",
+		invalidDNSNames...,
+	)
+
+	// Check if the error is not nil and contains the expected message
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "dnsNames: contains invalid characters")
+
+	// Ensure mock expectations are met
+	mockManager.AssertExpectations(t)
+	mockSerialNumber.AssertExpectations(t)
+	mockOrganization.AssertExpectations(t)
+	mockPublicKey.AssertExpectations(t)
+	mockParentCertificate.AssertExpectations(t)
+	mockParentPrivateKey.AssertExpectations(t)
 }
