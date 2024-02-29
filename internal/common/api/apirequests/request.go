@@ -39,7 +39,6 @@ func (r *RequestImpl) IsMethodGet() bool {
 }
 
 func (r *RequestImpl) GetURL() *url.URL {
-	// FIXME: Add tests
 	return r.request.URL
 }
 

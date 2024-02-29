@@ -17,6 +17,7 @@ import (
 	swagger "github.com/davidebianchi/gswagger"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apimocks"
@@ -1018,4 +1019,25 @@ func TestServer_UnSetupWhileRunning(t *testing.T) {
 	} else if !strings.Contains(err.Error(), "Cannot revert route setup, server still running") {
 		t.Errorf("Expected failure to shutdown, got: %v", err)
 	}
+}
+
+func TestStart_UninitializedHandle_SwaggerFactoryFails(t *testing.T) {
+
+	// Custom swagger factory function that simulates failure
+	failingSwaggerFactory := func(
+		router *mux.Router,
+		context *context.Context,
+		basePath, description string,
+		info *openapi3.Info,
+	) (managers.ISwaggerManager, error) {
+		return nil, errors.New("swagger factory initialization failed")
+	}
+
+	// Create the server with the failing swagger factory
+	server := apiserver.NewUninitializedServer("localhost:8080", failingSwaggerFactory)
+
+	// Attempt to start the server, expecting it to fail due to the failing swagger factory
+	err := server.Start()
+	assert.NotNil(t, err, "Expected Start to fail due to swagger factory failure")
+	assert.Contains(t, err.Error(), "swagger factory initialization failed", "Error message should indicate failure of swagger factory initialization")
 }

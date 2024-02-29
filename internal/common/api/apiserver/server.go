@@ -21,8 +21,6 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apierrors"
-	"github.com/hyperifyio/gocertcenter/internal/common/api/apirequests"
-	"github.com/hyperifyio/gocertcenter/internal/common/api/apiresponses"
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
@@ -132,11 +130,11 @@ func (s *Server) SetupRoutes(
 }
 
 func (s *Server) SetupNotFoundHandler(handler apitypes.RequestHandlerFunc) {
-	s.router.NotFoundHandler = responseHandler(handler)
+	s.router.NotFoundHandler = ResponseHandler(handler)
 }
 
 func (s *Server) SetupMethodNotAllowedHandler(handler apitypes.RequestHandlerFunc) {
-	s.router.MethodNotAllowedHandler = responseHandler(handler)
+	s.router.MethodNotAllowedHandler = ResponseHandler(handler)
 }
 
 func (s *Server) FinalizeSetup() error {
@@ -158,7 +156,7 @@ func (s *Server) SetupHandler(
 	if path == "" {
 		path = "/"
 	}
-	handler := responseHandler(apiHandler)
+	handler := ResponseHandler(apiHandler)
 	if _, err := s.swaggerManager.AddRoute(method, path, handler, definitions); err != nil {
 		return fmt.Errorf("failed to setup route %s %s: %w", method, path, err)
 	}
@@ -307,12 +305,7 @@ func NewServer(
 	listen string,
 	swaggerFactory apitypes.NewSwaggerManagerFunc,
 ) (*Server, error) {
-	s := &Server{
-		listen:         listen,
-		swaggerFactory: swaggerFactory,
-		serverFactory:  nil,
-		swaggerManager: nil,
-	}
+	s := NewUninitializedServer(listen, swaggerFactory)
 	if err := s.InitSetup(); err != nil {
 		return nil, fmt.Errorf("[server] server initialization failed: %v", err)
 	}
@@ -321,17 +314,17 @@ func NewServer(
 	return s, nil
 }
 
-// responseHandler wraps a handler function to inject dependencies.
-func responseHandler(handler apitypes.RequestHandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		response := apiresponses.NewJSONResponse(w)
-		request := apirequests.NewRequest(r)
-		err := handler(response, request)
-		if err != nil {
-			log.Printf("[server] Request handler failed: %v", err)
-			response.SendError(500, "Internal Server Error")
-		}
+func NewUninitializedServer(
+	listen string,
+	swaggerFactory apitypes.NewSwaggerManagerFunc,
+) *Server {
+	s := &Server{
+		listen:         listen,
+		swaggerFactory: swaggerFactory,
+		serverFactory:  nil,
+		swaggerManager: nil,
 	}
+	return s
 }
 
 var _ apitypes.IServer = (*Server)(nil)

@@ -8,6 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apiresponses"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apimocks"
@@ -194,4 +196,38 @@ func TestJSONResponse_SendInternalServerError(t *testing.T) {
 	if body := w.Body.String(); body != expectedBody {
 		t.Errorf("Handler returned unexpected body: got %v want %v", body, expectedBody)
 	}
+}
+
+func TestJSONResponse_SendBytes(t *testing.T) {
+	w := httptest.NewRecorder()
+	sender := apiresponses.NewJSONResponse(w)
+
+	testBytes := []byte("test bytes")
+	err := sender.SendBytes(testBytes)
+
+	// Verify no error returned
+	assert.NoError(t, err, "SendBytes should not return an error")
+
+	// Verify the response body
+	assert.Equal(t, "test bytes", w.Body.String(), "Response body mismatch")
+
+	// Introduce an error scenario by using a response writer that fails on write
+	fw := apimocks.NewFailWriter(w)
+	sender = apiresponses.NewJSONResponse(fw)
+
+	err = sender.SendBytes(testBytes)
+	// Verify that an error is returned
+	assert.Error(t, err, "SendBytes should return an error when writing fails")
+	assert.Contains(t, err.Error(), "SendBytes: failed:", "Error message should indicate failure")
+}
+
+func TestJSONResponse_SetHeader(t *testing.T) {
+	w := httptest.NewRecorder()
+	sender := apiresponses.NewJSONResponse(w)
+
+	contentTypeValue := "application/json"
+	sender.SetHeader("Content-Type", contentTypeValue)
+
+	// Verify the header is set correctly
+	assert.Equal(t, contentTypeValue, w.Header().Get("Content-Type"), "Content-Type header mismatch")
 }
