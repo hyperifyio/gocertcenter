@@ -172,7 +172,11 @@ func ValidateOrganizationID(id string) error {
 	if _, err := strconv.Atoi(id); err == nil {
 		return errors.New("should not be full numbers")
 	}
-	matched, _ := regexp.MatchString(`^[a-z0-9\-.]+$`, id)
+	matched, _ := regexp.MatchString(`[A-Z]`, id)
+	if matched {
+		return errors.New("contains uppercase characters")
+	}
+	matched, _ = regexp.MatchString(`^[a-z0-9\-.]+$`, id)
 	if !matched || id != strings.Trim(id, " -.") {
 		return errors.New("contains invalid characters, or has leading/trailing spaces, '-', or '.'")
 	}
@@ -180,14 +184,17 @@ func ValidateOrganizationID(id string) error {
 }
 
 func ValidateOrganizationModel(model appmodels.IOrganization) error {
-	if err := ValidateOrganizationID(model.GetID()); err != nil {
-		return fmt.Errorf("id: %v", err)
+	id := model.GetID()
+	if err := ValidateOrganizationID(id); err != nil {
+		return fmt.Errorf("id: '%v': %v", id, err)
 	}
-	if err := ValidateOrganizationName(model.GetName()); err != nil {
-		return fmt.Errorf("name: %v", err)
+	name := model.GetName()
+	if err := ValidateOrganizationName(name); err != nil {
+		return fmt.Errorf("name: '%v': %v", name, err)
 	}
-	if err := ValidateOrganizationNames(model.GetNames()); err != nil {
-		return fmt.Errorf("names: %v", err)
+	names := model.GetNames()
+	if err := ValidateOrganizationNames(names); err != nil {
+		return fmt.Errorf("names: '%v': %v", names, err)
 	}
 	return nil
 }

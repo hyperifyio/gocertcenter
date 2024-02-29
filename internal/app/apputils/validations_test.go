@@ -137,6 +137,31 @@ func TestValidateOrganizationID(t *testing.T) {
 			id:   "valid-id123",
 		},
 		{
+			name: "Valid ID",
+			id:   "abc",
+		},
+		{
+			name: "Valid ID",
+			id:   "abcd",
+		},
+		{
+			name: "Valid ID",
+			id:   "ab",
+		},
+		{
+			name: "Valid ID",
+			id:   "helloworld",
+		},
+		{
+			name: "Valid ID",
+			id:   "neworg",
+		},
+		{
+			name:          "Valid ID",
+			id:            "newOrg",
+			expectedError: "contains uppercase characters",
+		},
+		{
 			name:          "Too Short",
 			id:            "v",
 			expectedError: "must be at least two characters long",
@@ -187,7 +212,7 @@ func TestValidateOrganizationID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := apputils.ValidateOrganizationID(tc.id)
 			if tc.expectedError == "" && err != nil {
-				t.Errorf("Expected no error, but got %s", err)
+				t.Errorf("Expected no error for '%s', but got: %s", tc.id, err)
 			} else if tc.expectedError != "" && (err == nil || err.Error() != tc.expectedError) {
 				t.Errorf("Expected error '%s', but got '%v'", tc.expectedError, err)
 			}
@@ -216,7 +241,7 @@ func TestValidateOrganizationModel(t *testing.T) {
 				m.On("GetName").Return("Valid Organization")
 				m.On("GetNames").Return([]string{"Valid Org", "Another Valid Name"})
 			},
-			expectedError: "id: contains invalid characters, or has leading/trailing spaces, '-', or '.'",
+			expectedError: "id: '!!!!!!': contains invalid characters, or has leading/trailing spaces, '-', or '.'",
 		},
 		{
 			name: "Invalid Organization Name",
@@ -225,7 +250,7 @@ func TestValidateOrganizationModel(t *testing.T) {
 				m.On("GetName").Return("!!!!!!!")
 				m.On("GetNames").Return([]string{"Valid Org", "Another Valid Name"})
 			},
-			expectedError: "name: contains invalid characters",
+			expectedError: "name: '!!!!!!!': contains invalid characters",
 		},
 		{
 			name: "Invalid Organization Names",
@@ -234,7 +259,7 @@ func TestValidateOrganizationModel(t *testing.T) {
 				m.On("GetName").Return("Valid Organization")
 				m.On("GetNames").Return([]string{"Valid Org", "!!!!!!"})
 			},
-			expectedError: "names: contains invalid characters",
+			expectedError: "names: '[Valid Org !!!!!!]': contains invalid characters",
 		},
 	}
 

@@ -57,6 +57,7 @@ func (a *ApplicationController) GetOrganizationController(organization string) (
 		a.certManager,
 		a.randomManager,
 		a.defaultExpiration,
+		a,
 	), nil
 }
 

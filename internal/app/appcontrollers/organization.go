@@ -100,6 +100,10 @@ func (r *OrganizationController) SetExpirationDuration(expiration time.Duration)
 	r.defaultExpiration = expiration
 }
 
+func (r *OrganizationController) ExpirationDuration() time.Duration {
+	return r.defaultExpiration
+}
+
 func (r *OrganizationController) NewRootCertificate(commonName string) (appmodels.ICertificate, error) {
 
 	organization := r.GetOrganizationID()
@@ -196,6 +200,7 @@ func NewOrganizationController(
 	certManager managers.ICertificateManager,
 	randomManager managers.IRandomManager,
 	defaultExpiration time.Duration,
+	parent appmodels.IApplicationController,
 ) *OrganizationController {
 	return &OrganizationController{
 		id:                     organization,
@@ -206,6 +211,7 @@ func NewOrganizationController(
 		certManager:            certManager,
 		randomManager:          randomManager,
 		defaultExpiration:      defaultExpiration,
+		parent:                 parent,
 	}
 }
 
