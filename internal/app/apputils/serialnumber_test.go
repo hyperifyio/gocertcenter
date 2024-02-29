@@ -7,6 +7,8 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
+
 	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
@@ -14,11 +16,8 @@ import (
 )
 
 func TestNewSerialNumberWithErrors(t *testing.T) {
-	mockRandomManager := &commonmocks.MockRandomManager{
-		CreateBigIntFunc: func(max *big.Int) (*big.Int, error) {
-			return nil, errors.New("Mocked error")
-		},
-	}
+	mockRandomManager := &commonmocks.MockRandomManager{}
+	mockRandomManager.On("CreateBigInt", mock.Anything).Return(nil, errors.New("Mocked error"))
 
 	_, err := apputils.GenerateSerialNumber(mockRandomManager)
 	if err == nil {
@@ -27,11 +26,8 @@ func TestNewSerialNumberWithErrors(t *testing.T) {
 }
 
 func TestNewSerialNumberWithMock(t *testing.T) {
-	mockRandomManager := &commonmocks.MockRandomManager{
-		CreateBigIntFunc: func(max *big.Int) (*big.Int, error) {
-			return big.NewInt(12345), nil // Return a fixed serial number for testing
-		},
-	}
+	mockRandomManager := &commonmocks.MockRandomManager{}
+	mockRandomManager.On("CreateBigInt", mock.Anything).Return(big.NewInt(12345), nil)
 
 	serialNumber, err := apputils.GenerateSerialNumber(mockRandomManager)
 	if err != nil {

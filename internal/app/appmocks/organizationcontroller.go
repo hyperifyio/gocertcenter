@@ -22,6 +22,9 @@ func (m *MockOrganizationController) RevokeCertificate(certificate appmodels.ICe
 
 func (m *MockOrganizationController) GetCertificateCollection() ([]appmodels.ICertificate, error) {
 	args := m.Called()
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).([]appmodels.ICertificate), args.Error(1)
 }
 

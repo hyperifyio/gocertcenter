@@ -33,6 +33,9 @@ func (r *PrivateKeyController) GetOrganizationModel() appmodels.IOrganization {
 }
 
 func (r *PrivateKeyController) GetOrganizationController() appmodels.IOrganizationController {
+	if r.parent == nil {
+		return nil
+	}
 	return r.parent.GetOrganizationController()
 }
 

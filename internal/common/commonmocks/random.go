@@ -5,12 +5,14 @@ package commonmocks
 import (
 	"math/big"
 
+	"github.com/stretchr/testify/mock"
+
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
 // MockRandomManager is a mock implementation of models.IRandomManager for testing.
 type MockRandomManager struct {
-	CreateBigIntFunc func(max *big.Int) (*big.Int, error)
+	mock.Mock
 }
 
 func NewMockRandomManager() *MockRandomManager {
@@ -19,11 +21,11 @@ func NewMockRandomManager() *MockRandomManager {
 
 // CreateBigInt calls the mocked function.
 func (m *MockRandomManager) CreateBigInt(max *big.Int) (*big.Int, error) {
-	if m.CreateBigIntFunc != nil {
-		return m.CreateBigIntFunc(max)
+	args := m.Called(max)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	// Return nil or some default value if not specifically mocked
-	return nil, nil
+	return args.Get(0).(*big.Int), args.Error(1)
 }
 
 var _ managers.IRandomManager = (*MockRandomManager)(nil)

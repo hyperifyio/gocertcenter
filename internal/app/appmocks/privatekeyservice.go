@@ -3,34 +3,34 @@
 package appmocks
 
 import (
+	"github.com/stretchr/testify/mock"
+
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
 // MockPrivateKeyService is a mock implementation of models.IPrivateKeyService interface.
 type MockPrivateKeyService struct {
-	// These fields allow you to specify the behavior and output of the mock methods.
-	GetExistingPrivateKeyFunc func(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error)
-	CreatePrivateKeyFunc      func(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error)
+	mock.Mock
 }
 
 // GetExistingPrivateKey simulates retrieving an existing private key by serial number.
 // It uses a function field to allow custom behavior for each test.
 func (m *MockPrivateKeyService) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
-	if m.GetExistingPrivateKeyFunc != nil {
-		return m.GetExistingPrivateKeyFunc(organization, certificates)
+	args := m.Called(organization, certificates)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	// Default behavior or error can be returned here if not overridden by a test.
-	return nil, nil
+	return args.Get(0).(appmodels.IPrivateKey), args.Error(1)
 }
 
 // CreatePrivateKey simulates creating a new private key.
 // It uses a function field to allow custom behavior for each test.
 func (m *MockPrivateKeyService) Save(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
-	if m.CreatePrivateKeyFunc != nil {
-		return m.CreatePrivateKeyFunc(key)
+	args := m.Called(key)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	// Default behavior or error can be returned here if not overridden by a test.
-	return nil, nil
+	return args.Get(0).(appmodels.IPrivateKey), args.Error(1)
 }
 
 var _ appmodels.IPrivateKeyService = (*MockPrivateKeyService)(nil)

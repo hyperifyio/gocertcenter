@@ -52,6 +52,8 @@ func TestOrganizationController_NewRootCertificate_SerialNumberExists(t *testing
 	mockCertManager := commonmocks.NewMockCertificateManager()
 	mockRandomManager := commonmocks.NewMockRandomManager()
 
+	mockRandomManager.On("CreateBigInt", mock.Anything).Return(big.NewInt(123), nil)
+
 	mockOrganization := &appmocks.MockOrganization{}
 	organizationID := "testorg"
 	mockOrganization.On("GetID").Return(organizationID)

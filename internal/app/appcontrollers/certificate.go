@@ -64,9 +64,6 @@ func (r *CertificateController) GetOrganizationID() string {
 }
 
 func (r *CertificateController) GetOrganizationModel() appmodels.IOrganization {
-	if r.parentOrganizationController == nil {
-		panic("[CertificateController.GetOrganizationModel]: No parent organization controller")
-	}
 	return r.parentOrganizationController.GetOrganizationModel()
 }
 
