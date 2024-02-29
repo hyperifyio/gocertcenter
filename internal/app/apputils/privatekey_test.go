@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
+	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
 	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
@@ -361,4 +363,245 @@ func TestMarshalPrivateKeyAsPEM_EncodePEMToMemoryFails(t *testing.T) {
 
 	// Verify that the mock expectations were met
 	mockManager.AssertExpectations(t)
+}
+
+func TestToPrivateKeyDTO(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	mockPrivateKey := new(appmocks.MockPrivateKey)
+	mockSerialNumber := new(appmocks.MockSerialNumber)
+
+	// Setup expected values
+	expectedSerial := "123456789"
+	expectedKeyType := appmodels.RSA_2048.String()
+	expectedPEM := "FAKE_PEM_DATA"
+
+	mockSerialNumber.On("String").Return(expectedSerial)
+	mockPrivateKey.On("GetSerialNumber").Return(mockSerialNumber)
+	mockPrivateKey.On("GetKeyType").Return(appmodels.RSA_2048)
+	mockPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+	mockCertManager.On("MarshalPKCS1PrivateKey", mock.Anything).Return([]byte(expectedPEM))
+	mockCertManager.On("EncodePEMToMemory", mock.Anything).Return([]byte(expectedPEM))
+
+	dto, err := apputils.ToPrivateKeyDTO(mockCertManager, mockPrivateKey)
+	if err != nil {
+		t.Fatalf("ToPrivateKeyDTO() unexpected error = %v", err)
+	}
+
+	// Validate results
+	if dto.Certificate != expectedSerial || dto.Type != expectedKeyType || dto.PrivateKey != expectedPEM {
+		t.Errorf("ToPrivateKeyDTO() got = '%v', want '%v'", dto, appdtos.PrivateKeyDTO{Certificate: expectedSerial, Type: expectedKeyType, PrivateKey: expectedPEM})
+	}
+}
+
+func TestToPrivateKeyDTOList(t *testing.T) {
+	mockCertManager := new(commonmocks.MockCertificateManager)
+	mockPrivateKey := new(appmocks.MockPrivateKey)
+	mockSerialNumber := new(appmocks.MockSerialNumber)
+
+	// Setup expected values for a list of one key for simplicity
+	expectedSerial := "123456789"
+	expectedKeyType := appmodels.RSA_2048.String()
+	expectedPEM := "FAKE_PEM_DATA"
+
+	mockSerialNumber.On("String").Return(expectedSerial)
+	mockPrivateKey.On("GetSerialNumber").Return(mockSerialNumber)
+	mockPrivateKey.On("GetKeyType").Return(appmodels.RSA_2048)
+	mockPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+	mockCertManager.On("MarshalPKCS1PrivateKey", mock.Anything).Return([]byte(expectedPEM))
+	mockCertManager.On("EncodePEMToMemory", mock.Anything).Return([]byte(expectedPEM))
+
+	list, err := apputils.ToPrivateKeyDTOList(mockCertManager, []appmodels.IPrivateKey{mockPrivateKey})
+	if err != nil {
+		t.Fatalf("ToPrivateKeyDTOList() error = '%v', wantErr '%v'", err, false)
+	}
+
+	if len(list) != 1 || list[0].Certificate != expectedSerial || list[0].Type != expectedKeyType || list[0].PrivateKey != expectedPEM {
+		t.Errorf("ToPrivateKeyDTOList() got = '%v', want '%v'", list, []appdtos.PrivateKeyDTO{{Certificate: expectedSerial, Type: expectedKeyType, PrivateKey: expectedPEM}})
+	}
+}
+
+func TestDetermineRSATypeFromSize(t *testing.T) {
+	tests := []struct {
+		name     string
+		keySize  int
+		expected appmodels.KeyType
+		wantErr  bool
+	}{
+		{"RSA_1024", 1024, appmodels.RSA_1024, false},
+		{"RSA_2048", 2048, appmodels.RSA_2048, false},
+		{"RSA_3072", 3072, appmodels.RSA_3072, false},
+		{"RSA_4096", 4096, appmodels.RSA_4096, false},
+		{"Invalid", 512, appmodels.NIL_KEY_TYPE, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := apputils.DetermineRSATypeFromSize(tt.keySize)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DetermineRSATypeFromSize() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.expected {
+				t.Errorf("DetermineRSATypeFromSize() got = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestDetermineECDSACurve(t *testing.T) {
+	tests := []struct {
+		name     string
+		curve    elliptic.Curve
+		expected appmodels.KeyType
+		wantErr  bool
+	}{
+		{"P224", elliptic.P224(), appmodels.ECDSA_P224, false},
+		{"P256", elliptic.P256(), appmodels.ECDSA_P256, false},
+		{"P384", elliptic.P384(), appmodels.ECDSA_P384, false},
+		{"P521", elliptic.P521(), appmodels.ECDSA_P521, false},
+		{"Invalid", nil, appmodels.NIL_KEY_TYPE, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := apputils.DetermineECDSACurve(tt.curve)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DetermineECDSACurve() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.expected {
+				t.Errorf("DetermineECDSACurve() got = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestReadRSAKeySize(t *testing.T) {
+	tests := []struct {
+		name    string
+		keySize int // RSA key sizes to test
+	}{
+		{"RSA_1024", 1024},
+		{"RSA_2048", 2048},
+		{"RSA_3072", 3072},
+		{"RSA_4096", 4096},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Generate RSA key of specified size
+			key, err := rsa.GenerateKey(rand.Reader, tt.keySize)
+			if err != nil {
+				t.Fatalf("Failed to generate RSA key of size %d: %v", tt.keySize, err)
+			}
+
+			// Call ReadRSAKeySize
+			size := apputils.ReadRSAKeySize(key)
+
+			// Assert key size
+			if size != tt.keySize {
+				t.Errorf("ReadRSAKeySize() returned %d, want %d", size, tt.keySize)
+			}
+		})
+	}
+}
+
+func TestDetermineRSATypeFromKey(t *testing.T) {
+	tests := []struct {
+		name    string
+		keySize int
+		want    appmodels.KeyType
+	}{
+		{"RSA_1024", 1024, appmodels.RSA_1024},
+		{"RSA_2048", 2048, appmodels.RSA_2048},
+		{"RSA_3072", 3072, appmodels.RSA_3072},
+		{"RSA_4096", 4096, appmodels.RSA_4096},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rsaKey, err := rsa.GenerateKey(rand.Reader, tt.keySize)
+			if err != nil {
+				t.Fatalf("Failed to generate RSA key of size %d: %v", tt.keySize, err)
+			}
+
+			got, err := apputils.DetermineRSATypeFromKey(rsaKey)
+			if err != nil {
+				t.Fatalf("DetermineRSATypeFromKey() error = %v, wantErr false", err)
+			}
+			if got != tt.want {
+				t.Errorf("DetermineRSATypeFromKey() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+	t.Run("NonRSAType", func(t *testing.T) {
+		ecdsaKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+		if err != nil {
+			t.Fatalf("Failed to generate ECDSA key: %v", err)
+		}
+
+		_, err = apputils.DetermineRSATypeFromKey(ecdsaKey)
+		if err == nil {
+			t.Errorf("DetermineRSATypeFromKey() expected error, got nil")
+		}
+	})
+}
+
+func TestDetermineKeyType(t *testing.T) {
+	// Test RSA keys
+	rsaKeySizes := map[int]appmodels.KeyType{
+		1024: appmodels.RSA_1024,
+		2048: appmodels.RSA_2048,
+		3072: appmodels.RSA_3072,
+		4096: appmodels.RSA_4096,
+	}
+	for size, expected := range rsaKeySizes {
+		rsaKey, err := rsa.GenerateKey(rand.Reader, size)
+		if err != nil {
+			t.Fatalf("Failed to generate RSA key of size %d: %v", size, err)
+		}
+		got, err := apputils.DetermineKeyType(rsaKey)
+		if err != nil {
+			t.Errorf("DetermineKeyType() with RSA key size %d error = %v", size, err)
+			continue
+		}
+		if got != expected {
+			t.Errorf("DetermineKeyType() with RSA key size %d got = %v, want %v", size, got, expected)
+		}
+	}
+
+	// Test ECDSA keys
+	ecdsaCurves := map[elliptic.Curve]appmodels.KeyType{
+		elliptic.P224(): appmodels.ECDSA_P224,
+		elliptic.P256(): appmodels.ECDSA_P256,
+		elliptic.P384(): appmodels.ECDSA_P384,
+		elliptic.P521(): appmodels.ECDSA_P521,
+	}
+	for curve, expected := range ecdsaCurves {
+		ecdsaKey, err := ecdsa.GenerateKey(curve, rand.Reader)
+		if err != nil {
+			t.Fatalf("Failed to generate ECDSA key for curve %v: %v", curve, err)
+		}
+		got, err := apputils.DetermineKeyType(ecdsaKey)
+		if err != nil {
+			t.Errorf("DetermineKeyType() with ECDSA curve %v error = %v", curve, err)
+			continue
+		}
+		if got != expected {
+			t.Errorf("DetermineKeyType() with ECDSA curve %v got = %v, want %v", curve, got, expected)
+		}
+	}
+
+	// Test Ed25519 key
+	_, ed25519Key, _ := ed25519.GenerateKey(rand.Reader)
+	if got, err := apputils.DetermineKeyType(ed25519Key); err != nil || got != appmodels.Ed25519 {
+		t.Errorf("DetermineKeyType() with Ed25519 key got = %v, err = %v; want %v", got, err, appmodels.Ed25519)
+	}
+
+	// Test unsupported key type
+	unsupportedKey := "this is not a key"
+	if _, err := apputils.DetermineKeyType(unsupportedKey); err == nil {
+		t.Errorf("DetermineKeyType() with unsupported key type did not return an error")
+	}
 }

@@ -22,7 +22,7 @@ func ToPrivateKeyDTO(certManager managers.ICertificateManager, c appmodels.IPriv
 
 	bytes, err := MarshalPrivateKeyAsPEM(certManager, c.GetPrivateKey())
 	if err != nil {
-		return appdtos.PrivateKeyDTO{}, fmt.Errorf("ToPrivateKeyDTO: rsa: failed to marshal RSA private key: got nil")
+		return appdtos.PrivateKeyDTO{}, fmt.Errorf("ToPrivateKeyDTO: rsa: failed to marshal RSA private key: %v", err)
 	}
 
 	return appdtos.NewPrivateKeyDTO(

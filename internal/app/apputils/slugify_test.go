@@ -15,6 +15,9 @@ func TestSlugify(t *testing.T) {
 		expected string
 	}{
 		{"Basic", "Hello World", "hello-world"},
+		{"Prefix special characters", "-Hello World", "hello-world"},
+		{"Suffix special characters", "Hello World-", "hello-world"},
+		{"Directory characters", "Hello/..//../World-", "hello-world"},
 		{"Special Characters", "Hello, World!", "hello-world"},
 		{"Multiple Spaces", "Hello   World", "hello-world"},
 		{"Uppercase and Special", "HELLO @ WORLD", "hello-world"},

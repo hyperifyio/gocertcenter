@@ -17,6 +17,7 @@ func isMn(r rune) bool {
 }
 
 func Slugify(s string) string {
+
 	// Normalize string to NFD (Normalization Form Decomposition)
 	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
 	result, _, _ := transform.String(t, s)
@@ -25,7 +26,7 @@ func Slugify(s string) string {
 	for _, char := range strings.ToLower(result) {
 		if unicode.IsLetter(char) || unicode.IsDigit(char) || char == '-' {
 			builder.WriteRune(char)
-		} else if char == ' ' {
+		} else {
 			builder.WriteRune('-')
 		}
 	}
@@ -34,6 +35,6 @@ func Slugify(s string) string {
 	slug := builder.String()
 	multiHyphenRegex := regexp.MustCompile(`-+`)
 	slug = multiHyphenRegex.ReplaceAllString(slug, "-")
-
+	slug = strings.Trim(slug, "-")
 	return slug
 }
