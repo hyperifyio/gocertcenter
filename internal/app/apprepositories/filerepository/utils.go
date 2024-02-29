@@ -12,6 +12,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
+	"github.com/hyperifyio/gocertcenter/internal/common/fsutils"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
@@ -23,7 +24,7 @@ func ReadCertificateFile(
 ) (*x509.Certificate, error) {
 
 	// Read file contents
-	data, err := fileManager.ReadBytes(fileName)
+	data, err := fileManager.ReadFile(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read certificate file: %w", err)
 	}
@@ -58,7 +59,7 @@ func SaveCertificateFile(
 	if pemData == nil {
 		return fmt.Errorf("failed to encode certificate to PEM")
 	}
-	return fileManager.SaveBytes(fileName, pemData, 0600, 0700)
+	return fsutils.SaveBytes(fileManager, fileName, pemData, 0600, 0700)
 }
 
 // SaveOrganizationJsonFile marshals data into JSON and saves it using fileManager.SaveBytes
@@ -71,13 +72,13 @@ func SaveOrganizationJsonFile(
 	if err != nil {
 		return fmt.Errorf("failed to marshal organization data into JSON: %w", err)
 	}
-	return fileManager.SaveBytes(fileName, jsonData, 0600, 0700)
+	return fsutils.SaveBytes(fileManager, fileName, jsonData, 0600, 0700)
 }
 
 // ReadOrganizationJsonFile reads JSON data from a file and unmarshals it into the provided data structure.
 func ReadOrganizationJsonFile(fileManager managers.IFileManager, fileName string) (*appdtos.OrganizationDTO, error) {
 
-	fileData, err := fileManager.ReadBytes(fileName)
+	fileData, err := fileManager.ReadFile(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read organization JSON file: %w", err)
 	}
@@ -97,7 +98,7 @@ func ReadPrivateKeyFile(
 	fileName string,
 ) (any, appmodels.KeyType, error) {
 
-	data, err := fileManager.ReadBytes(fileName)
+	data, err := fileManager.ReadFile(fileName)
 	if err != nil {
 		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("ReadPrivateKeyFile: failed to read certificate file: %w", err)
 	}

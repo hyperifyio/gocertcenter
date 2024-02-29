@@ -19,6 +19,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmocks"
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
+	"github.com/hyperifyio/gocertcenter/internal/common/fsutils"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/filerepository"
@@ -60,7 +61,7 @@ func TestCertificateRepository_GetExistingCertificate(t *testing.T) {
 	assert.NoError(t, err)
 
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certBytes})
-	err = fileManager.SaveBytes(certPath, certPEM, 0600, 0700)
+	err = fsutils.SaveBytes(fileManager, certPath, certPEM, 0600, 0700)
 	assert.NoError(t, err)
 
 	// Test

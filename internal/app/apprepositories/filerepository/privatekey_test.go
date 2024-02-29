@@ -16,6 +16,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/filerepository"
 	"github.com/hyperifyio/gocertcenter/internal/common/commonmocks"
+	"github.com/hyperifyio/gocertcenter/internal/common/fsutils"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
@@ -39,7 +40,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey(t *testing.T) {
 	rsaPrivBytes := x509.MarshalPKCS1PrivateKey(rsaPrivKey)
 
 	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: rsaPrivBytes})
-	err = fileManager.SaveBytes(fileName, keyPEM, 0600, 0700)
+	err = fsutils.SaveBytes(fileManager, fileName, keyPEM, 0600, 0700)
 	assert.NoError(t, err)
 
 	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)

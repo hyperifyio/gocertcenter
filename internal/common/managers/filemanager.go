@@ -42,8 +42,8 @@ func (f *FileManager) Chmod(file string, mode os.FileMode) error {
 	return os.Chmod(file, mode)
 }
 
-func NewFileManager() FileManager {
-	return FileManager{}
+func NewFileManager() *FileManager {
+	return &FileManager{}
 }
 
 var _ IFileManager = (*FileManager)(nil)

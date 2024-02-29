@@ -8,6 +8,7 @@ import (
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
+	"github.com/hyperifyio/gocertcenter/internal/common/fsutils"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
@@ -53,7 +54,7 @@ func (r *PrivateKeyRepository) Save(key appmodels.IPrivateKey) (appmodels.IPriva
 	}
 
 	// Save the PEM-encoded private key to file
-	err = r.fileManager.SaveBytes(fileName, pemData, 0600, 0700)
+	err = fsutils.SaveBytes(r.fileManager, fileName, pemData, 0600, 0700)
 	if err != nil {
 		return nil, fmt.Errorf("failed to save private key: %w", err)
 	}
