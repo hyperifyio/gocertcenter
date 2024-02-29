@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-func GenerateSerialNumber(randomManager managers.IRandomManager) (appmodels.ISerialNumber, error) {
+func GenerateSerialNumber(randomManager managers.RandomManager) (appmodels.SerialNumber, error) {
 	value, err := randomManager.CreateBigInt(new(big.Int).Lsh(big.NewInt(1), 128))
 	if err != nil {
 		return appmodels.NewSerialNumber(nil), err

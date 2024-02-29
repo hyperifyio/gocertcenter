@@ -2,19 +2,19 @@
 
 package appmodels
 
-// Organization model implements IOrganization
-type Organization struct {
+// OrganizationModel model implements Organization
+type OrganizationModel struct {
 	id    string
 	names []string
 }
 
 // GetID returns unique identifier for this organization
-func (o *Organization) GetID() string {
+func (o *OrganizationModel) GetID() string {
 	return o.id
 }
 
 // GetName returns the primary organization name
-func (o *Organization) GetName() string {
+func (o *OrganizationModel) GetName() string {
 	slice := o.GetNames()
 	if len(slice) > 0 {
 		return slice[0]
@@ -23,7 +23,7 @@ func (o *Organization) GetName() string {
 }
 
 // GetNames returns the full name of the organization including department
-func (o *Organization) GetNames() []string {
+func (o *OrganizationModel) GetNames() []string {
 	originalSlice := o.names
 	sliceCopy := make([]string, len(originalSlice))
 	copy(sliceCopy, originalSlice)
@@ -34,12 +34,12 @@ func (o *Organization) GetNames() []string {
 func NewOrganization(
 	id string,
 	names []string,
-) *Organization {
-	return &Organization{
+) *OrganizationModel {
+	return &OrganizationModel{
 		id:    id,
 		names: names,
 	}
 }
 
 // Compile time assertion for implementing the interface
-var _ IOrganization = (*Organization)(nil)
+var _ Organization = (*OrganizationModel)(nil)

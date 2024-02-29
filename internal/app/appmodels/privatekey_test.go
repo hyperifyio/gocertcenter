@@ -20,20 +20,20 @@ import (
 // mockKeyType for testing purposes
 const mockKeyType appmodels.KeyType = 0
 
-// TestNewPrivateKey verifies the NewPrivateKey function correctly initializes a PrivateKey instance.
+// TestNewPrivateKey verifies the NewPrivateKey function correctly initializes a PrivateKeyModel instance.
 func TestNewPrivateKey(t *testing.T) {
 	// Mock data for initialization
 	organization := "testOrg"
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(123)) // Assuming SerialNumber is of type *big.Int
+	serialNumber := appmodels.NewSerialNumber(big.NewInt(123)) // Assuming Int64SerialNumber is of type *big.Int
 	keyType := mockKeyType
 	mockData := "mockPrivateKeyData" // Example mock data, could be any type
 
 	// Call the function under test
-	privateKey := appmodels.NewPrivateKey(organization, []appmodels.ISerialNumber{serialNumber}, keyType, mockData)
+	privateKey := appmodels.NewPrivateKey(organization, []appmodels.SerialNumber{serialNumber}, keyType, mockData)
 
 	bigIntSSerialNumber := privateKey.GetSerialNumber()
 
-	// Verify the PrivateKey fields are correctly assigned
+	// Verify the PrivateKeyModel fields are correctly assigned
 	if bigIntSSerialNumber.Cmp(serialNumber) != 0 {
 		t.Errorf("serialNumber = %v, want %v", privateKey.GetSerialNumber(), serialNumber)
 	}
@@ -54,7 +54,7 @@ func TestPrivateKey_GetPublicKey_NilCase(t *testing.T) {
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 	unsupportedKeyType := "unsupported key type" // Simulate incorrect initialization
 
-	privateKey := appmodels.NewPrivateKey(organization, []appmodels.ISerialNumber{serialNumber}, mockKeyType, unsupportedKeyType)
+	privateKey := appmodels.NewPrivateKey(organization, []appmodels.SerialNumber{serialNumber}, mockKeyType, unsupportedKeyType)
 	publicKey := privateKey.GetPublicKey()
 
 	if publicKey != nil {
@@ -71,15 +71,15 @@ func TestPrivateKey_GetPublicKey_RSA(t *testing.T) {
 		t.Fatalf("Failed to generate RSA private key: %v", err)
 	}
 
-	// Create a PrivateKey instance with the RSA private key
+	// Create a PrivateKeyModel instance with the RSA private key
 	privateKey := appmodels.NewPrivateKey(
 		organization,
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
 		appmodels.RSA_2048,
 		rsaPrivKey,
 	)
 
-	// Get the public key from the PrivateKey instance
+	// Get the public key from the PrivateKeyModel instance
 	publicKey := privateKey.GetPublicKey()
 
 	// Type assert the returned public key to *rsa.PublicKey
@@ -103,14 +103,14 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 		t.Fatalf("Failed to generate Ed25519 private key: %v", err)
 	}
 
-	// Create a PrivateKey instance with the Ed25519 private key
+	// Create a PrivateKeyModel instance with the Ed25519 private key
 	privateKey := appmodels.NewPrivateKey(
 		organization,
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
 		appmodels.Ed25519, ed25519PrivKey,
 	)
 
-	// Get the public key from the PrivateKey instance
+	// Get the public key from the PrivateKeyModel instance
 	publicKey := privateKey.GetPublicKey()
 
 	// Type assert the returned public key to ed25519.PublicKey
@@ -127,7 +127,7 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 
 func TestPrivateKey_Methods(t *testing.T) {
 	organization := "testOrg"
-	serialNumbers := []appmodels.ISerialNumber{
+	serialNumbers := []appmodels.SerialNumber{
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		appmodels.NewSerialNumber(big.NewInt(2)),
 		appmodels.NewSerialNumber(big.NewInt(3)),
@@ -176,7 +176,7 @@ func TestPrivateKey_Methods(t *testing.T) {
 func TestPrivateKey_GetParents_WithSingleSerialNumber(t *testing.T) {
 	organization := "rootOrg"
 	// Simulate root certificate with only one serial number
-	serialNumbers := []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}
+	serialNumbers := []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		t.Fatalf("Failed to generate RSA private key: %v", err)
@@ -192,13 +192,13 @@ func TestPrivateKey_GetParents_WithSingleSerialNumber(t *testing.T) {
 
 func TestPrivateKey_GetSerialNumber_WithZeroCertificates(t *testing.T) {
 	organization := "testOrg"
-	// Create a PrivateKey instance with no certificates
-	privateKey := appmodels.NewPrivateKey(organization, []appmodels.ISerialNumber{}, appmodels.RSA_2048, "mockData")
+	// Create a PrivateKeyModel instance with no certificates
+	privateKey := appmodels.NewPrivateKey(organization, []appmodels.SerialNumber{}, appmodels.RSA_2048, "mockData")
 
 	// Test GetSerialNumber when certificates slice is empty
 	serialNumber := privateKey.GetSerialNumber()
 	if serialNumber != nil {
-		t.Errorf("Expected nil serial number for PrivateKey with zero certificates, got %v", serialNumber)
+		t.Errorf("Expected nil serial number for PrivateKeyModel with zero certificates, got %v", serialNumber)
 	}
 }
 
@@ -211,15 +211,15 @@ func TestPrivateKey_GetPublicKey_ECDSA(t *testing.T) {
 		t.Fatalf("Failed to generate ECDSA private key: %v", err)
 	}
 
-	// Create a PrivateKey instance with the ECDSA private key
+	// Create a PrivateKeyModel instance with the ECDSA private key
 	privateKey := appmodels.NewPrivateKey(
 		organization,
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
 		appmodels.ECDSA_P256, // Assuming you have a KeyType for ECDSA_P256
 		ecdsaPrivKey,
 	)
 
-	// Get the public key from the PrivateKey instance
+	// Get the public key from the PrivateKeyModel instance
 	publicKey := privateKey.GetPublicKey()
 
 	// Type assert the returned public key to *ecdsa.PublicKey

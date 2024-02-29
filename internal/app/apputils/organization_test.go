@@ -61,7 +61,7 @@ func TestToListOfOrganizationDTO(t *testing.T) {
 	org2.On("GetName").Return(name2)
 	org2.On("GetNames").Return(names2)
 
-	orgList := []appmodels.IOrganization{org1, org2}
+	orgList := []appmodels.Organization{org1, org2}
 
 	// Convert to DTOs
 	dtoList := apputils.ToListOfOrganizationDTO(orgList)
@@ -88,7 +88,7 @@ func TestToOrganizationListDTO(t *testing.T) {
 	org1.On("GetName").Return(name1)
 	org1.On("GetNames").Return(names1)
 
-	orgList := []appmodels.IOrganization{org1}
+	orgList := []appmodels.Organization{org1}
 
 	// Convert to OrganizationListDTO
 	listDTO := apputils.ToOrganizationListDTO(orgList)

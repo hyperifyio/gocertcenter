@@ -8,41 +8,41 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// MockCertificateService is a mock implementation of appmodels.ICertificateService for testing purposes.
+// MockCertificateService is a mock implementation of appmodels.CertificateRepository for testing purposes.
 type MockCertificateService struct {
 	mock.Mock
 }
 
-func (m *MockCertificateService) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) ([]appmodels.ICertificate, error) {
+func (m *MockCertificateService) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) ([]appmodels.Certificate, error) {
 	args := m.Called(organization, certificates)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).([]appmodels.ICertificate), args.Error(1)
+	return args.Get(0).([]appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockCertificateService) FindAllByOrganization(organization string) ([]appmodels.ICertificate, error) {
+func (m *MockCertificateService) FindAllByOrganization(organization string) ([]appmodels.Certificate, error) {
 	args := m.Called(organization)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).([]appmodels.ICertificate), args.Error(1)
+	return args.Get(0).([]appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockCertificateService) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.ICertificate, error) {
+func (m *MockCertificateService) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) (appmodels.Certificate, error) {
 	args := m.Called(organization, certificates)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+	return args.Get(0).(appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockCertificateService) Save(certificate appmodels.ICertificate) (appmodels.ICertificate, error) {
+func (m *MockCertificateService) Save(certificate appmodels.Certificate) (appmodels.Certificate, error) {
 	args := m.Called(certificate)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+	return args.Get(0).(appmodels.Certificate), args.Error(1)
 }
 
-var _ appmodels.ICertificateService = (*MockCertificateService)(nil)
+var _ appmodels.CertificateRepository = (*MockCertificateService)(nil)

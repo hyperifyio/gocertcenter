@@ -8,7 +8,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-func (c *ApiController) GetRoutes() []apitypes.Route {
+func (c *HttpApiController) GetRoutes() []apitypes.Route {
 	return []apitypes.Route{
 		{
 			Method:      http.MethodDelete,
@@ -91,4 +91,4 @@ func (c *ApiController) GetRoutes() []apitypes.Route {
 	}
 }
 
-var _ apitypes.ApplicationRoutesFunc = (*ApiController)(nil).GetRoutes
+var _ apitypes.ApplicationRoutesFunc = (*HttpApiController)(nil).GetRoutes

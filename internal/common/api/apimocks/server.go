@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-// MockServer is a mock implementation of apitypes.IServer interface for testing purposes.
+// MockServer is a mock implementation of apitypes.Server interface for testing purposes.
 type MockServer struct {
 	mock.Mock
 	Address string
@@ -121,4 +121,4 @@ func NewMockServer() *MockServer {
 	return mockServer
 }
 
-var _ apitypes.IServer = (*MockServer)(nil)
+var _ apitypes.Server = (*MockServer)(nil)

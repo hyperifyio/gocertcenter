@@ -12,7 +12,7 @@ import (
 )
 
 // GetOrganizationDefinitions returns OpenAPI definitions
-func (c *ApiController) GetOrganizationDefinitions() swagger.Definitions {
+func (c *HttpApiController) GetOrganizationDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns an organization entity",
 		Description: "",
@@ -27,7 +27,7 @@ func (c *ApiController) GetOrganizationDefinitions() swagger.Definitions {
 }
 
 // GetOrganization handles a request
-func (c *ApiController) GetOrganization(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) GetOrganization(response apitypes.Response, request apitypes.Request) error {
 	controller, err := c.getOrganizationController(request)
 	if err != nil {
 		return c.sendNotFound(response, request, err)
@@ -38,5 +38,5 @@ func (c *ApiController) GetOrganization(response apitypes.IResponse, request api
 	return c.sendOK(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetOrganizationDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).GetOrganization
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetOrganizationDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetOrganization

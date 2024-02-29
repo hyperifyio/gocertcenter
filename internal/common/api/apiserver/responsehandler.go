@@ -19,7 +19,7 @@ func ResponseHandler(handler apitypes.RequestHandlerFunc) http.HandlerFunc {
 		err := handler(response, request)
 		if err != nil {
 			log.Printf("[server] Request handler failed: %v", err)
-			response.SendError(500, "Internal Server Error")
+			response.SendError(500, "Internal ApplicationServer Error")
 		}
 	}
 }

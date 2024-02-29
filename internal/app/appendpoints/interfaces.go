@@ -9,19 +9,22 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-type IApiController interface {
+// GoCertCenterController defines our own methods specific to our HTTP
+// end-points, while apitypes.AppController defines common non-application
+// specific methods.
+type GoCertCenterController interface {
 	GetInfo() *openapi3.Info
 	GetRoutes() []apitypes.Route
 
 	GetIndexDefinitions() swagger.Definitions
-	GetIndex(response apitypes.IResponse, request apitypes.IRequest) error
+	GetIndex(response apitypes.Response, request apitypes.Request) error
 
-	GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest) error
+	GetOrganizationCollection(response apitypes.Response, request apitypes.Request) error
 	GetOrganizationCollectionDefinitions() swagger.Definitions
 
-	GetRootCertificateCollection(response apitypes.IResponse, request apitypes.IRequest) error
+	GetRootCertificateCollection(response apitypes.Response, request apitypes.Request) error
 	GetRootCertificateCollectionDefinitions() swagger.Definitions
 
-	CreateRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error
+	CreateRootCertificate(response apitypes.Response, request apitypes.Request) error
 	CreateRootCertificateDefinitions() swagger.Definitions
 }

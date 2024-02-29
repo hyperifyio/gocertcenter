@@ -41,7 +41,7 @@ func TestGetCertificatePEMBytes(t *testing.T) {
 		t.Fatalf("Failed to parse certificate: %v", err)
 	}
 
-	modelCert := appmodels.NewCertificate("Org123", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, cert)
+	modelCert := appmodels.NewCertificate("Org123", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, cert)
 
 	pemBytes := apputils.GetCertificatePEMBytes(modelCert)
 
@@ -62,7 +62,7 @@ func TestGetCertificatePEMBytes(t *testing.T) {
 
 	// Compare some fields to ensure the certificate is correctly encoded/decoded
 	if reParsedCert.SerialNumber.Cmp(cert.SerialNumber) != 0 {
-		t.Errorf("SerialNumber mismatch, got %v, want %v", reParsedCert.SerialNumber, cert.SerialNumber)
+		t.Errorf("Int64SerialNumber mismatch, got %v, want %v", reParsedCert.SerialNumber, cert.SerialNumber)
 	}
 	if reParsedCert.Subject.CommonName != cert.Subject.CommonName {
 		t.Errorf("CommonName mismatch, got %s, want %s", reParsedCert.Subject.CommonName, cert.Subject.CommonName)
@@ -77,7 +77,7 @@ func TestGetCertificateDTO(t *testing.T) {
 	}
 
 	// Create the certificate model instance
-	cert := appmodels.NewCertificate("Org123", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, certData)
+	cert := appmodels.NewCertificate("Org123", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, certData)
 
 	// Generate PEM for comparison
 	pemBlock := &pem.Block{
@@ -94,7 +94,7 @@ func TestGetCertificateDTO(t *testing.T) {
 	}
 
 	if dto.SerialNumber != cert.GetSerialNumber().String() {
-		t.Errorf("DTO SerialNumber mismatch, got %v, want %v", dto.SerialNumber, cert.GetSerialNumber().String())
+		t.Errorf("DTO Int64SerialNumber mismatch, got %v, want %v", dto.SerialNumber, cert.GetSerialNumber().String())
 	}
 
 	if dto.SignedBy != cert.GetSignedBy().String() {
@@ -210,7 +210,7 @@ func TestNewIntermediateCertificate(t *testing.T) {
 
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
-	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
 	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
 
@@ -267,7 +267,7 @@ func TestNewServerCertificate(t *testing.T) {
 
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
-	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
 	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
 
@@ -321,7 +321,7 @@ func TestNewClientCertificate(t *testing.T) {
 
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
-	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
 
 	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
@@ -376,14 +376,14 @@ func TestNewRootCertificate_Success(t *testing.T) {
 
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
-	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
 
 	mockPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 	mockPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
 
 	// Mock organization behavior
 	mockOrganization.On("GetID").Return(organizationID)
-	mockOrganization.On("GetNames").Return([]string{"Test Organization"})
+	mockOrganization.On("GetNames").Return([]string{"Test OrganizationModel"})
 
 	// Mock certificate manager behavior
 	mockManager.On("CreateCertificate", mock.Anything, mock.AnythingOfType("*x509.Certificate"), mock.Anything, mock.Anything, mock.Anything).Return([]byte("certBytes"), nil)
@@ -578,7 +578,7 @@ func TestNewIntermediateCertificate_FailingCreateCertificate(t *testing.T) {
 
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
-	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
 	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
 
@@ -735,7 +735,7 @@ func TestNewServerCertificate_FailingCreateCertificate(t *testing.T) {
 
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
-	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
 	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
 
@@ -774,7 +774,7 @@ func TestNewClientCertificate_FailingCreateCertificate(t *testing.T) {
 
 	parentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(parentSerialNumber))
 	parentCertificate.On("GetCertificate").Return(&x509.Certificate{SerialNumber: parentSerialNumber})
-	parentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	parentCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
 	parentPrivateKey.On("GetPublicKey").Return(&rsa.PublicKey{})
 	parentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
 
@@ -1039,7 +1039,7 @@ func TestToCertificateCreatedDTO(t *testing.T) {
 
 	// Setup mock certificate behavior
 	mockCertificate.On("GetCertificate").Return(&x509.Certificate{})
-	mockCertificate.On("GetParents").Return([]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
+	mockCertificate.On("GetParents").Return([]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
 	mockCertificate.On("GetCommonName").Return("www.example.com")
 	mockCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(123456789)))
 	mockCertificate.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
@@ -1128,7 +1128,7 @@ func TestToListOfCertificateDTO(t *testing.T) {
 
 	mockCert1.On("GetCommonName").Return(commonName1)
 	mockCert1.On("GetCertificate").Return(&x509.Certificate{})
-	mockCert1.On("GetParents").Return([]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
+	mockCert1.On("GetParents").Return([]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
 	mockCert1.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(123456789)))
 	mockCert1.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
 	mockCert1.On("GetOrganizationName").Return("Example Org")
@@ -1140,7 +1140,7 @@ func TestToListOfCertificateDTO(t *testing.T) {
 
 	mockCert2.On("GetCommonName").Return(commonName2)
 	mockCert2.On("GetCertificate").Return(&x509.Certificate{})
-	mockCert2.On("GetParents").Return([]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
+	mockCert2.On("GetParents").Return([]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(987654321))})
 	mockCert2.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(123456789)))
 	mockCert2.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
 	mockCert2.On("GetOrganizationName").Return("Example Org")
@@ -1152,7 +1152,7 @@ func TestToListOfCertificateDTO(t *testing.T) {
 
 	// Assume other necessary mocks here as per ToCertificateDTO usage
 
-	list := []appmodels.ICertificate{mockCert1, mockCert2}
+	list := []appmodels.Certificate{mockCert1, mockCert2}
 
 	// Call function
 	result := apputils.ToListOfCertificateDTO(list)
@@ -1178,7 +1178,7 @@ func TestFilterRootCertificates(t *testing.T) {
 	mockCert2.On("IsRootCertificate").Return(false)
 	mockCert3.On("IsRootCertificate").Return(true)
 
-	certificates := []appmodels.ICertificate{mockCert1, mockCert2, mockCert3}
+	certificates := []appmodels.Certificate{mockCert1, mockCert2, mockCert3}
 
 	// Call the function under test
 	filteredCerts := apputils.FilterRootCertificates(certificates)
@@ -1206,7 +1206,7 @@ func TestFilterClientCertificates(t *testing.T) {
 	mockCert2.On("IsClientCertificate").Return(true)
 	mockCert3.On("IsClientCertificate").Return(false)
 
-	certificates := []appmodels.ICertificate{mockCert1, mockCert2, mockCert3}
+	certificates := []appmodels.Certificate{mockCert1, mockCert2, mockCert3}
 
 	// Call the function under test
 	filteredCerts := apputils.FilterClientCertificates(certificates)
@@ -1232,7 +1232,7 @@ func TestFilterServerCertificates(t *testing.T) {
 	mockCert2.On("IsServerCertificate").Return(false)
 	mockCert3.On("IsServerCertificate").Return(true)
 
-	certificates := []appmodels.ICertificate{mockCert1, mockCert2, mockCert3}
+	certificates := []appmodels.Certificate{mockCert1, mockCert2, mockCert3}
 
 	// Call the function under test
 	filteredCerts := apputils.FilterServerCertificates(certificates)
@@ -1258,7 +1258,7 @@ func TestFilterIntermediateCertificates(t *testing.T) {
 	mockCert2.On("IsIntermediateCertificate").Return(false)
 	mockCert3.On("IsIntermediateCertificate").Return(true)
 
-	certificates := []appmodels.ICertificate{mockCert1, mockCert2, mockCert3}
+	certificates := []appmodels.Certificate{mockCert1, mockCert2, mockCert3}
 
 	// Call the function under test
 	filteredCerts := apputils.FilterIntermediateCertificates(certificates)
@@ -1304,18 +1304,18 @@ func TestFilterCertificatesByType(t *testing.T) {
 	mockIntermediateCert.On("IsClientCertificate").Return(false)
 	mockIntermediateCert.On("IsServerCertificate").Return(false)
 
-	certificates := []appmodels.ICertificate{mockRootCert, mockClientCert, mockServerCert, mockIntermediateCert}
+	certificates := []appmodels.Certificate{mockRootCert, mockClientCert, mockServerCert, mockIntermediateCert}
 
 	tests := []struct {
 		name             string
 		certificateType  string
-		expectedFiltered []appmodels.ICertificate
+		expectedFiltered []appmodels.Certificate
 	}{
-		{"Root", "root", []appmodels.ICertificate{mockRootCert}},
-		{"Client", "client", []appmodels.ICertificate{mockClientCert}},
-		{"Server", "server", []appmodels.ICertificate{mockServerCert}},
-		{"Intermediate", "intermediate", []appmodels.ICertificate{mockIntermediateCert}},
-		{"Unknown", "unknown", []appmodels.ICertificate{}},
+		{"Root", "root", []appmodels.Certificate{mockRootCert}},
+		{"Client", "client", []appmodels.Certificate{mockClientCert}},
+		{"Server", "server", []appmodels.Certificate{mockServerCert}},
+		{"Intermediate", "intermediate", []appmodels.Certificate{mockIntermediateCert}},
+		{"Unknown", "unknown", []appmodels.Certificate{}},
 	}
 
 	for _, tt := range tests {
@@ -1341,7 +1341,7 @@ func TestToCertificateListDTO(t *testing.T) {
 	mockCert1.On("GetCommonName").Return("www.example1.com")
 	mockCert1.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(100)))
 	mockCert1.On("GetCertificate").Return(&x509.Certificate{})
-	mockCert1.On("GetParents").Return([]appmodels.ISerialNumber{})
+	mockCert1.On("GetParents").Return([]appmodels.SerialNumber{})
 	mockCert1.On("IsCA").Return(false)
 	mockCert1.On("IsRootCertificate").Return(false)
 	mockCert1.On("IsIntermediateCertificate").Return(false)
@@ -1353,7 +1353,7 @@ func TestToCertificateListDTO(t *testing.T) {
 	mockCert2.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(100)))
 	mockCert2.On("GetCommonName").Return("www.example2.com")
 	mockCert2.On("GetCertificate").Return(&x509.Certificate{})
-	mockCert2.On("GetParents").Return([]appmodels.ISerialNumber{})
+	mockCert2.On("GetParents").Return([]appmodels.SerialNumber{})
 	mockCert2.On("IsCA").Return(false)
 	mockCert2.On("IsRootCertificate").Return(false)
 	mockCert2.On("IsIntermediateCertificate").Return(true)
@@ -1362,7 +1362,7 @@ func TestToCertificateListDTO(t *testing.T) {
 	mockCert2.On("GetSignedBy").Return(appmodels.NewSerialNumber(big.NewInt(987654321)))
 	mockCert2.On("GetOrganizationName").Return("Example Org")
 
-	certificates := []appmodels.ICertificate{mockCert1, mockCert2}
+	certificates := []appmodels.Certificate{mockCert1, mockCert2}
 
 	// Call function
 	result := apputils.ToCertificateListDTO(certificates)
@@ -1391,11 +1391,11 @@ func TestNewServerCertificate_ValidateDNSNamesError(t *testing.T) {
 
 	// Setup mock returns for the required inputs
 	// mockSerialNumber.On("Value").Return(big.NewInt(12345))
-	// mockOrganization.On("GetNames").Return([]string{"Test Organization"})
+	// mockOrganization.On("GetNames").Return([]string{"Test OrganizationModel"})
 	// mockParentCertificate.On("GetCertificate").Return(&x509.Certificate{})
 	// mockPublicKey.On("GetPublicKey").Return(&rsa.PublicKey{})
-	// mockParentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
-	// mockParentCertificate.On("GetParents").Return([]appmodels.ISerialNumber{})
+	// mockParentPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKeyModel{})
+	// mockParentCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
 	// mockParentCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(1)))
 
 	// Invalid DNS names to trigger the ValidateDNSNames error

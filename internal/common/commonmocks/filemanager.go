@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// MockFileManager is a mock implementation of managers.IFileManager for testing
+// MockFileManager is a mock implementation of managers.FileManager for testing
 type MockFileManager struct {
 	mock.Mock
 }
@@ -30,9 +30,9 @@ func (m *MockFileManager) MkdirAll(dir string, dirPerms os.FileMode) error {
 	return args.Error(0)
 }
 
-func (m *MockFileManager) CreateTemp(dir, pattern string) (managers.IFile, error) {
+func (m *MockFileManager) CreateTemp(dir, pattern string) (managers.File, error) {
 	args := m.Called(dir, pattern)
-	return args.Get(0).(managers.IFile), args.Error(1)
+	return args.Get(0).(managers.File), args.Error(1)
 }
 
 func (m *MockFileManager) Remove(name string) error {
@@ -49,4 +49,4 @@ func NewMockFileManager() *MockFileManager {
 	return &MockFileManager{}
 }
 
-var _ managers.IFileManager = (*MockFileManager)(nil)
+var _ managers.FileManager = (*MockFileManager)(nil)

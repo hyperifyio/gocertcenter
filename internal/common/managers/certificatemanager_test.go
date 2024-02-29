@@ -26,14 +26,14 @@ func TestNewCertificateManager(t *testing.T) {
 
 	// Test initialization with a provided random manager
 	managerWithMock := managers.NewCertificateManager(mockRandomManager)
-	if managerWithMock.GetRandomManager() != mockRandomManager {
+	if managerWithMock.RandomManager() != mockRandomManager {
 		t.Errorf("Expected random manager to be the mock instance, got different instance")
 	}
 
 	// Test initialization without providing a random manager (should default to NewRandomManager)
 	managerWithDefault := managers.NewCertificateManager(nil)
-	if _, ok := managerWithDefault.GetRandomManager().(*managers.RandomManager); !ok {
-		t.Errorf("Expected default random manager to be of type *RandomManager, got %T", managerWithDefault.GetRandomManager())
+	if _, ok := managerWithDefault.RandomManager().(*managers.RandRandomManager); !ok {
+		t.Errorf("Expected default random manager to be of type *RandRandomManager, got %T", managerWithDefault.RandomManager())
 	}
 }
 
@@ -124,8 +124,8 @@ func TestCertificateManager_ParseECPrivateKey(t *testing.T) {
 	der, err := x509.MarshalECPrivateKey(privateKey)
 	assert.NoError(t, err, "Failed to marshal ECDSA private key to DER")
 
-	// Assume CertificateManager is correctly instantiated
-	certManager := managers.CertificateManager{}
+	// Assume SystemCertificateManager is correctly instantiated
+	certManager := managers.SystemCertificateManager{}
 
 	// Call ParseECPrivateKey with the DER bytes
 	parsedKey, err := certManager.ParseECPrivateKey(der)
@@ -144,8 +144,8 @@ func TestCertificateManager_EncodePEMToMemory(t *testing.T) {
 		Bytes: []byte("test content"),
 	}
 
-	// Create an instance of CertificateManager
-	certManager := managers.CertificateManager{}
+	// Create an instance of SystemCertificateManager
+	certManager := managers.SystemCertificateManager{}
 
 	// Encode the PEM block to memory
 	encoded := certManager.EncodePEMToMemory(block)
@@ -175,8 +175,8 @@ func TestCertificateManager_DecodePEM(t *testing.T) {
 	// Encode the block to PEM format
 	encodedPEM := pem.EncodeToMemory(block)
 
-	// Create an instance of CertificateManager
-	certManager := managers.CertificateManager{}
+	// Create an instance of SystemCertificateManager
+	certManager := managers.SystemCertificateManager{}
 
 	// Decode the PEM encoded block
 	decodedBlock, rest := certManager.DecodePEM(encodedPEM)
@@ -199,7 +199,7 @@ func TestCertificateManager_ParsePKCS8PrivateKey(t *testing.T) {
 	der, err := x509.MarshalPKCS8PrivateKey(privateKey)
 	require.NoError(t, err, "Failed to convert private key to PKCS#8 DER format")
 
-	certManager := managers.CertificateManager{}
+	certManager := managers.SystemCertificateManager{}
 
 	// Parse the PKCS#8 DER-encoded private key
 	parsedKey, err := certManager.ParsePKCS8PrivateKey(der)
@@ -219,7 +219,7 @@ func TestCertificateManager_ParsePKCS1PrivateKey(t *testing.T) {
 	// Convert the private key to PKCS#1 DER format
 	der := x509.MarshalPKCS1PrivateKey(privateKey)
 
-	certManager := managers.CertificateManager{}
+	certManager := managers.SystemCertificateManager{}
 
 	// Parse the PKCS#1 DER-encoded private key
 	parsedKey, err := certManager.ParsePKCS1PrivateKey(der)

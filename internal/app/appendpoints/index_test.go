@@ -25,7 +25,7 @@ func TestIndex(t *testing.T) {
 	mockServer := apimocks.NewMockServer()
 	certManager := new(commonmocks.MockCertificateManager)
 	mockApp := new(appmocks.MockApplicationController)
-	controller := appendpoints.NewApiController(mockServer, mockApp, certManager)
+	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 
 	controller.GetIndex(mockResponse, mockRequest)
 
@@ -42,7 +42,7 @@ func TestIndexDefinitions(t *testing.T) {
 	mockServer := apimocks.NewMockServer()
 	mockApp := new(appmocks.MockApplicationController)
 	certManager := new(commonmocks.MockCertificateManager)
-	controller := appendpoints.NewApiController(mockServer, mockApp, certManager)
+	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 
 	defs := controller.GetIndexDefinitions()
 

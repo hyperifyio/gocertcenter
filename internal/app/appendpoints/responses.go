@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-func (c *ApiController) sendBadRequest(response apitypes.IResponse, request apitypes.IRequest, publicMessage string, err error) error {
+func (c *HttpApiController) sendBadRequest(response apitypes.Response, request apitypes.Request, publicMessage string, err error) error {
 	msg := fmt.Sprintf("[%s %s]: %s", request.GetMethod(), request.GetURL(), publicMessage)
 	if err != nil {
 		log.Printf("%s: %v", msg, err)
@@ -19,7 +19,7 @@ func (c *ApiController) sendBadRequest(response apitypes.IResponse, request apit
 	return nil
 }
 
-func (c *ApiController) sendNotFound(response apitypes.IResponse, request apitypes.IRequest, err error) error {
+func (c *HttpApiController) sendNotFound(response apitypes.Response, request apitypes.Request, err error) error {
 	publicMsg := fmt.Sprintf("[%s %s]: Not Found", request.GetMethod(), request.GetURL())
 	if err != nil {
 		log.Printf("%s: %v", publicMsg, err)
@@ -28,7 +28,7 @@ func (c *ApiController) sendNotFound(response apitypes.IResponse, request apityp
 	return nil
 }
 
-func (c *ApiController) sendInternalServerError(response apitypes.IResponse, request apitypes.IRequest, err error) error {
+func (c *HttpApiController) sendInternalServerError(response apitypes.Response, request apitypes.Request, err error) error {
 	publicMsg := fmt.Sprintf("[%s %s]: Internal Server Error", request.GetMethod(), request.GetURL())
 	if err != nil {
 		log.Printf("%s: %v", publicMsg, err)
@@ -37,7 +37,7 @@ func (c *ApiController) sendInternalServerError(response apitypes.IResponse, req
 	return nil
 }
 
-func (c *ApiController) sendConflict(response apitypes.IResponse, request apitypes.IRequest, err error, publicMessage string) error {
+func (c *HttpApiController) sendConflict(response apitypes.Response, request apitypes.Request, err error, publicMessage string) error {
 	publicMsg := fmt.Sprintf("[%s %s]: Conflict: %s", request.GetMethod(), request.GetURL(), publicMessage)
 	if err != nil {
 		log.Printf("%s: %v", publicMsg, err)
@@ -46,7 +46,7 @@ func (c *ApiController) sendConflict(response apitypes.IResponse, request apityp
 	return nil
 }
 
-func (c *ApiController) sendOK(response apitypes.IResponse, data interface{}) error {
+func (c *HttpApiController) sendOK(response apitypes.Response, data interface{}) error {
 	response.Send(http.StatusOK, data)
 	return nil
 }

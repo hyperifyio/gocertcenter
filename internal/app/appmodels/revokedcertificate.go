@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-// RevokedCertificate model implements IRevokedCertificate
-type RevokedCertificate struct {
+// RevokedCertificateModel model implements RevokedCertificate
+type RevokedCertificateModel struct {
 
 	// serialNumber is the serial number of the revoked certificate
-	serialNumber ISerialNumber
+	serialNumber SerialNumber
 
 	// revocationTime is the time when the certificate was revoked
 	revocationTime time.Time
@@ -20,19 +20,19 @@ type RevokedCertificate struct {
 	expirationTime time.Time
 }
 
-func (k *RevokedCertificate) GetSerialNumber() ISerialNumber {
+func (k *RevokedCertificateModel) GetSerialNumber() SerialNumber {
 	return k.serialNumber
 }
 
-func (k *RevokedCertificate) GetRevocationTime() time.Time {
+func (k *RevokedCertificateModel) GetRevocationTime() time.Time {
 	return k.revocationTime
 }
 
-func (k *RevokedCertificate) GetExpirationTime() time.Time {
+func (k *RevokedCertificateModel) GetExpirationTime() time.Time {
 	return k.expirationTime
 }
 
-func (k *RevokedCertificate) GetRevokedCertificate() pkix.RevokedCertificate {
+func (k *RevokedCertificateModel) GetRevokedCertificate() pkix.RevokedCertificate {
 	return pkix.RevokedCertificate{
 		SerialNumber:   k.serialNumber.Value(),
 		RevocationTime: k.revocationTime,
@@ -41,11 +41,11 @@ func (k *RevokedCertificate) GetRevokedCertificate() pkix.RevokedCertificate {
 
 // NewRevokedCertificate creates a private key model from existing data
 func NewRevokedCertificate(
-	serialNumber ISerialNumber,
+	serialNumber SerialNumber,
 	revocationTime time.Time,
 	expirationTime time.Time,
-) *RevokedCertificate {
-	return &RevokedCertificate{
+) *RevokedCertificateModel {
+	return &RevokedCertificateModel{
 		serialNumber:   serialNumber,
 		revocationTime: revocationTime,
 		expirationTime: expirationTime,
@@ -53,4 +53,4 @@ func NewRevokedCertificate(
 }
 
 // Compile time assertion for implementing the interface
-var _ IRevokedCertificate = (*RevokedCertificate)(nil)
+var _ RevokedCertificate = (*RevokedCertificateModel)(nil)

@@ -12,7 +12,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// MockCertificate implements a mock models.ICertificate for the ICertificate interface
+// MockCertificate implements a mock models.Certificate for the Certificate interface
 type MockCertificate struct {
 	mock.Mock
 }
@@ -37,9 +37,9 @@ func (m *MockCertificate) IsCA() bool {
 	return args.Bool(0)
 }
 
-func (m *MockCertificate) GetSerialNumber() appmodels.ISerialNumber {
+func (m *MockCertificate) GetSerialNumber() appmodels.SerialNumber {
 	args := m.Called()
-	return args.Get(0).(appmodels.ISerialNumber)
+	return args.Get(0).(appmodels.SerialNumber)
 }
 
 func (m *MockCertificate) GetOrganizationID() string {
@@ -57,14 +57,14 @@ func (m *MockCertificate) GetOrganization() []string {
 	return args.Get(0).([]string)
 }
 
-func (m *MockCertificate) GetParents() []appmodels.ISerialNumber {
+func (m *MockCertificate) GetParents() []appmodels.SerialNumber {
 	args := m.Called()
-	return args.Get(0).([]appmodels.ISerialNumber)
+	return args.Get(0).([]appmodels.SerialNumber)
 }
 
-func (m *MockCertificate) GetSignedBy() appmodels.ISerialNumber {
+func (m *MockCertificate) GetSignedBy() appmodels.SerialNumber {
 	args := m.Called()
-	return args.Get(0).(appmodels.ISerialNumber)
+	return args.Get(0).(appmodels.SerialNumber)
 }
 
 func (m *MockCertificate) GetCertificate() *x509.Certificate {
@@ -107,4 +107,4 @@ func (m *MockCertificate) GetPEM() []byte {
 	return args.Get(0).([]byte)
 }
 
-var _ appmodels.ICertificate = (*MockCertificate)(nil)
+var _ appmodels.Certificate = (*MockCertificate)(nil)

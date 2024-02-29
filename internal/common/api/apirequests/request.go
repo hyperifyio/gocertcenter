@@ -13,19 +13,19 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-type RequestImpl struct {
+type HttpRequest struct {
 	request *http.Request
 }
 
-func (r *RequestImpl) GetHeader(name string) string {
+func (r *HttpRequest) GetHeader(name string) string {
 	return r.request.Header.Get(name)
 }
 
-func (r *RequestImpl) Body() io.ReadCloser {
+func (r *HttpRequest) Body() io.ReadCloser {
 	return r.request.Body
 }
 
-func (r *RequestImpl) GetBodyBytes() ([]byte, error) {
+func (r *HttpRequest) GetBodyBytes() ([]byte, error) {
 	bytes, err := io.ReadAll(r.request.Body)
 	if err != nil {
 		return nil, fmt.Errorf("GetBodyBytes: failed: %w", err)
@@ -34,31 +34,31 @@ func (r *RequestImpl) GetBodyBytes() ([]byte, error) {
 	return bytes, nil
 }
 
-func (r *RequestImpl) IsMethodGet() bool {
+func (r *HttpRequest) IsMethodGet() bool {
 	return r.request.Method == http.MethodGet
 }
 
-func (r *RequestImpl) GetURL() *url.URL {
+func (r *HttpRequest) GetURL() *url.URL {
 	return r.request.URL
 }
 
-func (r *RequestImpl) GetMethod() string {
+func (r *HttpRequest) GetMethod() string {
 	return r.request.Method
 }
 
-func (r *RequestImpl) GetVariable(name string) string {
+func (r *HttpRequest) GetVariable(name string) string {
 	return mux.Vars(r.request)[name]
 }
 
-func (r *RequestImpl) GetQueryParam(name string) string {
+func (r *HttpRequest) GetQueryParam(name string) string {
 	queryParams := r.request.URL.Query()
 	return queryParams.Get(name)
 }
 
 func NewRequest(
 	request *http.Request,
-) *RequestImpl {
-	return &RequestImpl{request}
+) *HttpRequest {
+	return &HttpRequest{request}
 }
 
-var _ apitypes.IRequest = (*RequestImpl)(nil)
+var _ apitypes.Request = (*HttpRequest)(nil)

@@ -10,27 +10,27 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// CertificateRepository implements models.ICertificateService for a file system
-type CertificateRepository struct {
+// FileCertificateRepository implements models.CertificateRepository for a file system
+type FileCertificateRepository struct {
 	filePath    string
-	certManager managers.ICertificateManager
-	fileManager managers.IFileManager
+	certManager managers.CertificateManager
+	fileManager managers.FileManager
 }
 
-func (r *CertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) ([]appmodels.ICertificate, error) {
+func (r *FileCertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) ([]appmodels.Certificate, error) {
 	// TODO implement me
 	panic("implement me")
 }
 
-func (r *CertificateRepository) FindAllByOrganization(organization string) ([]appmodels.ICertificate, error) {
+func (r *FileCertificateRepository) FindAllByOrganization(organization string) ([]appmodels.Certificate, error) {
 	// TODO implement me
 	panic("implement me")
 }
 
-func (r *CertificateRepository) FindByOrganizationAndSerialNumbers(
+func (r *FileCertificateRepository) FindByOrganizationAndSerialNumbers(
 	organization string,
-	certificates []appmodels.ISerialNumber,
-) (appmodels.ICertificate, error) {
+	certificates []appmodels.SerialNumber,
+) (appmodels.Certificate, error) {
 
 	if len(certificates) <= 0 {
 		return nil, errors.New("no certificate serial numbers provided")
@@ -45,7 +45,7 @@ func (r *CertificateRepository) FindByOrganizationAndSerialNumbers(
 	return appmodels.NewCertificate(organization, certificates[:len(certificates)-1], cert), nil
 }
 
-func (r *CertificateRepository) Save(certificate appmodels.ICertificate) (appmodels.ICertificate, error) {
+func (r *FileCertificateRepository) Save(certificate appmodels.Certificate) (appmodels.Certificate, error) {
 	organization := certificate.GetOrganizationID()
 	parents := certificate.GetParents()
 	serialNumber := certificate.GetSerialNumber()
@@ -64,15 +64,15 @@ func (r *CertificateRepository) Save(certificate appmodels.ICertificate) (appmod
 
 // NewCertificateRepository creates a file based repository
 func NewCertificateRepository(
-	certManager managers.ICertificateManager,
-	fileManager managers.IFileManager,
+	certManager managers.CertificateManager,
+	fileManager managers.FileManager,
 	filePath string,
-) *CertificateRepository {
-	return &CertificateRepository{
+) *FileCertificateRepository {
+	return &FileCertificateRepository{
 		fileManager: fileManager,
 		certManager: certManager,
 		filePath:    filePath,
 	}
 }
 
-var _ appmodels.ICertificateService = (*CertificateRepository)(nil)
+var _ appmodels.CertificateRepository = (*FileCertificateRepository)(nil)

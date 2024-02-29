@@ -19,7 +19,7 @@ func TestFile_Close(t *testing.T) {
 
 	file := managers.NewFile(tmpFile)
 	err = file.Close()
-	assert.NoError(t, err, "File close should not error")
+	assert.NoError(t, err, "OSFile close should not error")
 
 	// Try reopening to ensure it was closed
 	_, err = os.Open(tmpFile.Name())
@@ -33,7 +33,7 @@ func TestFile_Name(t *testing.T) {
 
 	file := managers.NewFile(tmpFile)
 	name := file.Name()
-	assert.Equal(t, tmpFile.Name(), name, "File name should match")
+	assert.Equal(t, tmpFile.Name(), name, "OSFile name should match")
 }
 
 func TestFile_Write(t *testing.T) {
@@ -44,11 +44,11 @@ func TestFile_Write(t *testing.T) {
 	file := managers.NewFile(tmpFile)
 	data := []byte("Hello, world!")
 	n, err := file.Write(data)
-	assert.NoError(t, err, "File write should not error")
+	assert.NoError(t, err, "OSFile write should not error")
 	assert.Equal(t, len(data), n, "Write should return correct byte count")
 
 	// Verify the data was written correctly
 	content, err := ioutil.ReadFile(tmpFile.Name())
 	require.NoError(t, err)
-	assert.Equal(t, data, content, "File content should match written data")
+	assert.Equal(t, data, content, "OSFile content should match written data")
 }

@@ -107,7 +107,7 @@ func TestApplicationController_GetOrganizationController(t *testing.T) {
 
 	orgController, err := controller.GetOrganizationController(orgID)
 	assert.NoError(t, err)
-	assert.NotNil(t, orgController, "should return an OrganizationController instance")
+	assert.NotNil(t, orgController, "should return an CertOrganizationController instance")
 
 	// Test for not found
 	mockOrgService.On("FindById", "nonExistingOrg").Return(nil, fmt.Errorf("not found"))
@@ -121,7 +121,7 @@ func TestApplicationController_GetOrganizationCollection(t *testing.T) {
 	mockOrg2 := new(appmocks.MockOrganization)
 
 	// Setting up expectations
-	mockOrgService.On("FindAll").Return([]appmodels.IOrganization{mockOrg1, mockOrg2}, nil)
+	mockOrgService.On("FindAll").Return([]appmodels.Organization{mockOrg1, mockOrg2}, nil)
 
 	controller := appcontrollers.NewApplicationController(
 		mockOrgService, nil, nil, nil, nil, 0,

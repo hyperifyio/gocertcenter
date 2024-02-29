@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// MockRandomManager is a mock implementation of models.IRandomManager for testing.
+// MockRandomManager is a mock implementation of models.RandomManager for testing.
 type MockRandomManager struct {
 	mock.Mock
 }
@@ -28,4 +28,4 @@ func (m *MockRandomManager) CreateBigInt(max *big.Int) (*big.Int, error) {
 	return args.Get(0).(*big.Int), args.Error(1)
 }
 
-var _ managers.IRandomManager = (*MockRandomManager)(nil)
+var _ managers.RandomManager = (*MockRandomManager)(nil)

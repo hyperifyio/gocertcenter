@@ -11,31 +11,31 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-type ApplicationController struct {
-	certManager   managers.ICertificateManager
-	randomManager managers.IRandomManager
+type CertApplicationController struct {
+	certManager   managers.CertificateManager
+	randomManager managers.RandomManager
 
-	organizationRepository appmodels.IOrganizationService
-	certificateRepository  appmodels.ICertificateService
-	privateKeyRepository   appmodels.IPrivateKeyService
+	organizationRepository appmodels.OrganizationRepository
+	certificateRepository  appmodels.CertificateRepository
+	privateKeyRepository   appmodels.PrivateKeyRepository
 
 	// defaultExpiration - Expiration time for new root certificates
 	defaultExpiration time.Duration
 }
 
-func (a *ApplicationController) UsesOrganizationService(service appmodels.IOrganizationService) bool {
+func (a *CertApplicationController) UsesOrganizationService(service appmodels.OrganizationRepository) bool {
 	return service == a.organizationRepository
 }
 
-func (a *ApplicationController) UsesCertificateService(service appmodels.ICertificateService) bool {
+func (a *CertApplicationController) UsesCertificateService(service appmodels.CertificateRepository) bool {
 	return service == a.certificateRepository
 }
 
-func (a *ApplicationController) UsesPrivateKeyService(service appmodels.IPrivateKeyService) bool {
+func (a *CertApplicationController) UsesPrivateKeyService(service appmodels.PrivateKeyRepository) bool {
 	return service == a.privateKeyRepository
 }
 
-func (a *ApplicationController) GetOrganizationModel(organization string) (appmodels.IOrganization, error) {
+func (a *CertApplicationController) GetOrganizationModel(organization string) (appmodels.Organization, error) {
 	model, err := a.organizationRepository.FindById(organization)
 	if err != nil {
 		return nil, fmt.Errorf("[GetOrganizationModel]: failed: '%s': %w", organization, err)
@@ -43,7 +43,7 @@ func (a *ApplicationController) GetOrganizationModel(organization string) (appmo
 	return model, nil
 }
 
-func (a *ApplicationController) GetOrganizationController(organization string) (appmodels.IOrganizationController, error) {
+func (a *CertApplicationController) GetOrganizationController(organization string) (appmodels.OrganizationController, error) {
 	model, err := a.GetOrganizationModel(organization)
 	if err != nil {
 		return nil, fmt.Errorf("[GetOrganizationController:%s]: not found: %w", organization, err)
@@ -61,27 +61,27 @@ func (a *ApplicationController) GetOrganizationController(organization string) (
 	), nil
 }
 
-func (a *ApplicationController) NewOrganization(model appmodels.IOrganization) (appmodels.IOrganization, error) {
+func (a *CertApplicationController) NewOrganization(model appmodels.Organization) (appmodels.Organization, error) {
 
 	if err := apputils.ValidateOrganizationModel(model); err != nil {
-		return nil, fmt.Errorf("ApplicationController.NewOrganization: organization model invalid: %w", err)
+		return nil, fmt.Errorf("CertApplicationController.NewOrganization: organization model invalid: %w", err)
 	}
 
 	organization := model.GetID()
 
 	_, err := a.organizationRepository.FindById(organization)
 	if err == nil {
-		return nil, fmt.Errorf("ApplicationController.NewOrganization: organization exist already: %s", organization)
+		return nil, fmt.Errorf("CertApplicationController.NewOrganization: organization exist already: %s", organization)
 	}
 
 	savedModel, err := a.organizationRepository.Save(model)
 	if err != nil {
-		return nil, fmt.Errorf("ApplicationController.NewOrganization: could not create organization: %s: %w", organization, err)
+		return nil, fmt.Errorf("CertApplicationController.NewOrganization: could not create organization: %s: %w", organization, err)
 	}
 	return savedModel, nil
 }
 
-func (a *ApplicationController) GetOrganizationCollection() ([]appmodels.IOrganization, error) {
+func (a *CertApplicationController) GetOrganizationCollection() ([]appmodels.Organization, error) {
 	list, err := a.organizationRepository.FindAll()
 	if err != nil {
 		return nil, fmt.Errorf("[GetOrganizationCollection]: failed: %w", err)
@@ -89,22 +89,22 @@ func (a *ApplicationController) GetOrganizationCollection() ([]appmodels.IOrgani
 	return list, nil
 }
 
-// NewApplicationController implements appmodels.IApplicationController
-//   - organizationRepository appmodels.IOrganizationService
-//   - certificateRepository appmodels.ICertificateService
-//   - privateKeyRepository appmodels.IPrivateKeyService
-//   - certManager managers.ICertificateManager
-//   - randomManager managers.IRandomManager
+// NewApplicationController implements appmodels.ApplicationController
+//   - organizationRepository appmodels.OrganizationRepository
+//   - certificateRepository appmodels.CertificateRepository
+//   - privateKeyRepository appmodels.PrivateKeyRepository
+//   - certManager managers.CertificateManager
+//   - randomManager managers.RandomManager
 //   - defaultExpiration time.Duration,
 func NewApplicationController(
-	organizationRepository appmodels.IOrganizationService,
-	certificateRepository appmodels.ICertificateService,
-	privateKeyRepository appmodels.IPrivateKeyService,
-	certManager managers.ICertificateManager,
-	randomManager managers.IRandomManager,
+	organizationRepository appmodels.OrganizationRepository,
+	certificateRepository appmodels.CertificateRepository,
+	privateKeyRepository appmodels.PrivateKeyRepository,
+	certManager managers.CertificateManager,
+	randomManager managers.RandomManager,
 	defaultExpiration time.Duration,
-) *ApplicationController {
-	return &ApplicationController{
+) *CertApplicationController {
+	return &CertApplicationController{
 		organizationRepository: organizationRepository,
 		certificateRepository:  certificateRepository,
 		privateKeyRepository:   privateKeyRepository,
@@ -113,4 +113,4 @@ func NewApplicationController(
 	}
 }
 
-var _ appmodels.IApplicationController = (*ApplicationController)(nil)
+var _ appmodels.ApplicationController = (*CertApplicationController)(nil)

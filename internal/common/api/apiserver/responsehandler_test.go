@@ -16,7 +16,7 @@ import (
 
 func TestResponseHandler_Error(t *testing.T) {
 	// Mock request handler that always returns an error
-	mockHandler := func(response apitypes.IResponse, request apitypes.IRequest) error {
+	mockHandler := func(response apitypes.Response, request apitypes.Request) error {
 		return errors.New("test error")
 	}
 
@@ -34,7 +34,7 @@ func TestResponseHandler_Error(t *testing.T) {
 	resp := w.Result()
 	defer resp.Body.Close()
 
-	// Check the status code is 500 Internal Server Error
+	// Check the status code is 500 Internal ApplicationServer Error
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode, "Expected HTTP status code 500")
 
 	// Optionally, you can also verify the response body or the log output if necessary

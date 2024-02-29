@@ -35,7 +35,7 @@ func TestApiController_GetInfo(t *testing.T) {
 	certManager := new(commonmocks.MockCertificateManager)
 	mockApp := new(appmocks.MockApplicationController)
 
-	controller := appendpoints.NewApiController(mockServer, mockApp, certManager)
+	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 
 	info := controller.GetInfo()
 

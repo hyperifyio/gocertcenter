@@ -11,7 +11,7 @@ import (
 )
 
 // UpdateCertificateRevocationListDefinitions returns OpenAPI definitions
-func (c *ApiController) UpdateCertificateRevocationListDefinitions() swagger.Definitions {
+func (c *HttpApiController) UpdateCertificateRevocationListDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns the certificate revocation list",
 		Description: "",
@@ -26,7 +26,7 @@ func (c *ApiController) UpdateCertificateRevocationListDefinitions() swagger.Def
 }
 
 // UpdateCertificateRevocationList handles a request to get organization's certificates
-func (c *ApiController) UpdateCertificateRevocationList(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) UpdateCertificateRevocationList(response apitypes.Response, request apitypes.Request) error {
 
 	// Fetch root certificate controller
 	rootCertificateController, err := c.getRootCertificateController(request)
@@ -43,5 +43,5 @@ func (c *ApiController) UpdateCertificateRevocationList(response apitypes.IRespo
 	return nil
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).UpdateCertificateRevocationListDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).UpdateCertificateRevocationList
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).UpdateCertificateRevocationListDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).UpdateCertificateRevocationList

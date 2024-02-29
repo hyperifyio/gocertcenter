@@ -18,7 +18,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-func ToPrivateKeyDTO(certManager managers.ICertificateManager, c appmodels.IPrivateKey) (appdtos.PrivateKeyDTO, error) {
+func ToPrivateKeyDTO(certManager managers.CertificateManager, c appmodels.PrivateKey) (appdtos.PrivateKeyDTO, error) {
 
 	bytes, err := MarshalPrivateKeyAsPEM(certManager, c.GetPrivateKey())
 	if err != nil {
@@ -32,7 +32,7 @@ func ToPrivateKeyDTO(certManager managers.ICertificateManager, c appmodels.IPriv
 	), nil
 }
 
-func ToPrivateKeyDTOList(certManager managers.ICertificateManager, list []appmodels.IPrivateKey) ([]appdtos.PrivateKeyDTO, error) {
+func ToPrivateKeyDTOList(certManager managers.CertificateManager, list []appmodels.PrivateKey) ([]appdtos.PrivateKeyDTO, error) {
 	result := make([]appdtos.PrivateKeyDTO, len(list))
 	for i, v := range list {
 		dto, err := ToPrivateKeyDTO(certManager, v)
@@ -50,9 +50,9 @@ func ToPrivateKeyDTOList(certManager managers.ICertificateManager, list []appmod
 //   - keyType: The key type to generate
 func GeneratePrivateKey(
 	organization string,
-	certificates []appmodels.ISerialNumber,
+	certificates []appmodels.SerialNumber,
 	keyType appmodels.KeyType,
-) (appmodels.IPrivateKey, error) {
+) (appmodels.PrivateKey, error) {
 
 	if organization == "" {
 		return nil, fmt.Errorf("GeneratePrivateKey: organization: must not be empty")
@@ -93,37 +93,37 @@ func GeneratePrivateKey(
 }
 
 // GenerateRSAPrivateKey creates a new RSA private key
-//   - organization: Organization ID
-//   - certificates: Certificate serial numbers from root certificate to the one owning this key
+//   - organization: OrganizationModel ID
+//   - certificates: CertificateModel serial numbers from root certificate to the one owning this key
 //   - keyType: Should be appmodels.RSA_1024, appmodels.RSA_2048, appmodels.RSA_3072 or appmodels.RSA_4096
 func GenerateRSAPrivateKey(
 	organization string,
-	certificates []appmodels.ISerialNumber,
+	certificates []appmodels.SerialNumber,
 	keyType appmodels.KeyType,
-) (appmodels.IPrivateKey, error) {
+) (appmodels.PrivateKey, error) {
 	return GeneratePrivateKey(organization, certificates, keyType)
 }
 
 // GenerateECDSAPrivateKey creates a new private key of type models.KeyType
 func GenerateECDSAPrivateKey(
 	organization string,
-	certificates []appmodels.ISerialNumber,
+	certificates []appmodels.SerialNumber,
 	keyType appmodels.KeyType,
-) (appmodels.IPrivateKey, error) {
+) (appmodels.PrivateKey, error) {
 	return GeneratePrivateKey(organization, certificates, keyType)
 }
 
 // GenerateEd25519PrivateKey creates a new private key of type models.Ed25519
 func GenerateEd25519PrivateKey(
 	organization string,
-	certificates []appmodels.ISerialNumber,
-) (appmodels.IPrivateKey, error) {
+	certificates []appmodels.SerialNumber,
+) (appmodels.PrivateKey, error) {
 	return GeneratePrivateKey(organization, certificates, appmodels.Ed25519)
 }
 
 // MarshalPrivateKeyAsPEM converts a private key to PEM data bytes
 func MarshalPrivateKeyAsPEM(
-	manager managers.ICertificateManager,
+	manager managers.CertificateManager,
 	data any,
 ) ([]byte, error) {
 	var pemBlock *pem.Block
@@ -244,7 +244,7 @@ func ReadRSAKeySize(key *rsa.PrivateKey) int {
 }
 
 func ParsePrivateKeyFromPEMBytes(
-	certManager managers.ICertificateManager,
+	certManager managers.CertificateManager,
 	data []byte,
 ) (any, appmodels.KeyType, error) {
 	block, _ := certManager.DecodePEM(data)
@@ -255,7 +255,7 @@ func ParsePrivateKeyFromPEMBytes(
 }
 
 func ParsePrivateKeyFromPEMBlock(
-	certManager managers.ICertificateManager,
+	certManager managers.CertificateManager,
 	block *pem.Block,
 ) (any, appmodels.KeyType, error) {
 	if block.Type == "PRIVATE KEY" {
@@ -268,7 +268,7 @@ func ParsePrivateKeyFromPEMBlock(
 	return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("ParsePrivateKeyFromPEMBlock: unsupported block type: %s", block.Type)
 }
 
-func ParsePKCS8PrivateKey(certManager managers.ICertificateManager, der []byte) (any, appmodels.KeyType, error) {
+func ParsePKCS8PrivateKey(certManager managers.CertificateManager, der []byte) (any, appmodels.KeyType, error) {
 	privateKey, err := certManager.ParsePKCS8PrivateKey(der)
 	if err != nil {
 		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("failed to parse private key: %w", err)
@@ -280,7 +280,7 @@ func ParsePKCS8PrivateKey(certManager managers.ICertificateManager, der []byte) 
 	return privateKey, keyType, nil
 }
 
-func ParseRSAPrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
+func ParseRSAPrivateKey(certManager managers.CertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
 	privateKey, err := certManager.ParsePKCS1PrivateKey(bytes)
 	if err != nil {
 		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("ParseRSAPrivateKey: failed to parse RSA private key: %w", err)
@@ -292,7 +292,7 @@ func ParseRSAPrivateKey(certManager managers.ICertificateManager, bytes []byte) 
 	return privateKey, keyType, nil
 }
 
-func ParseECPrivateKey(certManager managers.ICertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
+func ParseECPrivateKey(certManager managers.CertificateManager, bytes []byte) (any, appmodels.KeyType, error) {
 	privateKey, err := certManager.ParseECPrivateKey(bytes)
 	if err != nil {
 		return nil, appmodels.NIL_KEY_TYPE, fmt.Errorf("failed to parse EC private key: %w", err)

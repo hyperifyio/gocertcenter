@@ -8,7 +8,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// MockFile is a mock implementation of managers.IFile for testing
+// MockFile is a mock implementation of managers.File for testing
 type MockFile struct {
 	mock.Mock
 }
@@ -32,4 +32,4 @@ func NewMockFile() *MockFile {
 	return &MockFile{}
 }
 
-var _ managers.IFile = (*MockFile)(nil)
+var _ managers.File = (*MockFile)(nil)

@@ -14,64 +14,64 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
 )
 
-// CertificateController implements appmodels.ICertificateController to control
+// CertCertificateController implements appmodels.CertificateController to control
 // operations for certificate models.
 //
-// It utilizes appmodels.ICertificateService implementation to abstract
+// It utilizes appmodels.CertificateRepository implementation to abstract
 // and inject the underlying storage mechanism (e.g., database, memory). This
 // design promotes separation of concerns by decoupling the business logic from
 // the specific details of data persistence.
-type CertificateController struct {
-	serialNumber appmodels.ISerialNumber
-	model        appmodels.ICertificate
+type CertCertificateController struct {
+	serialNumber appmodels.SerialNumber
+	model        appmodels.Certificate
 
 	// parentOrganizationController is the parent organization controller
-	parentOrganizationController appmodels.IOrganizationController
+	parentOrganizationController appmodels.OrganizationController
 
 	// parentCertificateController  is an optional parent certificate controller
-	parentCertificateController appmodels.ICertificateController
+	parentCertificateController appmodels.CertificateController
 
-	privateKeyController appmodels.IPrivateKeyController
+	privateKeyController appmodels.PrivateKeyController
 
-	certManager   managers.ICertificateManager
-	randomManager managers.IRandomManager
+	certManager   managers.CertificateManager
+	randomManager managers.RandomManager
 
-	certificateRepository appmodels.ICertificateService
-	privateKeyRepository  appmodels.IPrivateKeyService
+	certificateRepository appmodels.CertificateRepository
+	privateKeyRepository  appmodels.PrivateKeyRepository
 
 	expiration time.Duration
 }
 
-func (r *CertificateController) GetOrganizationController() appmodels.IOrganizationController {
+func (r *CertCertificateController) GetOrganizationController() appmodels.OrganizationController {
 	if r.parentOrganizationController == nil {
-		panic("[CertificateController:GetOrganizationController]: No parent organization controller")
+		panic("[CertCertificateController:GetOrganizationController]: No parent organization controller")
 	}
 	return r.parentOrganizationController
 }
 
-func (r *CertificateController) GetApplicationController() appmodels.IApplicationController {
+func (r *CertCertificateController) GetApplicationController() appmodels.ApplicationController {
 	if r.parentOrganizationController == nil {
-		panic("[CertificateController.GetApplicationController]: No parent organization controller")
+		panic("[CertCertificateController.GetApplicationController]: No parent organization controller")
 	}
 	return r.parentOrganizationController.GetApplicationController()
 }
 
-func (r *CertificateController) GetOrganizationID() string {
+func (r *CertCertificateController) GetOrganizationID() string {
 	if r.parentOrganizationController == nil {
-		panic("[CertificateController.GetOrganizationID]: No parent organization controller")
+		panic("[CertCertificateController.GetOrganizationID]: No parent organization controller")
 	}
 	return r.parentOrganizationController.GetOrganizationID()
 }
 
-func (r *CertificateController) GetOrganizationModel() appmodels.IOrganization {
+func (r *CertCertificateController) GetOrganizationModel() appmodels.Organization {
 	return r.parentOrganizationController.GetOrganizationModel()
 }
 
-func (r *CertificateController) GetCertificateModel() appmodels.ICertificate {
+func (r *CertCertificateController) GetCertificateModel() appmodels.Certificate {
 	return r.model
 }
 
-func (r *CertificateController) GetChildCertificateCollection(certificateType string) ([]appmodels.ICertificate, error) {
+func (r *CertCertificateController) GetChildCertificateCollection(certificateType string) ([]appmodels.Certificate, error) {
 	organization := r.GetOrganizationID()
 	path := append(r.model.GetParents(), r.serialNumber)
 	list, err := r.certificateRepository.FindAllByOrganizationAndSerialNumbers(
@@ -89,7 +89,7 @@ func (r *CertificateController) GetChildCertificateCollection(certificateType st
 	return list, nil
 }
 
-func (r *CertificateController) GetChildCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {
+func (r *CertCertificateController) GetChildCertificateModel(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
 	organization := r.GetOrganizationID()
 	if r.certificateRepository == nil {
 		return nil, fmt.Errorf("[%s@%s:GetChildCertificateModel:%s]: No parent certificateRepository", r.serialNumber.String(), organization, serialNumber.String())
@@ -107,7 +107,7 @@ func (r *CertificateController) GetChildCertificateModel(serialNumber appmodels.
 	return model, nil
 }
 
-func (r *CertificateController) GetChildCertificateController(serialNumber appmodels.ISerialNumber) (appmodels.ICertificateController, error) {
+func (r *CertCertificateController) GetChildCertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
 	organization := r.GetOrganizationID()
 	model, err := r.GetChildCertificateModel(serialNumber)
 	if err != nil {
@@ -126,21 +126,21 @@ func (r *CertificateController) GetChildCertificateController(serialNumber appmo
 	), nil
 }
 
-func (r *CertificateController) GetParentCertificateModel() appmodels.ICertificate {
+func (r *CertCertificateController) GetParentCertificateModel() appmodels.Certificate {
 	if r.parentCertificateController == nil {
 		return nil
 	}
 	return r.parentCertificateController.GetCertificateModel()
 }
 
-func (r *CertificateController) GetParentCertificateController() appmodels.ICertificateController {
+func (r *CertCertificateController) GetParentCertificateController() appmodels.CertificateController {
 	if r.parentCertificateController == nil {
 		return nil
 	}
 	return r.parentCertificateController
 }
 
-func (r *CertificateController) GetPrivateKeyModel() (appmodels.IPrivateKey, error) {
+func (r *CertCertificateController) GetPrivateKeyModel() (appmodels.PrivateKey, error) {
 	organization := r.GetOrganizationID()
 	if r.privateKeyRepository == nil {
 		return nil, fmt.Errorf("[%s@%s:GetPrivateKeyModel]: no private key repository", r.serialNumber, organization)
@@ -155,7 +155,7 @@ func (r *CertificateController) GetPrivateKeyModel() (appmodels.IPrivateKey, err
 	return model, nil
 }
 
-func (r *CertificateController) GetPrivateKeyController() (appmodels.IPrivateKeyController, error) {
+func (r *CertCertificateController) GetPrivateKeyController() (appmodels.PrivateKeyController, error) {
 	organization := r.GetOrganizationID()
 	model, err := r.GetPrivateKeyModel()
 	if err != nil {
@@ -168,11 +168,11 @@ func (r *CertificateController) GetPrivateKeyController() (appmodels.IPrivateKey
 	), nil
 }
 
-func (r *CertificateController) SetExpirationDuration(expiration time.Duration) {
+func (r *CertCertificateController) SetExpirationDuration(expiration time.Duration) {
 	r.expiration = expiration
 }
 
-func (r *CertificateController) NewIntermediateCertificate(commonName string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
+func (r *CertCertificateController) NewIntermediateCertificate(commonName string) (appmodels.Certificate, appmodels.PrivateKey, error) {
 
 	organization := r.GetOrganizationID()
 
@@ -211,7 +211,7 @@ func (r *CertificateController) NewIntermediateCertificate(commonName string) (a
 	if err != nil {
 		return nil, nil, fmt.Errorf("[%s@%s:NewIntermediateCertificate:%s]: failed: %w", r.serialNumber, organization, commonName, err)
 	}
-	log.Printf("[%s@%s:NewIntermediateCertificate:%s]: Certificate generated", r.serialNumber, organization, commonName)
+	log.Printf("[%s@%s:NewIntermediateCertificate:%s]: CertificateModel generated", r.serialNumber, organization, commonName)
 
 	// savedPrivateKey, err := r.privateKeyRepository.Save(newPrivateKey)
 	// if err != nil {
@@ -223,12 +223,12 @@ func (r *CertificateController) NewIntermediateCertificate(commonName string) (a
 	if err != nil {
 		return nil, nil, fmt.Errorf("[%s@%s:NewIntermediateCertificate:%s]: could not save certificate: %w", r.serialNumber, organization, commonName, err)
 	}
-	log.Printf("[%s@%s:NewIntermediateCertificate:%s]: Certificate saved", r.serialNumber, organization, commonName)
+	log.Printf("[%s@%s:NewIntermediateCertificate:%s]: CertificateModel saved", r.serialNumber, organization, commonName)
 
 	return savedModel, newPrivateKey, nil
 }
 
-func (r *CertificateController) NewServerCertificate(dnsNames ...string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
+func (r *CertCertificateController) NewServerCertificate(dnsNames ...string) (appmodels.Certificate, appmodels.PrivateKey, error) {
 
 	organization := r.GetOrganizationID()
 
@@ -273,7 +273,7 @@ func (r *CertificateController) NewServerCertificate(dnsNames ...string) (appmod
 	if err != nil {
 		return nil, nil, fmt.Errorf("[%s@%s:NewServerCertificate:%s]: failed to create intermediate certificate: %w", r.serialNumber, organization, strings.Join(dnsNames, ","), err)
 	}
-	log.Printf("[%s@%s:NewServerCertificate:%s]: Certificate generated", r.serialNumber, organization, strings.Join(dnsNames, ","))
+	log.Printf("[%s@%s:NewServerCertificate:%s]: CertificateModel generated", r.serialNumber, organization, strings.Join(dnsNames, ","))
 
 	// savedPrivateKey, err := r.privateKeyRepository.Save(newPrivateKey)
 	// if err != nil {
@@ -285,12 +285,12 @@ func (r *CertificateController) NewServerCertificate(dnsNames ...string) (appmod
 	if err != nil {
 		return nil, nil, fmt.Errorf("[%s@%s:NewServerCertificate:%s]: could not save certificate: %w", r.serialNumber, organization, strings.Join(dnsNames, ","), err)
 	}
-	log.Printf("[%s@%s:NewServerCertificate:%s]: Certificate saved", r.serialNumber, organization, strings.Join(dnsNames, ","))
+	log.Printf("[%s@%s:NewServerCertificate:%s]: CertificateModel saved", r.serialNumber, organization, strings.Join(dnsNames, ","))
 
 	return savedModel, newPrivateKey, nil
 }
 
-func (r *CertificateController) NewClientCertificate(commonName string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
+func (r *CertCertificateController) NewClientCertificate(commonName string) (appmodels.Certificate, appmodels.PrivateKey, error) {
 
 	organization := r.GetOrganizationID()
 
@@ -334,7 +334,7 @@ func (r *CertificateController) NewClientCertificate(commonName string) (appmode
 	if err != nil {
 		return nil, nil, fmt.Errorf("[%s@%s:NewClientCertificate:%s]: failed to create intermediate certificate: %w", r.serialNumber, organization, commonName, err)
 	}
-	log.Printf("[%s@%s:NewClientCertificate:%s]: Certificate generated", r.serialNumber, organization, commonName)
+	log.Printf("[%s@%s:NewClientCertificate:%s]: CertificateModel generated", r.serialNumber, organization, commonName)
 
 	// savedPrivateKey, err := r.privateKeyRepository.Save(newPrivateKey)
 	// if err != nil {
@@ -346,47 +346,47 @@ func (r *CertificateController) NewClientCertificate(commonName string) (appmode
 	if err != nil {
 		return nil, nil, fmt.Errorf("[%s@%s:NewClientCertificate:%s]: could not save certificate: %w", r.serialNumber, organization, commonName, err)
 	}
-	log.Printf("[%s@%s:NewClientCertificate:%s]: Certificate saved", r.serialNumber, organization, commonName)
+	log.Printf("[%s@%s:NewClientCertificate:%s]: CertificateModel saved", r.serialNumber, organization, commonName)
 
 	return savedModel, newPrivateKey, nil
 }
 
-func (r *CertificateController) UsesCertificateService(service appmodels.ICertificateService) bool {
+func (r *CertCertificateController) UsesCertificateService(service appmodels.CertificateRepository) bool {
 	return r.certificateRepository == service
 }
 
-func (r *CertificateController) GetExistingCertificate(organization string, certificates []appmodels.ISerialNumber) (appmodels.ICertificate, error) {
+func (r *CertCertificateController) GetExistingCertificate(organization string, certificates []appmodels.SerialNumber) (appmodels.Certificate, error) {
 	return r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, certificates)
 }
 
-// NewCertificateController creates a new instance of CertificateController
+// NewCertificateController creates a new instance of CertCertificateController
 //
-// injecting the specified ICertificateService implementation. This setup
+// injecting the specified CertificateRepository implementation. This setup
 // facilitates the separation of business logic from data access layers,
 // aligning with the principles of dependency injection.
 //
-//   - parentOrganizationController appmodels.IOrganizationController
-//   - parentCertificateController appmodels.ICertificateController
-//   - serialNumber appmodels.ISerialNumber
-//   - model appmodels.ICertificate
-//   - certificateRepository is appmodels.ICertificateService
-//   - privateKeyRepository is appmodels.IPrivateKeyService
-//   - certManager is managers.ICertificateManager
-//   - randomManager is  managers.IRandomManager
+//   - parentOrganizationController appmodels.OrganizationController
+//   - parentCertificateController appmodels.CertificateController
+//   - serialNumber appmodels.SerialNumber
+//   - model appmodels.Certificate
+//   - certificateRepository is appmodels.CertificateRepository
+//   - privateKeyRepository is appmodels.PrivateKeyRepository
+//   - certManager is managers.CertificateManager
+//   - randomManager is  managers.RandomManager
 //   - expiration time.Duration is
 //
-// Returns *CertificateController
+// Returns *CertCertificateController
 func NewCertificateController(
-	parentOrganizationController appmodels.IOrganizationController,
-	parentCertificateController appmodels.ICertificateController,
-	serialNumber appmodels.ISerialNumber,
-	model appmodels.ICertificate,
-	certificateRepository appmodels.ICertificateService,
-	privateKeyRepository appmodels.IPrivateKeyService,
-	certManager managers.ICertificateManager,
-	randomManager managers.IRandomManager,
+	parentOrganizationController appmodels.OrganizationController,
+	parentCertificateController appmodels.CertificateController,
+	serialNumber appmodels.SerialNumber,
+	model appmodels.Certificate,
+	certificateRepository appmodels.CertificateRepository,
+	privateKeyRepository appmodels.PrivateKeyRepository,
+	certManager managers.CertificateManager,
+	randomManager managers.RandomManager,
 	expiration time.Duration,
-) *CertificateController {
+) *CertCertificateController {
 
 	if parentOrganizationController == nil {
 		panic("NewCertificateController: parentOrganizationController not defined")
@@ -408,7 +408,7 @@ func NewCertificateController(
 		panic("NewCertificateController: randomManager not defined")
 	}
 
-	return &CertificateController{
+	return &CertCertificateController{
 		serialNumber:                 serialNumber,
 		model:                        model,
 		certificateRepository:        certificateRepository,
@@ -421,4 +421,4 @@ func NewCertificateController(
 	}
 }
 
-var _ appmodels.ICertificateController = (*CertificateController)(nil)
+var _ appmodels.CertificateController = (*CertCertificateController)(nil)

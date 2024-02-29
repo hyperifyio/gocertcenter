@@ -10,22 +10,22 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// MockOrganizationController is a mock implementation of models.IOrganizationController for testing purposes.
+// MockOrganizationController is a mock implementation of models.OrganizationController for testing purposes.
 type MockOrganizationController struct {
 	mock.Mock
 }
 
-func (m *MockOrganizationController) RevokeCertificate(certificate appmodels.ICertificate) (appmodels.IRevokedCertificate, error) {
+func (m *MockOrganizationController) RevokeCertificate(certificate appmodels.Certificate) (appmodels.RevokedCertificate, error) {
 	args := m.Called(certificate)
-	return args.Get(0).(appmodels.IRevokedCertificate), args.Error(1)
+	return args.Get(0).(appmodels.RevokedCertificate), args.Error(1)
 }
 
-func (m *MockOrganizationController) GetCertificateCollection() ([]appmodels.ICertificate, error) {
+func (m *MockOrganizationController) GetCertificateCollection() ([]appmodels.Certificate, error) {
 	args := m.Called()
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).([]appmodels.ICertificate), args.Error(1)
+	return args.Get(0).([]appmodels.Certificate), args.Error(1)
 }
 
 func (m *MockOrganizationController) GetOrganizationID() string {
@@ -33,43 +33,43 @@ func (m *MockOrganizationController) GetOrganizationID() string {
 	return args.String(0)
 }
 
-func (m *MockOrganizationController) GetOrganizationModel() appmodels.IOrganization {
+func (m *MockOrganizationController) GetOrganizationModel() appmodels.Organization {
 	args := m.Called()
-	return args.Get(0).(appmodels.IOrganization)
+	return args.Get(0).(appmodels.Organization)
 }
 
-func (m *MockOrganizationController) GetApplicationController() appmodels.IApplicationController {
+func (m *MockOrganizationController) GetApplicationController() appmodels.ApplicationController {
 	args := m.Called()
-	return args.Get(0).(appmodels.IApplicationController)
+	return args.Get(0).(appmodels.ApplicationController)
 }
 
-func (m *MockOrganizationController) GetCertificateController(serialNumber appmodels.ISerialNumber) (appmodels.ICertificateController, error) {
+func (m *MockOrganizationController) GetCertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
 	args := m.Called(serialNumber)
-	return args.Get(0).(appmodels.ICertificateController), args.Error(1)
+	return args.Get(0).(appmodels.CertificateController), args.Error(1)
 }
 
-func (m *MockOrganizationController) GetCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {
+func (m *MockOrganizationController) GetCertificateModel(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
 	args := m.Called(serialNumber)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+	return args.Get(0).(appmodels.Certificate), args.Error(1)
 }
 
 func (m *MockOrganizationController) SetExpirationDuration(expiration time.Duration) {
 	m.Called(expiration)
 }
 
-func (m *MockOrganizationController) NewRootCertificate(commonName string) (appmodels.ICertificate, error) {
+func (m *MockOrganizationController) NewRootCertificate(commonName string) (appmodels.Certificate, error) {
 	args := m.Called(commonName)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+	return args.Get(0).(appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockOrganizationController) UsesOrganizationService(service appmodels.IOrganizationService) bool {
+func (m *MockOrganizationController) UsesOrganizationService(service appmodels.OrganizationRepository) bool {
 	args := m.Called(service)
 	return args.Bool(0)
 }
 
-func (m *MockOrganizationController) UsesApplicationController(service appmodels.IApplicationController) bool {
+func (m *MockOrganizationController) UsesApplicationController(service appmodels.ApplicationController) bool {
 	args := m.Called(service)
 	return args.Bool(0)
 }
 
-var _ appmodels.IOrganizationController = (*MockOrganizationController)(nil)
+var _ appmodels.OrganizationController = (*MockOrganizationController)(nil)

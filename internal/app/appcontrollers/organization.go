@@ -15,29 +15,29 @@ const (
 	DefaultRootKeyType = appmodels.ECDSA_P384
 )
 
-// OrganizationController implements models.IOrganizationController to control
+// CertOrganizationController implements models.OrganizationController to control
 // operations for organization models.
 //
-// It utilizes models.IOrganizationService interface to abstract and
+// It utilizes models.OrganizationRepository interface to abstract and
 // inject the underlying storage mechanism (e.g., database, memory). This design
 // promotes separation of concerns by decoupling the business logic from the
 // specific details of data persistence.
-type OrganizationController struct {
+type CertOrganizationController struct {
 
 	// id is the organization ID this controller controls
 	id string
 
 	// model is the latest model of the organization
-	model appmodels.IOrganization
+	model appmodels.Organization
 
-	parent appmodels.IApplicationController
+	parent appmodels.ApplicationController
 
-	certManager   managers.ICertificateManager
-	randomManager managers.IRandomManager
+	certManager   managers.CertificateManager
+	randomManager managers.RandomManager
 
-	organizationRepository appmodels.IOrganizationService
-	certificateRepository  appmodels.ICertificateService
-	privateKeyRepository   appmodels.IPrivateKeyService
+	organizationRepository appmodels.OrganizationRepository
+	certificateRepository  appmodels.CertificateRepository
+	privateKeyRepository   appmodels.PrivateKeyRepository
 
 	// defaultExpiration - Expiration time for new root certificates
 	defaultExpiration time.Duration
@@ -46,31 +46,31 @@ type OrganizationController struct {
 	defaultKeyType appmodels.KeyType
 }
 
-func (r *OrganizationController) GetCertificateCollection() ([]appmodels.ICertificate, error) {
+func (r *CertOrganizationController) GetCertificateCollection() ([]appmodels.Certificate, error) {
 	organization := r.GetOrganizationID()
 	if r.certificateRepository == nil {
 		return nil, fmt.Errorf("[%s:GetCertificateCollection]: no certificate repository", organization)
 	}
-	list, err := r.certificateRepository.FindAllByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{})
+	list, err := r.certificateRepository.FindAllByOrganizationAndSerialNumbers(organization, []appmodels.SerialNumber{})
 	if err != nil {
 		return nil, fmt.Errorf("[%s:GetCertificateCollection]: failed: %w", organization, err)
 	}
 	return list, nil
 }
 
-func (r *OrganizationController) GetOrganizationID() string {
+func (r *CertOrganizationController) GetOrganizationID() string {
 	return r.id
 }
 
-func (r *OrganizationController) GetOrganizationModel() appmodels.IOrganization {
+func (r *CertOrganizationController) GetOrganizationModel() appmodels.Organization {
 	return r.model
 }
 
-func (r *OrganizationController) GetApplicationController() appmodels.IApplicationController {
+func (r *CertOrganizationController) GetApplicationController() appmodels.ApplicationController {
 	return r.parent
 }
 
-func (r *OrganizationController) GetCertificateController(serialNumber appmodels.ISerialNumber) (appmodels.ICertificateController, error) {
+func (r *CertOrganizationController) GetCertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
 	model, err := r.GetCertificateModel(serialNumber)
 	if err != nil {
 		return nil, fmt.Errorf("[%s:GetCertificateController:%s]: failed: %w", r.id, serialNumber, err)
@@ -88,23 +88,23 @@ func (r *OrganizationController) GetCertificateController(serialNumber appmodels
 	), nil
 }
 
-func (r *OrganizationController) GetCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {
-	model, err := r.certificateRepository.FindByOrganizationAndSerialNumbers(r.id, []appmodels.ISerialNumber{serialNumber})
+func (r *CertOrganizationController) GetCertificateModel(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
+	model, err := r.certificateRepository.FindByOrganizationAndSerialNumbers(r.id, []appmodels.SerialNumber{serialNumber})
 	if err != nil {
 		return nil, fmt.Errorf("[%s:GetCertificateModel:%s]: failed: %w", r.id, serialNumber.String(), err)
 	}
 	return model, nil
 }
 
-func (r *OrganizationController) SetExpirationDuration(expiration time.Duration) {
+func (r *CertOrganizationController) SetExpirationDuration(expiration time.Duration) {
 	r.defaultExpiration = expiration
 }
 
-func (r *OrganizationController) ExpirationDuration() time.Duration {
+func (r *CertOrganizationController) ExpirationDuration() time.Duration {
 	return r.defaultExpiration
 }
 
-func (r *OrganizationController) NewRootCertificate(commonName string) (appmodels.ICertificate, error) {
+func (r *CertOrganizationController) NewRootCertificate(commonName string) (appmodels.Certificate, error) {
 
 	organization := r.GetOrganizationID()
 
@@ -121,7 +121,7 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: failed to create serial number: %w", organization, commonName, err)
 	}
 
-	_, err = r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
+	_, err = r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, []appmodels.SerialNumber{serialNumber})
 	if err == nil {
 		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: serial number exists already: %s", organization, commonName, serialNumber.String())
 	}
@@ -133,7 +133,7 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 
 	privateKey, err := apputils.GeneratePrivateKey(
 		organization,
-		[]appmodels.ISerialNumber{serialNumber},
+		[]appmodels.SerialNumber{serialNumber},
 		keyType,
 	)
 	if err != nil {
@@ -165,44 +165,44 @@ func (r *OrganizationController) NewRootCertificate(commonName string) (appmodel
 	return savedModel, nil
 }
 
-func (r *OrganizationController) UsesOrganizationService(service appmodels.IOrganizationService) bool {
+func (r *CertOrganizationController) UsesOrganizationService(service appmodels.OrganizationRepository) bool {
 	return r.organizationRepository == service
 }
 
-func (r *OrganizationController) UsesApplicationController(service appmodels.IApplicationController) bool {
+func (r *CertOrganizationController) UsesApplicationController(service appmodels.ApplicationController) bool {
 	return r.parent == service
 }
 
-func (r *OrganizationController) RevokeCertificate(certificate appmodels.ICertificate) (appmodels.IRevokedCertificate, error) {
+func (r *CertOrganizationController) RevokeCertificate(certificate appmodels.Certificate) (appmodels.RevokedCertificate, error) {
 	// TODO implement me
 	panic("implement me")
 }
 
-// NewOrganizationController creates a new instance of OrganizationController
-// implementing appmodels.IOrganizationService interface.
+// NewOrganizationController creates a new instance of CertOrganizationController
+// implementing appmodels.OrganizationRepository interface.
 //
 //   - organization string
-//   - model appmodels.IOrganization
-//   - organizationRepository appmodels.IOrganizationService
-//   - certificateRepository appmodels.ICertificateService
-//   - privateKeyRepository appmodels.IPrivateKeyService
-//   - certManager managers.ICertificateManager
-//   - randomManager managers.IRandomManager
+//   - model appmodels.Organization
+//   - organizationRepository appmodels.OrganizationRepository
+//   - certificateRepository appmodels.CertificateRepository
+//   - privateKeyRepository appmodels.PrivateKeyRepository
+//   - certManager managers.CertificateManager
+//   - randomManager managers.RandomManager
 //   - defaultExpiration time.Duration
 //
-// Returns *OrganizationController
+// Returns *CertOrganizationController
 func NewOrganizationController(
 	organization string,
-	model appmodels.IOrganization,
-	organizationRepository appmodels.IOrganizationService,
-	certificateRepository appmodels.ICertificateService,
-	privateKeyRepository appmodels.IPrivateKeyService,
-	certManager managers.ICertificateManager,
-	randomManager managers.IRandomManager,
+	model appmodels.Organization,
+	organizationRepository appmodels.OrganizationRepository,
+	certificateRepository appmodels.CertificateRepository,
+	privateKeyRepository appmodels.PrivateKeyRepository,
+	certManager managers.CertificateManager,
+	randomManager managers.RandomManager,
 	defaultExpiration time.Duration,
-	parent appmodels.IApplicationController,
-) *OrganizationController {
-	return &OrganizationController{
+	parent appmodels.ApplicationController,
+) *CertOrganizationController {
+	return &CertOrganizationController{
 		id:                     organization,
 		model:                  model,
 		organizationRepository: organizationRepository,
@@ -215,4 +215,4 @@ func NewOrganizationController(
 	}
 }
 
-var _ appmodels.IOrganizationController = (*OrganizationController)(nil)
+var _ appmodels.OrganizationController = (*CertOrganizationController)(nil)

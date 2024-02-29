@@ -13,7 +13,7 @@ import (
 )
 
 // DecodeOrganizationFromRequestBody parses organization DTO from request body
-func (c *ApiController) DecodeOrganizationFromRequestBody(request apitypes.IRequest) (appdtos.OrganizationDTO, error) {
+func (c *HttpApiController) DecodeOrganizationFromRequestBody(request apitypes.Request) (appdtos.OrganizationDTO, error) {
 
 	if request == nil {
 		return appdtos.OrganizationDTO{}, errors.New("request must be defined")
@@ -33,7 +33,7 @@ func (c *ApiController) DecodeOrganizationFromRequestBody(request apitypes.IRequ
 }
 
 // DecodeCertificateRequestFromRequestBody parses organization DTO from request body
-func (c *ApiController) DecodeCertificateRequestFromRequestBody(request apitypes.IRequest) (appdtos.CertificateRequestDTO, error) {
+func (c *HttpApiController) DecodeCertificateRequestFromRequestBody(request apitypes.Request) (appdtos.CertificateRequestDTO, error) {
 
 	if request == nil {
 		return appdtos.CertificateRequestDTO{}, errors.New("request must be defined")

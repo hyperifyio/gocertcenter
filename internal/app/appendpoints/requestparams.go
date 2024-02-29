@@ -11,7 +11,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-func (c *ApiController) getRequestOrganization(request apitypes.IRequest) string {
+func (c *HttpApiController) getRequestOrganization(request apitypes.Request) string {
 	organization := request.GetVariable("organization")
 	organization = strings.Trim(strings.ToLower(organization), " ")
 	if organization != "" {
@@ -26,7 +26,7 @@ func (c *ApiController) getRequestOrganization(request apitypes.IRequest) string
 	return organization
 }
 
-func (c *ApiController) getRootSerialNumber(request apitypes.IRequest) (appmodels.ISerialNumber, error) {
+func (c *HttpApiController) getRootSerialNumber(request apitypes.Request) (appmodels.SerialNumber, error) {
 	serialNumberString := request.GetVariable("rootSerialNumber")
 	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
 	if err != nil {
@@ -36,7 +36,7 @@ func (c *ApiController) getRootSerialNumber(request apitypes.IRequest) (appmodel
 	return serialNumber, nil
 }
 
-func (c *ApiController) getSerialNumber(request apitypes.IRequest) (appmodels.ISerialNumber, error) {
+func (c *HttpApiController) getSerialNumber(request apitypes.Request) (appmodels.SerialNumber, error) {
 	serialNumberString := request.GetVariable("serialNumber")
 	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *ApiController) getSerialNumber(request apitypes.IRequest) (appmodels.IS
 	return serialNumber, nil
 }
 
-func (c *ApiController) getOrganizationController(request apitypes.IRequest) (appmodels.IOrganizationController, error) {
+func (c *HttpApiController) getOrganizationController(request apitypes.Request) (appmodels.OrganizationController, error) {
 	organization := c.getRequestOrganization(request)
 	if organization == "" {
 		return nil, fmt.Errorf("[%s %s]: failed to find organization id", request.GetMethod(), request.GetURL())
@@ -58,7 +58,7 @@ func (c *ApiController) getOrganizationController(request apitypes.IRequest) (ap
 	return controller, nil
 }
 
-func (c *ApiController) getRootCertificateController(request apitypes.IRequest) (appmodels.ICertificateController, error) {
+func (c *HttpApiController) getRootCertificateController(request apitypes.Request) (appmodels.CertificateController, error) {
 
 	controller, err := c.getOrganizationController(request)
 	if err != nil {
@@ -78,7 +78,7 @@ func (c *ApiController) getRootCertificateController(request apitypes.IRequest) 
 	return rootCertificateController, nil
 }
 
-func (c *ApiController) getInnerCertificateController(request apitypes.IRequest) (appmodels.ICertificateController, error) {
+func (c *HttpApiController) getInnerCertificateController(request apitypes.Request) (appmodels.CertificateController, error) {
 
 	rootCertificateController, err := c.getRootCertificateController(request)
 	if err != nil {

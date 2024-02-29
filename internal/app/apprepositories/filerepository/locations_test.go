@@ -34,7 +34,7 @@ func TestGetPrivateKeyPemPathWithTwoCertificates(t *testing.T) {
 	b := appmodels.NewSerialNumber(big.NewInt(456))
 	dir := "/data"
 	organization := "HangoverGames"
-	certificates := []appmodels.ISerialNumber{a, b}
+	certificates := []appmodels.SerialNumber{a, b}
 	expected := "/data/organizations/HangoverGames/certificates/123/certificates/456/privkey.pem"
 	result := filerepository.GetPrivateKeyPemPath(dir, organization, certificates)
 	assert.Equal(t, expected, result)
@@ -45,7 +45,7 @@ func TestGetCertificatePemPathWithTwoCertificates(t *testing.T) {
 	b := appmodels.NewSerialNumber(big.NewInt(456))
 	dir := "/data"
 	organization := "HangoverGames"
-	certificates := []appmodels.ISerialNumber{a, b}
+	certificates := []appmodels.SerialNumber{a, b}
 	expected := "/data/organizations/HangoverGames/certificates/123/certificates/456/cert.pem"
 	result := filerepository.GetCertificatePemPath(dir, organization, certificates)
 	assert.Equal(t, expected, result)
@@ -56,7 +56,7 @@ func TestGetCertificateDirectoryWithTwoCertificates(t *testing.T) {
 	b := appmodels.NewSerialNumber(big.NewInt(456))
 	dir := "/data"
 	organization := "HangoverGames"
-	certificates := []appmodels.ISerialNumber{a, b}
+	certificates := []appmodels.SerialNumber{a, b}
 	expected := "/data/organizations/HangoverGames/certificates/123/certificates/456"
 	result := filerepository.GetCertificateDirectory(dir, organization, certificates)
 	assert.Equal(t, expected, result)
@@ -66,7 +66,7 @@ func TestGetPrivateKeyPemPathWithOneCertificate(t *testing.T) {
 	a := appmodels.NewSerialNumber(big.NewInt(123))
 	dir := "/data"
 	organization := "HangoverGames"
-	certificates := []appmodels.ISerialNumber{a}
+	certificates := []appmodels.SerialNumber{a}
 	expected := "/data/organizations/HangoverGames/certificates/123/privkey.pem"
 	result := filerepository.GetPrivateKeyPemPath(dir, organization, certificates)
 	assert.Equal(t, expected, result)
@@ -76,7 +76,7 @@ func TestGetCertificatePemPathWithOneCertificate(t *testing.T) {
 	a := appmodels.NewSerialNumber(big.NewInt(123))
 	dir := "/data"
 	organization := "HangoverGames"
-	certificates := []appmodels.ISerialNumber{a}
+	certificates := []appmodels.SerialNumber{a}
 	expected := "/data/organizations/HangoverGames/certificates/123/cert.pem"
 	result := filerepository.GetCertificatePemPath(dir, organization, certificates)
 	assert.Equal(t, expected, result)
@@ -86,7 +86,7 @@ func TestGetCertificateDirectoryWithOneCertificate(t *testing.T) {
 	a := appmodels.NewSerialNumber(big.NewInt(123))
 	dir := "/data"
 	organization := "HangoverGames"
-	certificates := []appmodels.ISerialNumber{a}
+	certificates := []appmodels.SerialNumber{a}
 	expected := "/data/organizations/HangoverGames/certificates/123"
 	result := filerepository.GetCertificateDirectory(dir, organization, certificates)
 	assert.Equal(t, expected, result)

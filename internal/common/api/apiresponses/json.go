@@ -75,4 +75,4 @@ func NewJSONResponse(w http.ResponseWriter) *JSONResponse {
 	return &JSONResponse{writer: w}
 }
 
-var _ apitypes.IResponse = (*JSONResponse)(nil)
+var _ apitypes.Response = (*JSONResponse)(nil)

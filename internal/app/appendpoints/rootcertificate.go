@@ -12,7 +12,7 @@ import (
 )
 
 // GetRootCertificateDefinitions returns OpenAPI definitions
-func (c *ApiController) GetRootCertificateDefinitions() swagger.Definitions {
+func (c *HttpApiController) GetRootCertificateDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns an root certificate",
 		Description: "",
@@ -27,7 +27,7 @@ func (c *ApiController) GetRootCertificateDefinitions() swagger.Definitions {
 }
 
 // GetRootCertificate handles a request
-func (c *ApiController) GetRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) GetRootCertificate(response apitypes.Response, request apitypes.Request) error {
 
 	controller, err := c.getRootCertificateController(request)
 	if err != nil {
@@ -42,5 +42,5 @@ func (c *ApiController) GetRootCertificate(response apitypes.IResponse, request 
 
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetRootCertificateDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).GetRootCertificate
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetRootCertificateDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetRootCertificate

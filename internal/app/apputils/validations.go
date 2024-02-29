@@ -183,7 +183,7 @@ func ValidateOrganizationID(id string) error {
 	return nil
 }
 
-func ValidateOrganizationModel(model appmodels.IOrganization) error {
+func ValidateOrganizationModel(model appmodels.Organization) error {
 	id := model.GetID()
 	if err := ValidateOrganizationID(id); err != nil {
 		return fmt.Errorf("id: '%v': %v", id, err)

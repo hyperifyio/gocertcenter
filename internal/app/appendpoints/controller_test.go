@@ -17,6 +17,6 @@ func TestNewApiController(t *testing.T) {
 	mockServer := new(apimocks.MockServer)
 	mockApp := new(appmocks.MockApplicationController)
 	certManager := new(commonmocks.MockCertificateManager)
-	controller := appendpoints.NewApiController(mockServer, mockApp, certManager)
+	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 	assert.NotNil(t, controller)
 }

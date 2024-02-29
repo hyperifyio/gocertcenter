@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-// MockRequest implements the apitypes.IRequest interface
+// MockRequest implements the apitypes.Request interface
 type MockRequest struct {
 	IsGet            bool
 	Method           string
@@ -54,4 +54,4 @@ func (m *MockRequest) GetQueryParam(name string) string {
 	return m.QueryParams[name]
 }
 
-var _ apitypes.IRequest = (*MockRequest)(nil)
+var _ apitypes.Request = (*MockRequest)(nil)

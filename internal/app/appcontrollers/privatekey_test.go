@@ -87,7 +87,7 @@ func TestPrivateKeyController_GetOrganizationController_WithNilParent(t *testing
 	mockPrivateKey := new(appmocks.MockPrivateKey)
 	mockPrivateKeyService := new(appmocks.MockPrivateKeyService)
 
-	// Initialize the PrivateKeyController with a nil parent to simulate the error condition
+	// Initialize the CertPrivateKeyController with a nil parent to simulate the error condition
 	controller := appcontrollers.NewPrivateKeyController(
 		mockPrivateKey,
 		nil, // Pass nil to simulate the absence of a parent ICertificateController

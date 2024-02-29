@@ -31,5 +31,5 @@ func TestNewCollection(t *testing.T) {
 	// Additional checks can include verifying that the repositories are correctly initialized with the filePath
 	// This step requires access to the internal state of the repositories or using reflection if not directly accessible
 	// For example:
-	// assert.Equal(t, filePath, collection.OrganizationRepository().(*filerepository.OrganizationRepository).filePath, "OrganizationRepository filePath mismatch")
+	// assert.Equal(t, filePath, collection.FileOrganizationRepository().(*filerepository.FileOrganizationRepository).filePath, "FileOrganizationRepository filePath mismatch")
 }

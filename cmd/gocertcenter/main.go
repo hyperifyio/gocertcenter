@@ -56,7 +56,7 @@ func main() {
 		log.Fatalf("[main]: Failed to create the server: %v", err)
 	}
 
-	apiController := appendpoints.NewApiController(server, appController, certManager)
+	apiController := appendpoints.NewHttpApiController(server, appController, certManager)
 
 	server.SetInfo(apiController.GetInfo())
 

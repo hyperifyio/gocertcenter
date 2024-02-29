@@ -10,19 +10,19 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// MockCertificateController is a mock implementation of appmodels.ICertificateController for testing purposes.
+// MockCertificateController is a mock implementation of appmodels.CertificateController for testing purposes.
 type MockCertificateController struct {
 	mock.Mock
 }
 
-func (m *MockCertificateController) GetChildCertificateCollection(certificateType string) ([]appmodels.ICertificate, error) {
+func (m *MockCertificateController) GetChildCertificateCollection(certificateType string) ([]appmodels.Certificate, error) {
 	args := m.Called(certificateType)
-	return args.Get(0).([]appmodels.ICertificate), args.Error(2)
+	return args.Get(0).([]appmodels.Certificate), args.Error(2)
 }
 
-func (m *MockCertificateController) GetApplicationController() appmodels.IApplicationController {
+func (m *MockCertificateController) GetApplicationController() appmodels.ApplicationController {
 	args := m.Called()
-	return args.Get(0).(appmodels.IApplicationController)
+	return args.Get(0).(appmodels.ApplicationController)
 }
 
 func (m *MockCertificateController) GetOrganizationID() string {
@@ -30,68 +30,68 @@ func (m *MockCertificateController) GetOrganizationID() string {
 	return args.String(0)
 }
 
-func (m *MockCertificateController) GetOrganizationModel() appmodels.IOrganization {
+func (m *MockCertificateController) GetOrganizationModel() appmodels.Organization {
 	args := m.Called()
-	return args.Get(0).(appmodels.IOrganization)
+	return args.Get(0).(appmodels.Organization)
 }
 
-func (m *MockCertificateController) GetCertificateModel() appmodels.ICertificate {
+func (m *MockCertificateController) GetCertificateModel() appmodels.Certificate {
 	args := m.Called()
-	return args.Get(0).(appmodels.ICertificate)
+	return args.Get(0).(appmodels.Certificate)
 }
 
-func (m *MockCertificateController) GetChildCertificateModel(serialNumber appmodels.ISerialNumber) (appmodels.ICertificate, error) {
+func (m *MockCertificateController) GetChildCertificateModel(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
 	args := m.Called(serialNumber)
-	return args.Get(0).(appmodels.ICertificate), args.Error(1)
+	return args.Get(0).(appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockCertificateController) GetChildCertificateController(serialNumber appmodels.ISerialNumber) (appmodels.ICertificateController, error) {
+func (m *MockCertificateController) GetChildCertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
 	args := m.Called(serialNumber)
-	return args.Get(0).(appmodels.ICertificateController), args.Error(1)
+	return args.Get(0).(appmodels.CertificateController), args.Error(1)
 }
 
-func (m *MockCertificateController) GetParentCertificateModel() appmodels.ICertificate {
+func (m *MockCertificateController) GetParentCertificateModel() appmodels.Certificate {
 	args := m.Called()
-	return args.Get(0).(appmodels.ICertificate)
+	return args.Get(0).(appmodels.Certificate)
 }
 
-func (m *MockCertificateController) GetParentCertificateController() appmodels.ICertificateController {
+func (m *MockCertificateController) GetParentCertificateController() appmodels.CertificateController {
 	args := m.Called()
-	return args.Get(0).(appmodels.ICertificateController)
+	return args.Get(0).(appmodels.CertificateController)
 }
 
 func (m *MockCertificateController) SetExpirationDuration(expiration time.Duration) {
 	m.Called(expiration)
 }
 
-func (m *MockCertificateController) NewIntermediateCertificate(commonName string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
+func (m *MockCertificateController) NewIntermediateCertificate(commonName string) (appmodels.Certificate, appmodels.PrivateKey, error) {
 	args := m.Called(commonName)
-	return args.Get(0).(appmodels.ICertificate), args.Get(1).(appmodels.IPrivateKey), args.Error(2)
+	return args.Get(0).(appmodels.Certificate), args.Get(1).(appmodels.PrivateKey), args.Error(2)
 }
 
-func (m *MockCertificateController) NewServerCertificate(dnsNames ...string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
+func (m *MockCertificateController) NewServerCertificate(dnsNames ...string) (appmodels.Certificate, appmodels.PrivateKey, error) {
 	args := m.Called(dnsNames)
-	return args.Get(0).(appmodels.ICertificate), args.Get(1).(appmodels.IPrivateKey), args.Error(2)
+	return args.Get(0).(appmodels.Certificate), args.Get(1).(appmodels.PrivateKey), args.Error(2)
 }
 
-func (m *MockCertificateController) NewClientCertificate(commonName string) (appmodels.ICertificate, appmodels.IPrivateKey, error) {
+func (m *MockCertificateController) NewClientCertificate(commonName string) (appmodels.Certificate, appmodels.PrivateKey, error) {
 	args := m.Called(commonName)
-	return args.Get(0).(appmodels.ICertificate), args.Get(1).(appmodels.IPrivateKey), args.Error(2)
+	return args.Get(0).(appmodels.Certificate), args.Get(1).(appmodels.PrivateKey), args.Error(2)
 }
 
-func (m *MockCertificateController) GetOrganizationController() appmodels.IOrganizationController {
+func (m *MockCertificateController) GetOrganizationController() appmodels.OrganizationController {
 	args := m.Called()
-	return args.Get(0).(appmodels.IOrganizationController)
+	return args.Get(0).(appmodels.OrganizationController)
 }
 
-func (m *MockCertificateController) GetPrivateKeyModel() (appmodels.IPrivateKey, error) {
+func (m *MockCertificateController) GetPrivateKeyModel() (appmodels.PrivateKey, error) {
 	args := m.Called()
-	return args.Get(0).(appmodels.IPrivateKey), args.Error(1)
+	return args.Get(0).(appmodels.PrivateKey), args.Error(1)
 }
 
-func (m *MockCertificateController) GetPrivateKeyController() (appmodels.IPrivateKeyController, error) {
+func (m *MockCertificateController) GetPrivateKeyController() (appmodels.PrivateKeyController, error) {
 	args := m.Called()
-	return args.Get(0).(appmodels.IPrivateKeyController), args.Error(1)
+	return args.Get(0).(appmodels.PrivateKeyController), args.Error(1)
 }
 
-var _ appmodels.ICertificateController = (*MockCertificateController)(nil)
+var _ appmodels.CertificateController = (*MockCertificateController)(nil)

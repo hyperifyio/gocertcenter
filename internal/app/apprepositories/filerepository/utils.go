@@ -18,8 +18,8 @@ import (
 
 // ReadCertificateFile reads a certificate from a PEM file
 func ReadCertificateFile(
-	fileManager managers.IFileManager,
-	certManager managers.ICertificateManager,
+	fileManager managers.FileManager,
+	certManager managers.CertificateManager,
 	fileName string,
 ) (*x509.Certificate, error) {
 
@@ -47,8 +47,8 @@ func ReadCertificateFile(
 
 // SaveCertificateFile saves the certificate to a PEM file
 func SaveCertificateFile(
-	fileManager managers.IFileManager,
-	certManager managers.ICertificateManager,
+	fileManager managers.FileManager,
+	certManager managers.CertificateManager,
 	fileName string,
 	cert *x509.Certificate,
 ) error {
@@ -64,7 +64,7 @@ func SaveCertificateFile(
 
 // SaveOrganizationJsonFile marshals data into JSON and saves it using fileManager.SaveBytes
 func SaveOrganizationJsonFile(
-	fileManager managers.IFileManager,
+	fileManager managers.FileManager,
 	fileName string,
 	dto appdtos.OrganizationDTO,
 ) error {
@@ -76,7 +76,7 @@ func SaveOrganizationJsonFile(
 }
 
 // ReadOrganizationJsonFile reads JSON data from a file and unmarshals it into the provided data structure.
-func ReadOrganizationJsonFile(fileManager managers.IFileManager, fileName string) (*appdtos.OrganizationDTO, error) {
+func ReadOrganizationJsonFile(fileManager managers.FileManager, fileName string) (*appdtos.OrganizationDTO, error) {
 
 	fileData, err := fileManager.ReadFile(fileName)
 	if err != nil {
@@ -93,8 +93,8 @@ func ReadOrganizationJsonFile(fileManager managers.IFileManager, fileName string
 
 // ReadPrivateKeyFile reads a private key from a PEM file
 func ReadPrivateKeyFile(
-	fileManager managers.IFileManager,
-	certManager managers.ICertificateManager,
+	fileManager managers.FileManager,
+	certManager managers.CertificateManager,
 	fileName string,
 ) (any, appmodels.KeyType, error) {
 

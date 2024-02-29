@@ -14,7 +14,7 @@ func TestSerialNumberToBigInt(t *testing.T) {
 	expectedBigInt := big.NewInt(1234567890) // Example serial number
 	serialNumber := appmodels.NewSerialNumber(expectedBigInt)
 
-	// Verify: The result should be equal to the initial *big.Int used to create SerialNumber
+	// Verify: The result should be equal to the initial *big.Int used to create Int64SerialNumber
 	if serialNumber.Value().Cmp(expectedBigInt) != 0 {
 		t.Errorf("SerialNumberToBigInt did not return the expected *big.Int value. Expected: %s, Got: %s", expectedBigInt.String(), serialNumber.String())
 	}
@@ -33,7 +33,7 @@ func TestSerialNumber_Sign(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Given a SerialNumber with a specific value
+			// Given a Int64SerialNumber with a specific value
 			serialNumber := appmodels.NewSerialNumber(big.NewInt(tt.input))
 
 			// When calling Sign()

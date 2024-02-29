@@ -13,19 +13,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// SwaggerManager implements apitypes.ISwaggerManager
-type SwaggerManager struct {
+// GorillaSwaggerManager implements SwaggerManager
+type GorillaSwaggerManager struct {
 	swaggerRouter *swagger.Router[gorilla.HandlerFunc, gorilla.Route]
 }
 
-func (r *SwaggerManager) GenerateAndExposeOpenapi() error {
+func (r *GorillaSwaggerManager) GenerateAndExposeOpenapi() error {
 	return r.swaggerRouter.GenerateAndExposeOpenapi()
 }
 
-func (r *SwaggerManager) AddRoute(method string, path string, handler http.HandlerFunc, definitions swagger.Definitions) (*mux.Route, error) {
+func (r *GorillaSwaggerManager) AddRoute(method string, path string, handler http.HandlerFunc, definitions swagger.Definitions) (*mux.Route, error) {
 	route, err := r.swaggerRouter.AddRoute(method, path, ToGorillaHandlerFunc(handler), definitions)
 	if err != nil {
-		return nil, fmt.Errorf("[SwaggerManager] Add Route %s %s failed: %w", method, path, err)
+		return nil, fmt.Errorf("[GorillaSwaggerManager] Add Route %s %s failed: %w", method, path, err)
 	}
 	return FromGorillaRoute(route), nil
 }
@@ -36,7 +36,7 @@ func NewSwaggerManager(
 	url string,
 	description string,
 	info *openapi3.Info,
-) (ISwaggerManager, error) {
+) (SwaggerManager, error) {
 
 	swaggerRouter, err := swagger.NewRouter(
 		gorilla.NewRouter(router),
@@ -57,10 +57,10 @@ func NewSwaggerManager(
 		return nil, fmt.Errorf("failed to create swagger router: %v", err)
 	}
 
-	var manager ISwaggerManager = &SwaggerManager{
+	var manager SwaggerManager = &GorillaSwaggerManager{
 		swaggerRouter: swaggerRouter,
 	}
 	return manager, nil
 }
 
-var _ ISwaggerManager = (*SwaggerManager)(nil)
+var _ SwaggerManager = (*GorillaSwaggerManager)(nil)

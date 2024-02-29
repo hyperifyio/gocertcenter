@@ -8,7 +8,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// MockOrganization is a mock implementation of the IOrganization interface
+// MockOrganization is a mock implementation of the Organization interface
 type MockOrganization struct {
 	mock.Mock
 }
@@ -28,4 +28,4 @@ func (m *MockOrganization) GetNames() []string {
 	return args.Get(0).([]string)
 }
 
-var _ appmodels.IOrganization = (*MockOrganization)(nil)
+var _ appmodels.Organization = (*MockOrganization)(nil)

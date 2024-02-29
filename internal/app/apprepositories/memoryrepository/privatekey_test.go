@@ -24,14 +24,14 @@ func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 	mockKey := new(appmocks.MockPrivateKey)
 	mockKey.On("GetOrganizationID").Return(organization)
 	mockKey.On("GetSerialNumber").Return(serialNumber)
-	mockKey.On("GetParents").Return([]appmodels.ISerialNumber{})
+	mockKey.On("GetParents").Return([]appmodels.SerialNumber{})
 
 	// Test Save
 	_, err := repo.Save(mockKey)
 	assert.NoError(t, err)
 
 	// Test FindByOrganizationAndSerialNumbers success
-	foundKey, err := repo.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
+	foundKey, err := repo.FindByOrganizationAndSerialNumbers(organization, []appmodels.SerialNumber{serialNumber})
 	assert.NoError(t, err)
 	assert.NotNil(t, foundKey, "The key should be found")
 
@@ -46,7 +46,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKeyNotFound(t *testing.T) {
 	serialNumber := appmodels.NewSerialNumber(big.NewInt(456))
 
 	// Test FindByOrganizationAndSerialNumbers for a non-existent key
-	_, err := repo.FindByOrganizationAndSerialNumbers(organization, []appmodels.ISerialNumber{serialNumber})
+	_, err := repo.FindByOrganizationAndSerialNumbers(organization, []appmodels.SerialNumber{serialNumber})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), ": not found:")
 }

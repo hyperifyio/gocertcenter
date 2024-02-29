@@ -28,7 +28,7 @@ func TestNewCertificateController(t *testing.T) {
 	mockCertificateRepository := &appmocks.MockCertificateService{}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
 
-	mockCertManager := &managers.CertificateManager{}
+	mockCertManager := &managers.SystemCertificateManager{}
 	mockRandomManager := &commonmocks.MockRandomManager{}
 
 	controller := appcontrollers.NewCertificateController(
@@ -55,7 +55,7 @@ func TestCertificateController_GetOrganizationController(t *testing.T) {
 	mockCertificateRepository := &appmocks.MockCertificateService{}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
 
-	mockCertManager := &managers.CertificateManager{}
+	mockCertManager := &managers.SystemCertificateManager{}
 	mockRandomManager := &commonmocks.MockRandomManager{}
 
 	mockOrgController := new(appmocks.MockOrganizationController)
@@ -100,7 +100,7 @@ func TestCertificateController_GetCertificateModel(t *testing.T) {
 	mockCertificateRepository := &appmocks.MockCertificateService{}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
 
-	mockCertManager := &managers.CertificateManager{}
+	mockCertManager := &managers.SystemCertificateManager{}
 	mockRandomManager := &commonmocks.MockRandomManager{}
 
 	controller := appcontrollers.NewCertificateController(
@@ -123,13 +123,13 @@ func TestCertificateController_GetChildCertificateCollection(t *testing.T) {
 	mockCertRepo := new(appmocks.MockCertificateService)
 	mockCert := new(appmocks.MockCertificate)
 	serialNumber := appmodels.NewSerialNumber(big.NewInt(123))
-	mockCert.On("GetParents").Return([]appmodels.ISerialNumber{})
-	certs := []appmodels.ICertificate{mockCert}
+	mockCert.On("GetParents").Return([]appmodels.SerialNumber{})
+	certs := []appmodels.Certificate{mockCert}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
 	mockOrganizationController := &appmocks.MockOrganizationController{}
 	mockOrganizationController.On("GetOrganizationID").Return("exmaple")
 
-	mockCertManager := &managers.CertificateManager{}
+	mockCertManager := &managers.SystemCertificateManager{}
 	mockRandomManager := &commonmocks.MockRandomManager{}
 
 	mockCertRepo.On("FindAllByOrganizationAndSerialNumbers", mock.Anything, mock.Anything).Return(certs, nil)
@@ -186,11 +186,11 @@ func TestCertificateController_NewIntermediateCertificate(t *testing.T) {
 
 	mockCert.On("GetCertificate").Return(&x509.Certificate{})
 	mockCert.On("GetSerialNumber").Return(serialNumber)
-	mockCert.On("GetParents").Return([]appmodels.ISerialNumber{})
+	mockCert.On("GetParents").Return([]appmodels.SerialNumber{})
 
 	mockPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
 
-	mockPrivateKeyRepo.On("FindByOrganizationAndSerialNumbers", orgID, []appmodels.ISerialNumber{serialNumber}).Return(mockPrivateKey, nil)
+	mockPrivateKeyRepo.On("FindByOrganizationAndSerialNumbers", orgID, []appmodels.SerialNumber{serialNumber}).Return(mockPrivateKey, nil)
 	mockCertRepo.On("Save", mock.Anything).Return(mockCert, nil)
 
 	controller := appcontrollers.NewCertificateController(

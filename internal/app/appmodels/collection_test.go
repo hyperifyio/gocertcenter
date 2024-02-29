@@ -17,11 +17,11 @@ func TestNewCollection(t *testing.T) {
 	collection := appmodels.NewCollection(mockOrganizationService, mockCertificateService, mockPrivateKeyService)
 
 	if collection.Organization != mockOrganizationService {
-		t.Errorf("Certificate service was not correctly assigned")
+		t.Errorf("CertificateModel service was not correctly assigned")
 	}
 
 	if collection.Certificate != mockCertificateService {
-		t.Errorf("Certificate service was not correctly assigned")
+		t.Errorf("CertificateModel service was not correctly assigned")
 	}
 
 	if collection.PrivateKey != mockPrivateKeyService {

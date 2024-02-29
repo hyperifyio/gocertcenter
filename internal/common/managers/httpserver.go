@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// HttpServerManager implements apitypes.IServerManager
+// HttpServerManager implements apitypes.ServerManager
 type HttpServerManager struct {
 	server *http.Server
 }
@@ -29,11 +29,11 @@ func (s *HttpServerManager) Shutdown() error {
 func NewHttpServerManager(
 	address string,
 	handler *mux.Router,
-) IServerManager {
+) ServerManager {
 	return &HttpServerManager{server: &http.Server{
 		Addr:    address,
 		Handler: handler,
 	}}
 }
 
-var _ IServerManager = (*HttpServerManager)(nil)
+var _ ServerManager = (*HttpServerManager)(nil)

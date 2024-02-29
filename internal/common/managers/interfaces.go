@@ -17,19 +17,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// IRandomManager describes operations to create random values
-type IRandomManager interface {
+// RandomManager describes operations to create random values
+type RandomManager interface {
 	CreateBigInt(max *big.Int) (*big.Int, error)
 }
 
-// ICertificateManager describes operations to manage x509 certificates.
+// CertificateManager describes operations to manage x509 certificates.
 // This is intended to wrap low level external library operations for easier
 // testing by using mocks. Any higher level operations shouldn't be implemented
 // inside it.
-type ICertificateManager interface {
+type CertificateManager interface {
 
-	// GetRandomManager returns a random number manager
-	GetRandomManager() IRandomManager
+	// RandRandomManager returns a random number manager
+	RandomManager() RandomManager
 
 	// CreateCertificate wraps up a call to x509.CreateCertificate
 	//  - rand io.Reader
@@ -79,31 +79,31 @@ type ICertificateManager interface {
 	DecodePEM(data []byte) (p *pem.Block, rest []byte)
 }
 
-type IServerManager interface {
+type ServerManager interface {
 	Serve(l net.Listener) error
 	Shutdown() error
 }
 
-type ISwaggerManager interface {
+type SwaggerManager interface {
 	GenerateAndExposeOpenapi() error
 
 	AddRoute(method string, path string, handler http.HandlerFunc, schema swagger.Definitions) (*mux.Route, error)
 }
 
-// IFile wraps up calls to lower level *os.File operations for easier testing
-type IFile interface {
+// File wraps up calls to lower level *os.File operations for easier testing
+type File interface {
 	Close() error
 	Name() string
 	Write(b []byte) (int, error)
 }
 
-// IFileManager wraps up calls to lower level a file system operations to make
+// FileManager wraps up calls to lower level a file system operations to make
 // testing other parts of the application easier
-type IFileManager interface {
+type FileManager interface {
 	Rename(oldpath, newpath string) error
 	ReadFile(fileName string) ([]byte, error)
 	MkdirAll(dir string, dirPerms os.FileMode) error
-	CreateTemp(dir, pattern string) (IFile, error)
+	CreateTemp(dir, pattern string) (File, error)
 	Remove(name string) error
 	Chmod(file string, mode os.FileMode) error
 }

@@ -9,40 +9,40 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// OrganizationRepository implements models.IOrganizationService in a memory
-// @implements models.IOrganizationService
-type OrganizationRepository struct {
-	organizations map[string]appmodels.IOrganization
+// MemoryOrganizationRepository implements models.OrganizationRepository in a memory
+// @implements models.OrganizationRepository
+type MemoryOrganizationRepository struct {
+	organizations map[string]appmodels.Organization
 }
 
-func (r *OrganizationRepository) FindAll() ([]appmodels.IOrganization, error) {
-	list := make([]appmodels.IOrganization, 0, len(r.organizations))
+func (r *MemoryOrganizationRepository) FindAll() ([]appmodels.Organization, error) {
+	list := make([]appmodels.Organization, 0, len(r.organizations))
 	for _, org := range r.organizations {
 		list = append(list, org)
 	}
 	return list, nil
 }
 
-func (r *OrganizationRepository) FindById(id string) (appmodels.IOrganization, error) {
+func (r *MemoryOrganizationRepository) FindById(id string) (appmodels.Organization, error) {
 	if organization, exists := r.organizations[id]; exists {
 		return organization, nil
 	}
-	return nil, fmt.Errorf("[Organization:FindById]: not found: %s", id)
+	return nil, fmt.Errorf("[OrganizationModel:FindById]: not found: %s", id)
 }
 
-func (r *OrganizationRepository) Save(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
+func (r *MemoryOrganizationRepository) Save(organization appmodels.Organization) (appmodels.Organization, error) {
 	id := organization.GetID()
 	r.organizations[id] = organization
-	log.Printf("[Organization:Save:%s] Saved: %v", id, organization)
+	log.Printf("[OrganizationModel:Save:%s] Saved: %v", id, organization)
 	return organization, nil
 }
 
 // NewOrganizationRepository creates a memory based repository for organizations
-func NewOrganizationRepository() *OrganizationRepository {
-	return &OrganizationRepository{
-		organizations: make(map[string]appmodels.IOrganization),
+func NewOrganizationRepository() *MemoryOrganizationRepository {
+	return &MemoryOrganizationRepository{
+		organizations: make(map[string]appmodels.Organization),
 	}
 }
 
 // Compile time assertion for implementing the interface
-var _ appmodels.IOrganizationService = (*OrganizationRepository)(nil)
+var _ appmodels.OrganizationRepository = (*MemoryOrganizationRepository)(nil)

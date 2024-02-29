@@ -8,8 +8,8 @@ import (
 )
 
 func NewCollection(
-	certManager managers.ICertificateManager,
-	fileManager managers.IFileManager,
+	certManager managers.CertificateManager,
+	fileManager managers.FileManager,
 	filePath string,
 ) *appmodels.Collection {
 	return appmodels.NewCollection(

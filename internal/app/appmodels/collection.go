@@ -4,15 +4,15 @@ package appmodels
 
 // Collection implements collection of model services
 type Collection struct {
-	Organization IOrganizationService
-	Certificate  ICertificateService
-	PrivateKey   IPrivateKeyService
+	Organization OrganizationRepository
+	Certificate  CertificateRepository
+	PrivateKey   PrivateKeyRepository
 }
 
 func NewCollection(
-	organization IOrganizationService,
-	certificate ICertificateService,
-	privateKey IPrivateKeyService,
+	organization OrganizationRepository,
+	certificate CertificateRepository,
+	privateKey PrivateKeyRepository,
 ) *Collection {
 	return &Collection{
 		Organization: organization,

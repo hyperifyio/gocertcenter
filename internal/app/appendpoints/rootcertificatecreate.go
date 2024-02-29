@@ -12,7 +12,7 @@ import (
 )
 
 // CreateRootCertificateDefinitions returns OpenAPI definitions
-func (c *ApiController) CreateRootCertificateDefinitions() swagger.Definitions {
+func (c *HttpApiController) CreateRootCertificateDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns a collection of organization entities",
 		Description: "",
@@ -35,7 +35,7 @@ func (c *ApiController) CreateRootCertificateDefinitions() swagger.Definitions {
 }
 
 // CreateOrganizationRootCertificate handles a request
-func (c *ApiController) CreateRootCertificate(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) CreateRootCertificate(response apitypes.Response, request apitypes.Request) error {
 
 	body, err := c.DecodeCertificateRequestFromRequestBody(request)
 	if err != nil {
@@ -67,5 +67,5 @@ func (c *ApiController) CreateRootCertificate(response apitypes.IResponse, reque
 	return c.sendOK(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateRootCertificateDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).CreateRootCertificate
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CreateRootCertificateDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).CreateRootCertificate

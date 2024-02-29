@@ -19,13 +19,13 @@ import (
 
 // CreateSignedCertificate creates a new certificate signed by a root or
 // intermediate certificate
-//   - manager: Certificate manager
-//   - template: Certificate template
+//   - manager: CertificateModel manager
+//   - template: CertificateModel template
 //   - signingCertificate: The certificate to use for signing
 //   - signingPublicKey: The public key to use for signing
 //   - signingPrivateKey: The private key to use for signing
 func CreateSignedCertificate(
-	manager managers.ICertificateManager,
+	manager managers.CertificateManager,
 	template *x509.Certificate,
 	signingCertificate *x509.Certificate,
 	publicKey any,
@@ -55,7 +55,7 @@ func CreateSignedCertificate(
 	return cert, nil
 }
 
-func ToCertificateDTO(c appmodels.ICertificate) appdtos.CertificateDTO {
+func ToCertificateDTO(c appmodels.Certificate) appdtos.CertificateDTO {
 	parents := c.GetParents()
 	strings := make([]string, len(parents))
 	for i, p := range parents {
@@ -77,7 +77,7 @@ func ToCertificateDTO(c appmodels.ICertificate) appdtos.CertificateDTO {
 }
 
 func ToCertificateRevokedDTO(
-	c appmodels.IRevokedCertificate,
+	c appmodels.RevokedCertificate,
 ) appdtos.CertificateRevokedDTO {
 	return appdtos.NewCertificateRevokedDTO(
 		c.GetSerialNumber().String(),
@@ -87,9 +87,9 @@ func ToCertificateRevokedDTO(
 }
 
 func ToRevokedCertificate(
-	c appmodels.ICertificate,
+	c appmodels.Certificate,
 	revocationTime time.Time,
-) appmodels.IRevokedCertificate {
+) appmodels.RevokedCertificate {
 	return appmodels.NewRevokedCertificate(
 		c.GetSerialNumber(),
 		revocationTime,
@@ -98,9 +98,9 @@ func ToRevokedCertificate(
 }
 
 func ToCertificateCreatedDTO(
-	certManager managers.ICertificateManager,
-	c appmodels.ICertificate,
-	k appmodels.IPrivateKey,
+	certManager managers.CertificateManager,
+	c appmodels.Certificate,
+	k appmodels.PrivateKey,
 ) (appdtos.CertificateCreatedDTO, error) {
 
 	if certManager == nil {
@@ -125,7 +125,7 @@ func ToCertificateCreatedDTO(
 	), nil
 }
 
-func ToListOfCertificateDTO(list []appmodels.ICertificate) []appdtos.CertificateDTO {
+func ToListOfCertificateDTO(list []appmodels.Certificate) []appdtos.CertificateDTO {
 	result := make([]appdtos.CertificateDTO, len(list))
 	for i, v := range list {
 		result[i] = ToCertificateDTO(v)
@@ -133,7 +133,7 @@ func ToListOfCertificateDTO(list []appmodels.ICertificate) []appdtos.Certificate
 	return result
 }
 
-func FilterCertificatesByType(list []appmodels.ICertificate, certificateType string) []appmodels.ICertificate {
+func FilterCertificatesByType(list []appmodels.Certificate, certificateType string) []appmodels.Certificate {
 	if certificateType == "root" {
 		return FilterRootCertificates(list)
 	}
@@ -146,11 +146,11 @@ func FilterCertificatesByType(list []appmodels.ICertificate, certificateType str
 	if certificateType == "intermediate" {
 		return FilterIntermediateCertificates(list)
 	}
-	return []appmodels.ICertificate{}
+	return []appmodels.Certificate{}
 }
 
-func FilterRootCertificates(list []appmodels.ICertificate) []appmodels.ICertificate {
-	result := make([]appmodels.ICertificate, 0)
+func FilterRootCertificates(list []appmodels.Certificate) []appmodels.Certificate {
+	result := make([]appmodels.Certificate, 0)
 	for _, v := range list {
 		if v.IsRootCertificate() {
 			result = append(result, v)
@@ -159,8 +159,8 @@ func FilterRootCertificates(list []appmodels.ICertificate) []appmodels.ICertific
 	return result
 }
 
-func FilterClientCertificates(list []appmodels.ICertificate) []appmodels.ICertificate {
-	result := make([]appmodels.ICertificate, 0)
+func FilterClientCertificates(list []appmodels.Certificate) []appmodels.Certificate {
+	result := make([]appmodels.Certificate, 0)
 	for _, v := range list {
 		if v.IsClientCertificate() {
 			result = append(result, v)
@@ -169,8 +169,8 @@ func FilterClientCertificates(list []appmodels.ICertificate) []appmodels.ICertif
 	return result
 }
 
-func FilterServerCertificates(list []appmodels.ICertificate) []appmodels.ICertificate {
-	result := make([]appmodels.ICertificate, 0)
+func FilterServerCertificates(list []appmodels.Certificate) []appmodels.Certificate {
+	result := make([]appmodels.Certificate, 0)
 	for _, v := range list {
 		if v.IsServerCertificate() {
 			result = append(result, v)
@@ -179,8 +179,8 @@ func FilterServerCertificates(list []appmodels.ICertificate) []appmodels.ICertif
 	return result
 }
 
-func FilterIntermediateCertificates(list []appmodels.ICertificate) []appmodels.ICertificate {
-	result := make([]appmodels.ICertificate, 0)
+func FilterIntermediateCertificates(list []appmodels.Certificate) []appmodels.Certificate {
+	result := make([]appmodels.Certificate, 0)
 	for _, v := range list {
 		if v.IsIntermediateCertificate() {
 			result = append(result, v)
@@ -189,12 +189,12 @@ func FilterIntermediateCertificates(list []appmodels.ICertificate) []appmodels.I
 	return result
 }
 
-func ToCertificateListDTO(list []appmodels.ICertificate) appdtos.CertificateListDTO {
+func ToCertificateListDTO(list []appmodels.Certificate) appdtos.CertificateListDTO {
 	payload := ToListOfCertificateDTO(list)
 	return appdtos.NewCertificateListDTO(payload)
 }
 
-func GetCertificatePEMBytes(c appmodels.ICertificate) []byte {
+func GetCertificatePEMBytes(c appmodels.Certificate) []byte {
 	// Convert the certificate to a PEM block
 	pemBlock := &pem.Block{
 		Type:  "CERTIFICATE",
@@ -206,26 +206,26 @@ func GetCertificatePEMBytes(c appmodels.ICertificate) []byte {
 }
 
 // NewIntermediateCertificate creates an intermediate certificate
-//   - manager managers.ICertificateManager is the certificate manager
-//   - serialNumber appmodels.ISerialNumber is the serial number for the new certificate
-//   - organization appmodels.IOrganization is the organization for the new certificate
+//   - manager managers.CertificateManager is the certificate manager
+//   - serialNumber appmodels.SerialNumber is the serial number for the new certificate
+//   - organization appmodels.Organization is the organization for the new certificate
 //   - expiration time.Duration is the expiration duration of the new certificate
-//   - publicKey appmodels.IPublicKey is public key of the new certificate
-//   - parentCertificate appmodels.ICertificate is the certificate of the part who signs this certificate
-//   - parentPrivateKey appmodels.IPrivateKey is the private key of the part who signs this certificate
+//   - publicKey appmodels.PublicKey is public key of the new certificate
+//   - parentCertificate appmodels.Certificate is the certificate of the part who signs this certificate
+//   - parentPrivateKey appmodels.PrivateKey is the private key of the part who signs this certificate
 //   - commonName string is the common name for the new certificate
 //
 // Returns the new certificate or an error
 func NewIntermediateCertificate(
-	manager managers.ICertificateManager,
-	serialNumber appmodels.ISerialNumber,
-	organization appmodels.IOrganization,
+	manager managers.CertificateManager,
+	serialNumber appmodels.SerialNumber,
+	organization appmodels.Organization,
 	expiration time.Duration,
-	publicKey appmodels.IPublicKey,
-	parentCertificate appmodels.ICertificate,
-	parentPrivateKey appmodels.IPrivateKey,
+	publicKey appmodels.PublicKey,
+	parentCertificate appmodels.Certificate,
+	parentPrivateKey appmodels.PrivateKey,
 	commonName string,
-) (appmodels.ICertificate, error) {
+) (appmodels.Certificate, error) {
 
 	if manager == nil {
 		return nil, fmt.Errorf("NewIntermediateCertificate: manager: must be defined")
@@ -290,11 +290,11 @@ func NewIntermediateCertificate(
 }
 
 // NewServerCertificate creates an intermediate certificate
-//   - manager: Certificate manager
+//   - manager: CertificateModel manager
 //   - serialNumber: Serial number for the new certificate
 //   - organization: The organization for the new certificate
 //   - expiration: The expiration duration
-//   - publicKey appmodels.IPublicKey is public key of the new certificate
+//   - publicKey appmodels.PublicKey is public key of the new certificate
 //   - parentCertificate: The certificate to use for signing
 //   - parentPrivateKey: The private key to use for signing
 //   - commonName: The common name for the new certificate
@@ -302,16 +302,16 @@ func NewIntermediateCertificate(
 //
 // Returns the new certificate or an error
 func NewServerCertificate(
-	manager managers.ICertificateManager,
-	serialNumber appmodels.ISerialNumber,
-	organization appmodels.IOrganization,
+	manager managers.CertificateManager,
+	serialNumber appmodels.SerialNumber,
+	organization appmodels.Organization,
 	expiration time.Duration,
-	publicKey appmodels.IPublicKey,
-	parentCertificate appmodels.ICertificate,
-	parentPrivateKey appmodels.IPrivateKey,
+	publicKey appmodels.PublicKey,
+	parentCertificate appmodels.Certificate,
+	parentPrivateKey appmodels.PrivateKey,
 	commonName string,
 	dnsNames ...string,
-) (appmodels.ICertificate, error) {
+) (appmodels.Certificate, error) {
 
 	if manager == nil {
 		return nil, fmt.Errorf("NewServerCertificate: manager: must be defined")
@@ -379,11 +379,11 @@ func NewServerCertificate(
 }
 
 // NewClientCertificate creates an intermediate certificate
-//   - manager: Certificate manager
+//   - manager: CertificateModel manager
 //   - serialNumber: Serial number for the new certificate
 //   - organization: The organization for the new certificate
 //   - expiration: The expiration duration
-//   - publicKey appmodels.IPublicKey is public key of the new certificate
+//   - publicKey appmodels.PublicKey is public key of the new certificate
 //   - parentCertificate: The certificate to use for signing
 //   - parentPrivateKey: The private key to use for signing
 //   - commonName: The common name for the new certificate
@@ -391,15 +391,15 @@ func NewServerCertificate(
 //
 // Returns the new certificate or an error
 func NewClientCertificate(
-	manager managers.ICertificateManager,
-	serialNumber appmodels.ISerialNumber,
-	organization appmodels.IOrganization,
+	manager managers.CertificateManager,
+	serialNumber appmodels.SerialNumber,
+	organization appmodels.Organization,
 	expiration time.Duration,
-	publicKey appmodels.IPublicKey,
-	parentCertificate appmodels.ICertificate,
-	parentPrivateKey appmodels.IPrivateKey,
+	publicKey appmodels.PublicKey,
+	parentCertificate appmodels.Certificate,
+	parentPrivateKey appmodels.PrivateKey,
 	commonName string,
-) (appmodels.ICertificate, error) {
+) (appmodels.Certificate, error) {
 
 	if manager == nil {
 		return nil, fmt.Errorf("NewClientCertificate: manager: must be defined")
@@ -458,7 +458,7 @@ func NewClientCertificate(
 }
 
 // NewRootCertificate creates a new root certificate
-//   - manager: Certificate manager
+//   - manager: CertificateModel manager
 //   - serialNumber: Serial number for the new root certificate
 //   - organization: The organization for the new certificate
 //   - expiration: The expiration duration
@@ -467,13 +467,13 @@ func NewClientCertificate(
 //
 // Returns the new certificate or an error
 func NewRootCertificate(
-	manager managers.ICertificateManager,
-	serialNumber appmodels.ISerialNumber,
-	organization appmodels.IOrganization,
+	manager managers.CertificateManager,
+	serialNumber appmodels.SerialNumber,
+	organization appmodels.Organization,
 	expiration time.Duration,
-	privateKey appmodels.IPrivateKey,
+	privateKey appmodels.PrivateKey,
 	commonName string,
-) (appmodels.ICertificate, error) {
+) (appmodels.Certificate, error) {
 
 	if manager == nil {
 		return nil, fmt.Errorf("NewRootCertificate: manager: must be defined")
@@ -523,7 +523,7 @@ func NewRootCertificate(
 
 	return appmodels.NewCertificate(
 		organization.GetID(),
-		[]appmodels.ISerialNumber{},
+		[]appmodels.SerialNumber{},
 		cert,
 	), nil
 }

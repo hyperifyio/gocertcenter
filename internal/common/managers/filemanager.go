@@ -7,43 +7,43 @@ import (
 	"path/filepath"
 )
 
-// FileManager wraps up operations to file system for easier testing
+// OSFileManager wraps up operations to file system for easier testing
 // See fsutils for higher level utilities.
-type FileManager struct{}
+type OSFileManager struct{}
 
 // ReadFile wraps up a call to os.ReadFile
-func (f *FileManager) ReadFile(fileName string) ([]byte, error) {
+func (f *OSFileManager) ReadFile(fileName string) ([]byte, error) {
 	return os.ReadFile(filepath.Clean(fileName))
 }
 
 // MkdirAll wraps up a call to os.MkdirAll
-func (f *FileManager) MkdirAll(dir string, dirPerms os.FileMode) error {
+func (f *OSFileManager) MkdirAll(dir string, dirPerms os.FileMode) error {
 	return os.MkdirAll(dir, dirPerms)
 }
 
 // CreateTemp wraps up a call to os.CreateTemp
-func (f *FileManager) CreateTemp(dir, pattern string) (IFile, error) {
+func (f *OSFileManager) CreateTemp(dir, pattern string) (File, error) {
 	file, err := os.CreateTemp(dir, pattern)
 	return NewFile(file), err
 }
 
 // Remove wraps up a call to os.Remove
-func (f *FileManager) Remove(name string) error {
+func (f *OSFileManager) Remove(name string) error {
 	return os.Remove(name)
 }
 
 // Rename wraps up a call to os.Rename
-func (f *FileManager) Rename(oldpath, newpath string) error {
+func (f *OSFileManager) Rename(oldpath, newpath string) error {
 	return os.Rename(oldpath, newpath)
 }
 
 // Chmod wraps up a call to os.Chmod
-func (f *FileManager) Chmod(file string, mode os.FileMode) error {
+func (f *OSFileManager) Chmod(file string, mode os.FileMode) error {
 	return os.Chmod(file, mode)
 }
 
-func NewFileManager() *FileManager {
-	return &FileManager{}
+func NewFileManager() *OSFileManager {
+	return &OSFileManager{}
 }
 
-var _ IFileManager = (*FileManager)(nil)
+var _ FileManager = (*OSFileManager)(nil)

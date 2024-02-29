@@ -12,11 +12,11 @@ import (
 
 // SaveBytes writes the given byte slice to a specified file, ensuring that any
 // necessary parent directories are created before writing. This function
-// abstracts filesystem operations through the managers.IFileManager interface,
+// abstracts filesystem operations through the managers.FileManager interface,
 // allowing for easier testing and integration with different filesystems.
 //
 // Parameters:
-//   - fs: An implementation of the managers.IFileManager interface, which
+//   - fs: An implementation of the managers.FileManager interface, which
 //     encapsulates filesystem operations.
 //   - fileName: The path to the file where the data will be saved. If the file
 //     does not exist, it will be created along with any necessary parent
@@ -30,7 +30,7 @@ import (
 // Returns:
 //   - nil if the operation was successful.
 //   - An error if there was a problem creating the directories, creating the file, setting permissions, or writing the data.
-func SaveBytes(fs managers.IFileManager, fileName string, data []byte, filePerms, dirPerms os.FileMode) error {
+func SaveBytes(fs managers.FileManager, fileName string, data []byte, filePerms, dirPerms os.FileMode) error {
 
 	fileName = filepath.Clean(fileName)
 

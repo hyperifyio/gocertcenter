@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// MockPublicKey is a mock implementation of the IPublicKey interface
+// MockPublicKey is a mock implementation of the PublicKey interface
 type MockPublicKey struct {
 	mock.Mock
 }
@@ -31,4 +31,4 @@ func NewMockRsaPublicKey() *MockPublicKey {
 	return mockPublicKey
 }
 
-var _ appmodels.IPublicKey = (*MockPublicKey)(nil)
+var _ appmodels.PublicKey = (*MockPublicKey)(nil)

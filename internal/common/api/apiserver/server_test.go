@@ -68,7 +68,7 @@ func TestServer_StartStop(t *testing.T) {
 	// Attempt to connect to the server after stopping it
 	_, err = http.Get("http://" + listenAddr)
 	if err == nil {
-		t.Fatal("Server should not be reachable after stopping")
+		t.Fatal("ApplicationServer should not be reachable after stopping")
 	}
 }
 
@@ -418,7 +418,7 @@ func TestServer_SetupRoutes(t *testing.T) {
 
 // testHandler returns a simple HTTP handler function for testing purposes.
 func testHandler(responseContent string) apitypes.RequestHandlerFunc {
-	return func(response apitypes.IResponse, request apitypes.IRequest) error {
+	return func(response apitypes.Response, request apitypes.Request) error {
 		response.Send(http.StatusOK, map[string]string{"message": responseContent})
 		return nil
 	}
@@ -445,7 +445,7 @@ func TestSetupHandler(t *testing.T) {
 	testResponse := "SetupHandler works!"
 
 	// Setup the handler
-	err = server.SetupHandler(testMethod, testPath, func(response apitypes.IResponse, request apitypes.IRequest) error {
+	err = server.SetupHandler(testMethod, testPath, func(response apitypes.Response, request apitypes.Request) error {
 		response.Send(http.StatusOK, map[string]interface{}{"message": testResponse})
 		return nil
 	}, swagger.Definitions{})
@@ -455,7 +455,7 @@ func TestSetupHandler(t *testing.T) {
 
 	// Start the server
 	if err := server.Start(); err != nil {
-		t.Fatalf("Server failed to start: %v", err)
+		t.Fatalf("ApplicationServer failed to start: %v", err)
 	}
 
 	// Wait a moment for the server to start
@@ -491,7 +491,7 @@ func TestStop(t *testing.T) {
 	// Ensure server is running
 	_, err = http.Get("http://localhost:8087")
 	if err != nil {
-		t.Fatalf("Server should be running, but got error: %v", err)
+		t.Fatalf("ApplicationServer should be running, but got error: %v", err)
 	}
 
 	// Stop the server
@@ -502,7 +502,7 @@ func TestStop(t *testing.T) {
 	// Ensure server has stopped
 	_, err = http.Get("http://localhost:8087")
 	if err == nil {
-		t.Fatal("Server should be stopped, but request succeeded")
+		t.Fatal("ApplicationServer should be stopped, but request succeeded")
 	}
 }
 
@@ -516,7 +516,7 @@ func TestServer_FinalizeSetup(t *testing.T) {
 		url string,
 		description string,
 		info *openapi3.Info,
-	) (managers.ISwaggerManager, error) {
+	) (managers.SwaggerManager, error) {
 		return mockSwaggerManager, nil
 	}
 
@@ -540,7 +540,7 @@ func TestServer_SetupHandlerWithMock(t *testing.T) {
 
 	mockRoute := mux.NewRouter().NewRoute()
 
-	// Initialize the mock SwaggerManager
+	// Initialize the mock GorillaSwaggerManager
 	// Mock swagger factory function that always returns an error
 	mockSwaggerManager := new(apimocks.MockSwaggerManager)
 	mockFactory := func(
@@ -549,11 +549,11 @@ func TestServer_SetupHandlerWithMock(t *testing.T) {
 		url string,
 		description string,
 		info *openapi3.Info,
-	) (managers.ISwaggerManager, error) {
+	) (managers.SwaggerManager, error) {
 		return mockSwaggerManager, nil
 	}
 
-	// Creating server with the mocked SwaggerManager
+	// Creating server with the mocked GorillaSwaggerManager
 	server, err := apiserver.NewServer(":8080", mockFactory)
 	if err != nil {
 		t.Fatalf("NewServer failed: %v", err)
@@ -563,7 +563,7 @@ func TestServer_SetupHandlerWithMock(t *testing.T) {
 	path := "/test"
 	method := "GET"
 	definitions := swagger.Definitions{}
-	var handler apitypes.RequestHandlerFunc = func(response apitypes.IResponse, request apitypes.IRequest) error {
+	var handler apitypes.RequestHandlerFunc = func(response apitypes.Response, request apitypes.Request) error {
 		return nil
 	}
 
@@ -596,7 +596,7 @@ func TestSetupHandlerEmptyMethodPath(t *testing.T) {
 		url string,
 		description string,
 		info *openapi3.Info,
-	) (managers.ISwaggerManager, error) {
+	) (managers.SwaggerManager, error) {
 		return mockSwaggerManager, nil
 	}
 
@@ -609,7 +609,7 @@ func TestSetupHandlerEmptyMethodPath(t *testing.T) {
 	// Set up expectations
 	mockSwaggerManager.On("AddRoute", "GET", "/", mock.AnythingOfType("http.HandlerFunc"), swagger.Definitions{}).Return(mockRoute, nil)
 
-	var handler apitypes.RequestHandlerFunc = func(response apitypes.IResponse, request apitypes.IRequest) error {
+	var handler apitypes.RequestHandlerFunc = func(response apitypes.Response, request apitypes.Request) error {
 		return nil
 	}
 
@@ -641,7 +641,7 @@ func TestInitSetup_SwaggerFactoryError(t *testing.T) {
 		url string,
 		description string,
 		info *openapi3.Info,
-	) (managers.ISwaggerManager, error) {
+	) (managers.SwaggerManager, error) {
 		return nil, errors.New(expectedErrorMsg)
 	}
 
@@ -681,7 +681,7 @@ func TestSetupRoutes_HandlerError(t *testing.T) {
 		url string,
 		description string,
 		info *openapi3.Info,
-	) (managers.ISwaggerManager, error) {
+	) (managers.SwaggerManager, error) {
 		return mockSwaggerManager, nil
 	}
 
@@ -696,7 +696,7 @@ func TestSetupRoutes_HandlerError(t *testing.T) {
 		t.Fatalf("Failed to create server: %v", err)
 	}
 
-	var handler apitypes.RequestHandlerFunc = func(response apitypes.IResponse, request apitypes.IRequest) error {
+	var handler apitypes.RequestHandlerFunc = func(response apitypes.Response, request apitypes.Request) error {
 		return nil
 	}
 
@@ -749,7 +749,7 @@ func TestServer_Start_FailsFinalizeSetup(t *testing.T) {
 		url string,
 		description string,
 		info *openapi3.Info,
-	) (managers.ISwaggerManager, error) {
+	) (managers.SwaggerManager, error) {
 		return mockSwaggerManager, nil
 	}
 
@@ -780,7 +780,7 @@ func TestServer_Start_FailsFinalizeSetup(t *testing.T) {
 }
 
 // Custom factory function that always returns nil
-func nilServerFactory(address string, router *mux.Router) managers.IServerManager {
+func nilServerFactory(address string, router *mux.Router) managers.ServerManager {
 	return nil
 }
 
@@ -808,7 +808,7 @@ func TestServer_StartWithNilServerFactory(t *testing.T) {
 	}
 }
 
-// mockServerManager simulates the IServerManager behavior for testing.
+// mockServerManager simulates the ServerManager behavior for testing.
 type slowMockServerManager struct {
 	Time time.Duration
 }
@@ -835,7 +835,7 @@ func TestServer_StartWithShortDelayedServeFailure(t *testing.T) {
 	}
 
 	// Inject the mock server manager factory that returns our custom mockServerManager.
-	server.SetServerFactory(func(address string, router *mux.Router) managers.IServerManager {
+	server.SetServerFactory(func(address string, router *mux.Router) managers.ServerManager {
 		return &slowMockServerManager{Time: 100 * time.Millisecond}
 	})
 
@@ -865,7 +865,7 @@ func TestServer_StartWithLongDelayedServeFailure(t *testing.T) {
 	}
 
 	// Inject the mock server manager factory that returns our custom mockServerManager.
-	server.SetServerFactory(func(address string, router *mux.Router) managers.IServerManager {
+	server.SetServerFactory(func(address string, router *mux.Router) managers.ServerManager {
 		return &slowMockServerManager{Time: 1600 * time.Millisecond}
 	})
 
@@ -915,7 +915,7 @@ func TestServer_SetSwaggerFactory(t *testing.T) {
 	mockSwaggerManager := &apimocks.MockSwaggerManager{}
 
 	// Mock factory function that returns an instance of our mockSwaggerManager
-	factory := func(router *mux.Router, ctx *context.Context, url, description string, info *openapi3.Info) (managers.ISwaggerManager, error) {
+	factory := func(router *mux.Router, ctx *context.Context, url, description string, info *openapi3.Info) (managers.SwaggerManager, error) {
 		return mockSwaggerManager, nil
 	}
 
@@ -966,7 +966,7 @@ func TestServer_StopShutdownFails(t *testing.T) {
 	}
 
 	// Inject the mock server manager factory that returns our custom mockServerManager.
-	server.SetServerFactory(func(address string, router *mux.Router) managers.IServerManager {
+	server.SetServerFactory(func(address string, router *mux.Router) managers.ServerManager {
 		return mockServerManager
 	})
 
@@ -1004,7 +1004,7 @@ func TestServer_UnSetupWhileRunning(t *testing.T) {
 
 	// Inject the mock server manager factory to return our custom mockServerManager.
 	// This step simulates the server being in a running state by directly setting the mock manager.
-	server.SetServerFactory(func(address string, router *mux.Router) managers.IServerManager {
+	server.SetServerFactory(func(address string, router *mux.Router) managers.ServerManager {
 		return mockServerManager
 	})
 
@@ -1029,7 +1029,7 @@ func TestStart_UninitializedHandle_SwaggerFactoryFails(t *testing.T) {
 		context *context.Context,
 		basePath, description string,
 		info *openapi3.Info,
-	) (managers.ISwaggerManager, error) {
+	) (managers.SwaggerManager, error) {
 		return nil, errors.New("swagger factory initialization failed")
 	}
 

@@ -6,67 +6,67 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// PrivateKeyController implements appmodels.IPrivateKeyController to control
+// CertPrivateKeyController implements appmodels.PrivateKeyController to control
 // operations for private key models.
 //
-// It utilizes appmodels.IPrivateKeyService interface to abstract and
+// It utilizes appmodels.PrivateKeyRepository interface to abstract and
 // inject the underlying storage mechanism (e.g., database, memory). This design
 // promotes separation of concerns by decoupling the business logic from the
 // specific details of data persistence.
-type PrivateKeyController struct {
-	model  appmodels.IPrivateKey
-	parent appmodels.ICertificateController
+type CertPrivateKeyController struct {
+	model  appmodels.PrivateKey
+	parent appmodels.CertificateController
 
-	privateKeyRepository appmodels.IPrivateKeyService
+	privateKeyRepository appmodels.PrivateKeyRepository
 }
 
-func (r *PrivateKeyController) GetApplicationController() appmodels.IApplicationController {
+func (r *CertPrivateKeyController) GetApplicationController() appmodels.ApplicationController {
 	return r.parent.GetApplicationController()
 }
 
-func (r *PrivateKeyController) GetOrganizationID() string {
+func (r *CertPrivateKeyController) GetOrganizationID() string {
 	return r.parent.GetOrganizationID()
 }
 
-func (r *PrivateKeyController) GetOrganizationModel() appmodels.IOrganization {
+func (r *CertPrivateKeyController) GetOrganizationModel() appmodels.Organization {
 	return r.parent.GetOrganizationModel()
 }
 
-func (r *PrivateKeyController) GetOrganizationController() appmodels.IOrganizationController {
+func (r *CertPrivateKeyController) GetOrganizationController() appmodels.OrganizationController {
 	if r.parent == nil {
 		return nil
 	}
 	return r.parent.GetOrganizationController()
 }
 
-func (r *PrivateKeyController) GetCertificateModel() appmodels.ICertificate {
+func (r *CertPrivateKeyController) GetCertificateModel() appmodels.Certificate {
 	return r.parent.GetCertificateModel()
 }
 
-func (r *PrivateKeyController) GetCertificateController() appmodels.ICertificateController {
+func (r *CertPrivateKeyController) GetCertificateController() appmodels.CertificateController {
 	return r.parent
 }
 
-func (r *PrivateKeyController) UsesPrivateKeyService(service appmodels.IPrivateKeyService) bool {
+func (r *CertPrivateKeyController) UsesPrivateKeyService(service appmodels.PrivateKeyRepository) bool {
 	return r.privateKeyRepository == service
 }
 
-// NewPrivateKeyController creates a new instance of PrivateKeyController
-// injecting the specified appmodels.IPrivateKeyService implementation.
+// NewPrivateKeyController creates a new instance of CertPrivateKeyController
+// injecting the specified appmodels.PrivateKeyRepository implementation.
 //
-//   - model appmodels.IPrivateKey
-//   - parent appmodels.ICertificateController
-//   - privateKeyRepository appmodels.IPrivateKeyService
+//   - model appmodels.PrivateKey
+//   - parent appmodels.CertificateController
+//   - privateKeyRepository appmodels.PrivateKeyRepository
 func NewPrivateKeyController(
-	model appmodels.IPrivateKey,
-	parent appmodels.ICertificateController,
-	privateKeyRepository appmodels.IPrivateKeyService,
-) *PrivateKeyController {
-	return &PrivateKeyController{
+	model appmodels.PrivateKey,
+	parent appmodels.CertificateController,
+	privateKeyRepository appmodels.PrivateKeyRepository,
+) *CertPrivateKeyController {
+	return &CertPrivateKeyController{
 		model:                model,
 		parent:               parent,
 		privateKeyRepository: privateKeyRepository,
 	}
 }
 
-var _ appmodels.IPrivateKeyController = (*PrivateKeyController)(nil)
+var _ appmodels.PrivateKeyController = (*CertPrivateKeyController)(nil)

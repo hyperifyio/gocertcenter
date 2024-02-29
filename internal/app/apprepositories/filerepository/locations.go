@@ -27,19 +27,19 @@ func GetOrganizationJsonPath(dir, organization string) string {
 }
 
 // GetPrivateKeyPemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/privkey.pem`
-func GetPrivateKeyPemPath(dir, organization string, certificates []appmodels.ISerialNumber) string {
+func GetPrivateKeyPemPath(dir, organization string, certificates []appmodels.SerialNumber) string {
 	return filepath.Join(GetCertificateDirectory(dir, organization, certificates), PrivateKeyPemName)
 }
 
 // GetCertificatePemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/cert.pem`
-func GetCertificatePemPath(dir, organization string, certificates []appmodels.ISerialNumber) string {
+func GetCertificatePemPath(dir, organization string, certificates []appmodels.SerialNumber) string {
 	return filepath.Join(GetCertificateDirectory(dir, organization, certificates), CertificatePemName)
 }
 
 // GetCertificateDirectory returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+`
 func GetCertificateDirectory(
 	dir, organization string,
-	certificates []appmodels.ISerialNumber,
+	certificates []appmodels.SerialNumber,
 ) string {
 	parts := []string{dir, OrganizationsDirectoryName, organization}
 	for _, certificate := range certificates {

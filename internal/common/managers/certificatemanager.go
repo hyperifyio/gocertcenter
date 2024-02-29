@@ -10,63 +10,63 @@ import (
 	"io"
 )
 
-// CertificateManager implements operations to manage x509 certificates by
-// implementing models.ICertificateManager. This is intended to wrap low level
+// SystemCertificateManager implements operations to manage x509 certificates by
+// implementing models.CertificateManager. This is intended to wrap low level
 // external library operations for easier testing by using mocks. Any higher
 // level operations shouldn't be implemented inside it.
-type CertificateManager struct {
-	randomManager IRandomManager
+type SystemCertificateManager struct {
+	randomManager RandomManager
 }
 
-func (m CertificateManager) GetRandomManager() IRandomManager {
+func (m SystemCertificateManager) RandomManager() RandomManager {
 	return m.randomManager
 }
 
-func (m CertificateManager) CreateCertificate(rand io.Reader, template, parent *x509.Certificate, publicKey, privateKey any) ([]byte, error) {
+func (m SystemCertificateManager) CreateCertificate(rand io.Reader, template, parent *x509.Certificate, publicKey, privateKey any) ([]byte, error) {
 	return x509.CreateCertificate(rand, template, parent, publicKey, privateKey)
 }
 
-func (m CertificateManager) ParseCertificate(der []byte) (*x509.Certificate, error) {
+func (m SystemCertificateManager) ParseCertificate(der []byte) (*x509.Certificate, error) {
 	return x509.ParseCertificate(der)
 }
 
-func (m CertificateManager) ParseECPrivateKey(der []byte) (*ecdsa.PrivateKey, error) {
+func (m SystemCertificateManager) ParseECPrivateKey(der []byte) (*ecdsa.PrivateKey, error) {
 	return x509.ParseECPrivateKey(der)
 }
 
-func (m CertificateManager) MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte {
+func (m SystemCertificateManager) MarshalPKCS1PrivateKey(key *rsa.PrivateKey) []byte {
 	return x509.MarshalPKCS1PrivateKey(key)
 }
 
-func (m CertificateManager) MarshalECPrivateKey(key *ecdsa.PrivateKey) ([]byte, error) {
+func (m SystemCertificateManager) MarshalECPrivateKey(key *ecdsa.PrivateKey) ([]byte, error) {
 	return x509.MarshalECPrivateKey(key)
 }
 
-func (m CertificateManager) MarshalPKCS8PrivateKey(key any) ([]byte, error) {
+func (m SystemCertificateManager) MarshalPKCS8PrivateKey(key any) ([]byte, error) {
 	return x509.MarshalPKCS8PrivateKey(key)
 }
 
-func (m CertificateManager) EncodePEMToMemory(b *pem.Block) []byte {
+func (m SystemCertificateManager) EncodePEMToMemory(b *pem.Block) []byte {
 	return pem.EncodeToMemory(b)
 }
 
-func (m CertificateManager) DecodePEM(data []byte) (p *pem.Block, rest []byte) {
+func (m SystemCertificateManager) DecodePEM(data []byte) (p *pem.Block, rest []byte) {
 	return pem.Decode(data)
 }
 
-func (m CertificateManager) ParsePKCS8PrivateKey(der []byte) (any, error) {
+func (m SystemCertificateManager) ParsePKCS8PrivateKey(der []byte) (any, error) {
 	return x509.ParsePKCS8PrivateKey(der)
 }
 
-func (m CertificateManager) ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
+func (m SystemCertificateManager) ParsePKCS1PrivateKey(der []byte) (*rsa.PrivateKey, error) {
 	return x509.ParsePKCS1PrivateKey(der)
 }
 
-func NewCertificateManager(randomManager IRandomManager) CertificateManager {
+func NewCertificateManager(randomManager RandomManager) SystemCertificateManager {
 	if randomManager == nil {
-		return CertificateManager{randomManager: NewRandomManager()}
+		return SystemCertificateManager{randomManager: NewRandomManager()}
 	}
-	return CertificateManager{randomManager}
+	return SystemCertificateManager{randomManager}
 }
 
-var _ ICertificateManager = (*CertificateManager)(nil)
+var _ CertificateManager = (*SystemCertificateManager)(nil)

@@ -12,7 +12,7 @@ import (
 )
 
 // RevokeCertificateDefinitions returns OpenAPI definitions
-func (c *ApiController) RevokeCertificateDefinitions() swagger.Definitions {
+func (c *HttpApiController) RevokeCertificateDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns a certificate entity owned by a root certificate",
 		Description: "",
@@ -27,7 +27,7 @@ func (c *ApiController) RevokeCertificateDefinitions() swagger.Definitions {
 }
 
 // RevokeCertificate handles a request
-func (c *ApiController) RevokeCertificate(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) RevokeCertificate(response apitypes.Response, request apitypes.Request) error {
 
 	// Fetch the certificate controller
 	controller, err := c.getInnerCertificateController(request)
@@ -45,5 +45,5 @@ func (c *ApiController) RevokeCertificate(response apitypes.IResponse, request a
 	return c.sendOK(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).RevokeCertificateDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).RevokeCertificate
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).RevokeCertificateDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).RevokeCertificate

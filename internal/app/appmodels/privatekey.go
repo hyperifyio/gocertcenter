@@ -8,14 +8,14 @@ import (
 	"crypto/rsa"
 )
 
-// PrivateKey model implements IPrivateKey
-type PrivateKey struct {
+// PrivateKeyModel model implements PrivateKey
+type PrivateKeyModel struct {
 
 	// organization is the organization this key belongs to
 	organization string
 
 	// certificates is the path to the certificate as serial numbers from root certificate
-	certificates []ISerialNumber
+	certificates []SerialNumber
 
 	// The type of the key
 	keyType KeyType
@@ -24,43 +24,43 @@ type PrivateKey struct {
 	data any
 }
 
-func (k *PrivateKey) GetSerialNumber() ISerialNumber {
+func (k *PrivateKeyModel) GetSerialNumber() SerialNumber {
 	if len(k.certificates) <= 0 {
 		return nil
 	}
 	return k.certificates[len(k.certificates)-1]
 }
 
-func (k *PrivateKey) GetParents() []ISerialNumber {
+func (k *PrivateKeyModel) GetParents() []SerialNumber {
 	if len(k.certificates) <= 1 {
-		return []ISerialNumber{}
+		return []SerialNumber{}
 	}
 	originalSlice := k.certificates[:len(k.certificates)-1]
-	sliceCopy := make([]ISerialNumber, len(originalSlice))
+	sliceCopy := make([]SerialNumber, len(originalSlice))
 	copy(sliceCopy, originalSlice)
 	return sliceCopy
 }
 
-func (k *PrivateKey) GetCertificates() []ISerialNumber {
+func (k *PrivateKeyModel) GetCertificates() []SerialNumber {
 	originalSlice := k.certificates
-	sliceCopy := make([]ISerialNumber, len(originalSlice))
+	sliceCopy := make([]SerialNumber, len(originalSlice))
 	copy(sliceCopy, originalSlice)
 	return sliceCopy
 }
 
-func (k *PrivateKey) GetOrganizationID() string {
+func (k *PrivateKeyModel) GetOrganizationID() string {
 	return k.organization
 }
 
-func (k *PrivateKey) GetPrivateKey() any {
+func (k *PrivateKeyModel) GetPrivateKey() any {
 	return k.data
 }
 
-func (k *PrivateKey) GetKeyType() KeyType {
+func (k *PrivateKeyModel) GetKeyType() KeyType {
 	return k.keyType
 }
 
-func (k *PrivateKey) GetPublicKey() any {
+func (k *PrivateKeyModel) GetPublicKey() any {
 	switch k := k.data.(type) {
 	case *rsa.PrivateKey:
 		return &k.PublicKey
@@ -80,11 +80,11 @@ func (k *PrivateKey) GetPublicKey() any {
 //   - data is the private key data
 func NewPrivateKey(
 	organization string,
-	certificates []ISerialNumber,
+	certificates []SerialNumber,
 	keyType KeyType,
 	data any,
-) *PrivateKey {
-	return &PrivateKey{
+) *PrivateKeyModel {
+	return &PrivateKeyModel{
 		certificates: certificates,
 		data:         data,
 		keyType:      keyType,
@@ -93,4 +93,4 @@ func NewPrivateKey(
 }
 
 // Compile time assertion for implementing the interface
-var _ IPrivateKey = (*PrivateKey)(nil)
+var _ PrivateKey = (*PrivateKeyModel)(nil)

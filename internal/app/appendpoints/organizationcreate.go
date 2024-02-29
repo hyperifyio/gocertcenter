@@ -13,12 +13,12 @@ import (
 )
 
 // CreateOrganizationDefinitions returns OpenAPI definitions
-func (c *ApiController) CreateOrganizationDefinitions() swagger.Definitions {
+func (c *HttpApiController) CreateOrganizationDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Creates an organization",
 		Description: "",
 		RequestBody: &swagger.ContentValue{
-			Description: "Organization data",
+			Description: "OrganizationModel data",
 			Content: swagger.Content{
 				"application/json": {
 					Value: appdtos.OrganizationDTO{},
@@ -36,7 +36,7 @@ func (c *ApiController) CreateOrganizationDefinitions() swagger.Definitions {
 }
 
 // CreateOrganization handles a request
-func (c *ApiController) CreateOrganization(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) CreateOrganization(response apitypes.Response, request apitypes.Request) error {
 
 	body, err := c.DecodeOrganizationFromRequestBody(request)
 	if err != nil {
@@ -46,8 +46,8 @@ func (c *ApiController) CreateOrganization(response apitypes.IResponse, request 
 	id := body.ID
 	name := body.Name
 	names := body.AllNames
-	var certificates []appmodels.ICertificate
-	var keys []appmodels.IPrivateKey
+	var certificates []appmodels.Certificate
+	var keys []appmodels.PrivateKey
 
 	if id == "" && name != "" {
 		id = name
@@ -83,5 +83,5 @@ func (c *ApiController) CreateOrganization(response apitypes.IResponse, request 
 	return c.sendOK(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateOrganizationDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).CreateOrganization
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CreateOrganizationDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).CreateOrganization

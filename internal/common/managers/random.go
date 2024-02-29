@@ -7,17 +7,17 @@ import (
 	"math/big"
 )
 
-// RandomManager implements models.IRandomManager
-type RandomManager struct {
+// RandRandomManager implements RandomManager
+type RandRandomManager struct {
 }
 
 // CreateBigInt wraps up a call to rand.Int with rand.Reader
-func (r *RandomManager) CreateBigInt(max *big.Int) (*big.Int, error) {
+func (r *RandRandomManager) CreateBigInt(max *big.Int) (*big.Int, error) {
 	return rand.Int(rand.Reader, max)
 }
 
-func NewRandomManager() *RandomManager {
-	return &RandomManager{}
+func NewRandomManager() *RandRandomManager {
+	return &RandRandomManager{}
 }
 
-var _ IRandomManager = (*RandomManager)(nil)
+var _ RandomManager = (*RandRandomManager)(nil)

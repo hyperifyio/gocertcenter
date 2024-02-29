@@ -15,14 +15,14 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// NewSwaggerManagerFunc is a factory function for ISwaggerManager instances
+// NewSwaggerManagerFunc is a factory function for SwaggerManager instances
 type NewSwaggerManagerFunc func(
 	router *mux.Router,
 	context *context.Context,
 	url string,
 	description string,
 	info *openapi3.Info,
-) (managers.ISwaggerManager, error)
+) (managers.SwaggerManager, error)
 
 // Route represents a single API route
 type Route struct {
@@ -32,7 +32,7 @@ type Route struct {
 	Definitions swagger.Definitions
 }
 
-type IResponse interface {
+type Response interface {
 	Send(statusCode int, data interface{})
 	SendError(statusCode int, error string)
 	SendMethodNotSupportedError()
@@ -43,9 +43,9 @@ type IResponse interface {
 	SetHeader(name, value string)
 }
 
-// IServer defines the methods available from the Server
+// Server defines the methods available from the Server
 // that are needed by the HTTP handlers.
-type IServer interface {
+type Server interface {
 
 	// IsStarted returns true if this service has been started
 	IsStarted() bool
@@ -90,7 +90,7 @@ type IServer interface {
 	Stop() error
 }
 
-type IRequest interface {
+type Request interface {
 	IsMethodGet() bool
 	GetMethod() string
 	GetURL() *url.URL
@@ -102,7 +102,7 @@ type IRequest interface {
 }
 
 // RequestHandlerFunc defines the type for handlers in this API.
-type RequestHandlerFunc func(IResponse, IRequest) error
+type RequestHandlerFunc func(Response, Request) error
 
 // RequestDefinitionsFunc defines the type for OpenAPI definitions function
 type RequestDefinitionsFunc func() swagger.Definitions
@@ -113,15 +113,17 @@ type ApplicationInfoFunc func() *openapi3.Info
 // ApplicationRoutesFunc defines a function which returns application routes
 type ApplicationRoutesFunc func() []Route
 
-// NewServerManagerFunc is a factory function for IServerManager instances
+// NewServerManagerFunc is a factory function for ServerManager instances
 type NewServerManagerFunc func(
 	address string,
 	handler *mux.Router,
-) managers.IServerManager
+) managers.ServerManager
 
 type Hash64FactoryFunc func() hash.Hash64
 
-type IAppController interface {
+// AppController defines common methods for each application end-point
+// controller
+type AppController interface {
 	GetInfo() *openapi3.Info
 
 	GetRoutes() []Route

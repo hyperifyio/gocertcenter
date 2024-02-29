@@ -10,20 +10,20 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// OrganizationRepository implements models.IOrganizationService for a file system
-type OrganizationRepository struct {
+// FileOrganizationRepository implements models.OrganizationRepository for a file system
+type FileOrganizationRepository struct {
 	filePath    string
-	certManager managers.ICertificateManager
-	fileManager managers.IFileManager
+	certManager managers.CertificateManager
+	fileManager managers.FileManager
 }
 
-func (r *OrganizationRepository) FindAll() ([]appmodels.IOrganization, error) {
+func (r *FileOrganizationRepository) FindAll() ([]appmodels.Organization, error) {
 	// FIXME: Not implemented yet
-	var list []appmodels.IOrganization
+	var list []appmodels.Organization
 	return list, nil
 }
 
-func (r *OrganizationRepository) FindById(id string) (appmodels.IOrganization, error) {
+func (r *FileOrganizationRepository) FindById(id string) (appmodels.Organization, error) {
 	fileName := GetOrganizationJsonPath(r.filePath, id)
 	dto, err := ReadOrganizationJsonFile(r.fileManager, fileName)
 	if err != nil {
@@ -36,7 +36,7 @@ func (r *OrganizationRepository) FindById(id string) (appmodels.IOrganization, e
 	return model, nil
 }
 
-func (r *OrganizationRepository) Save(organization appmodels.IOrganization) (appmodels.IOrganization, error) {
+func (r *FileOrganizationRepository) Save(organization appmodels.Organization) (appmodels.Organization, error) {
 	id := organization.GetID()
 	fileName := GetOrganizationJsonPath(r.filePath, id)
 	err := SaveOrganizationJsonFile(r.fileManager, fileName, apputils.GetOrganizationDTO(organization))
@@ -48,15 +48,15 @@ func (r *OrganizationRepository) Save(organization appmodels.IOrganization) (app
 
 // NewOrganizationRepository creates a file based repository
 func NewOrganizationRepository(
-	certManager managers.ICertificateManager,
-	fileManager managers.IFileManager,
+	certManager managers.CertificateManager,
+	fileManager managers.FileManager,
 	filePath string,
-) *OrganizationRepository {
-	return &OrganizationRepository{
+) *FileOrganizationRepository {
+	return &FileOrganizationRepository{
 		fileManager: fileManager,
 		certManager: certManager,
 		filePath:    filePath,
 	}
 }
 
-var _ appmodels.IOrganizationService = (*OrganizationRepository)(nil)
+var _ appmodels.OrganizationRepository = (*FileOrganizationRepository)(nil)

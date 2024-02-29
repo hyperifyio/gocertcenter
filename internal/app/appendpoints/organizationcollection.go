@@ -11,7 +11,7 @@ import (
 )
 
 // GetOrganizationCollectionDefinitions returns OpenAPI definitions
-func (c *ApiController) GetOrganizationCollectionDefinitions() swagger.Definitions {
+func (c *HttpApiController) GetOrganizationCollectionDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns a specific root certificate",
 		Description: "",
@@ -26,7 +26,7 @@ func (c *ApiController) GetOrganizationCollectionDefinitions() swagger.Definitio
 }
 
 // GetOrganizationCollection handles a request
-func (c *ApiController) GetOrganizationCollection(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) GetOrganizationCollection(response apitypes.Response, request apitypes.Request) error {
 	list, err := c.appController.GetOrganizationCollection()
 	if err != nil {
 		return c.sendInternalServerError(response, request, err)
@@ -36,5 +36,5 @@ func (c *ApiController) GetOrganizationCollection(response apitypes.IResponse, r
 	return c.sendOK(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetOrganizationCollectionDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).GetOrganizationCollection
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetOrganizationCollectionDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetOrganizationCollection

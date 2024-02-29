@@ -21,11 +21,11 @@ func TestNewSwaggerManager(t *testing.T) {
 
 	manager, err := managers.NewSwaggerManager(router, &ctx, "http://example.com", "Test API Server", info)
 	if err != nil {
-		t.Fatalf("Failed to create SwaggerManager: %v", err)
+		t.Fatalf("Failed to create GorillaSwaggerManager: %v", err)
 	}
 
 	if manager == nil {
-		t.Fatal("Expected SwaggerManager instance, got nil")
+		t.Fatal("Expected GorillaSwaggerManager instance, got nil")
 	}
 }
 
@@ -82,7 +82,7 @@ func TestSwaggerManager_AddRouteWithError(t *testing.T) {
 
 	manager, err := managers.NewSwaggerManager(router, &ctx, url, description, info)
 	if err != nil {
-		t.Fatalf("Failed to create SwaggerManager: %v", err)
+		t.Fatalf("Failed to create GorillaSwaggerManager: %v", err)
 	}
 
 	// Act: Attempt to add a route which is designed to fail within the mock
@@ -113,10 +113,10 @@ func TestNewSwaggerManagerWithError(t *testing.T) {
 	description := "Unable to create API server"
 	info := &openapi3.Info{} // Title and version are required
 
-	// Act: Attempt to create a SwaggerManager which is designed to fail
+	// Act: Attempt to create a GorillaSwaggerManager which is designed to fail
 	_, err := managers.NewSwaggerManager(router, &ctx, url, description, info)
 	if err == nil {
-		t.Error("Expected an error when creating SwaggerManager, but got nil")
+		t.Error("Expected an error when creating GorillaSwaggerManager, but got nil")
 	}
 
 }

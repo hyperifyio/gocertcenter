@@ -12,7 +12,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// MockSwaggerManager defines a mock for apitypes.ISwaggerManager interface.
+// MockSwaggerManager defines a mock for apitypes.SwaggerManager interface.
 type MockSwaggerManager struct {
 	mock.Mock
 }
@@ -29,4 +29,4 @@ func (m *MockSwaggerManager) AddRoute(method string, path string, handler http.H
 	return args.Get(0).(*mux.Route), args.Error(1)
 }
 
-var _ managers.ISwaggerManager = (*MockSwaggerManager)(nil)
+var _ managers.SwaggerManager = (*MockSwaggerManager)(nil)

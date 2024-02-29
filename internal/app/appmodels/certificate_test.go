@@ -38,7 +38,7 @@ func TestNewCertificate(t *testing.T) {
 	signedBy := appmodels.NewSerialNumber(big.NewInt(2))
 	certData := newMockX509Certificate(true, []string{"Test Org"}, nil)
 
-	cert := appmodels.NewCertificate(orgID, []appmodels.ISerialNumber{signedBy}, certData)
+	cert := appmodels.NewCertificate(orgID, []appmodels.SerialNumber{signedBy}, certData)
 	if cert.GetOrganizationID() != orgID {
 		t.Errorf("GetOrganizationID() = %v, want %v", cert.GetOrganizationID(), orgID)
 	}
@@ -56,12 +56,12 @@ func TestNewCertificate(t *testing.T) {
 }
 
 func TestCertificate_IsCA(t *testing.T) {
-	caCert := appmodels.NewCertificate("OrgCA", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(true, []string{"CA Org"}, nil))
+	caCert := appmodels.NewCertificate("OrgCA", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(true, []string{"CA Org"}, nil))
 	if !caCert.IsCA() {
 		t.Error("IsCA() should return true for CA certificates")
 	}
 
-	nonCaCert := appmodels.NewCertificate("OrgNonCA", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, newMockX509Certificate(false, []string{"Non-CA Org"}, nil))
+	nonCaCert := appmodels.NewCertificate("OrgNonCA", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, newMockX509Certificate(false, []string{"Non-CA Org"}, nil))
 	if nonCaCert.IsCA() {
 		t.Error("IsCA() should return false for non-CA certificates")
 	}
@@ -71,7 +71,7 @@ func TestCertificate_GetSerialNumber(t *testing.T) {
 	expectedSerial := big.NewInt(123)
 	cert := appmodels.NewCertificate(
 		"Org123",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(2))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(2))},
 		newMockX509Certificate(false, []string{"Test Org"}, expectedSerial),
 	)
 	bigIntCertSignedBy := cert.GetSerialNumber()
@@ -83,7 +83,7 @@ func TestCertificate_GetSerialNumber(t *testing.T) {
 
 func TestCertificate_GetOrganizationID(t *testing.T) {
 	expectedOrgID := "Org123"
-	cert := appmodels.NewCertificate(expectedOrgID, []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(false, []string{"Test Org"}, nil))
+	cert := appmodels.NewCertificate(expectedOrgID, []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(false, []string{"Test Org"}, nil))
 	if cert.GetOrganizationID() != expectedOrgID {
 		t.Errorf("GetOrganizationID() = %v, want %v", cert.GetOrganizationID(), expectedOrgID)
 	}
@@ -91,19 +91,19 @@ func TestCertificate_GetOrganizationID(t *testing.T) {
 
 func TestCertificate_GetOrganizationName(t *testing.T) {
 	expectedOrgName := "PrimaryOrg"
-	cert := appmodels.NewCertificate("Org123", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(false, []string{expectedOrgName}, nil))
+	cert := appmodels.NewCertificate("Org123", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(false, []string{expectedOrgName}, nil))
 	if cert.GetOrganizationName() != expectedOrgName {
 		t.Errorf("GetOrganizationName() = %v, want %v", cert.GetOrganizationName(), expectedOrgName)
 	}
 
 	// Test with no organization names
-	emptyStringCert := appmodels.NewCertificate("EmptyOrg", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(false, []string{""}, nil))
+	emptyStringCert := appmodels.NewCertificate("EmptyOrg", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(false, []string{""}, nil))
 	if emptyStringCert.GetOrganizationName() != "" {
 		t.Errorf("GetOrganizationName() should return an empty string when no organization names are present, got %v", emptyStringCert.GetOrganizationName())
 	}
 
 	// Test with empty organization array
-	emptyCert := appmodels.NewCertificate("EmptyOrg", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(false, []string{}, nil))
+	emptyCert := appmodels.NewCertificate("EmptyOrg", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, newMockX509Certificate(false, []string{}, nil))
 	if emptyCert.GetOrganizationName() != "" {
 		t.Errorf("GetOrganizationName() should return an empty string when no organization names are present, got %v", emptyCert.GetOrganizationName())
 	}
@@ -114,7 +114,7 @@ func TestCertificate_GetOrganization(t *testing.T) {
 	certData := newMockX509Certificate(false, []string{""}, nil)
 	certData.Subject.Organization = expectedOrgs
 
-	cert := appmodels.NewCertificate("Org123", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, certData)
+	cert := appmodels.NewCertificate("Org123", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, certData)
 
 	orgs := cert.GetOrganization()
 	if len(orgs) != len(expectedOrgs) {
@@ -123,14 +123,14 @@ func TestCertificate_GetOrganization(t *testing.T) {
 
 	for i, org := range orgs {
 		if org != expectedOrgs[i] {
-			t.Errorf("Organization[%d] = %v, want %v", i, org, expectedOrgs[i])
+			t.Errorf("OrganizationModel[%d] = %v, want %v", i, org, expectedOrgs[i])
 		}
 	}
 }
 
 func TestCertificate_GetSignedBy(t *testing.T) {
 	expectedSignedBy := appmodels.NewSerialNumber(big.NewInt(999))
-	cert := appmodels.NewCertificate("Org123", []appmodels.ISerialNumber{expectedSignedBy}, newMockX509Certificate(false, []string{"Test Org"}, nil))
+	cert := appmodels.NewCertificate("Org123", []appmodels.SerialNumber{expectedSignedBy}, newMockX509Certificate(false, []string{"Test Org"}, nil))
 
 	bigIntSSerialNumber := cert.GetSignedBy()
 
@@ -141,10 +141,10 @@ func TestCertificate_GetSignedBy(t *testing.T) {
 
 func TestCertificate_GetCertificate(t *testing.T) {
 	expectedCert := newMockX509Certificate(true, []string{"Acme Co"}, nil)
-	cert := appmodels.NewCertificate("Acme123", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, expectedCert)
+	cert := appmodels.NewCertificate("Acme123", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, expectedCert)
 
 	if cert.GetCertificate() != expectedCert {
-		t.Error("GetCertificate did not return the expected *x509.Certificate")
+		t.Error("GetCertificate did not return the expected *x509.CertificateModel")
 	}
 }
 
@@ -185,7 +185,7 @@ func TestCertificate_IsSelfSigned(t *testing.T) {
 	cert.AuthorityKeyId = []byte{1, 2, 3}
 	cert.SubjectKeyId = []byte{1, 2, 3}
 
-	modelCert := appmodels.NewCertificate("SelfSignedOrg", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, cert)
+	modelCert := appmodels.NewCertificate("SelfSignedOrg", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, cert)
 	if !modelCert.IsSelfSigned() {
 		t.Errorf("Expected IsSelfSigned to be true for a self-signed certificate")
 	}
@@ -194,7 +194,7 @@ func TestCertificate_IsSelfSigned(t *testing.T) {
 	cert2 := *cert                       // Make a copy to modify
 	cert2.SubjectKeyId = []byte{4, 5, 6} // Change SubjectKeyId to not match AuthorityKeyId
 
-	modelCert2 := appmodels.NewCertificate("NonSelfSignedOrg", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, &cert2)
+	modelCert2 := appmodels.NewCertificate("NonSelfSignedOrg", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, &cert2)
 	if modelCert2.IsSelfSigned() {
 		t.Errorf("Expected IsSelfSigned to be false when AuthorityKeyId and SubjectKeyId do not match")
 	}
@@ -204,7 +204,7 @@ func TestCertificate_IsSelfSigned(t *testing.T) {
 	cert3.AuthorityKeyId = nil
 	cert3.SubjectKeyId = nil
 
-	modelCert3 := appmodels.NewCertificate("SelfSignedByNamesOrg", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(3))}, &cert3)
+	modelCert3 := appmodels.NewCertificate("SelfSignedByNamesOrg", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(3))}, &cert3)
 	if !modelCert3.IsSelfSigned() {
 		t.Errorf("Expected IsSelfSigned to be true when AuthorityKeyId and SubjectKeyId are not set but Issuer and Subject match")
 	}
@@ -217,7 +217,7 @@ func TestCertificate_IsIntermediateCertificate(t *testing.T) {
 		t.Fatalf("Failed to generate private key: %v", err)
 	}
 
-	// Scenario 1: Certificate with BasicConstraintsValid, IsCA but is self-signed (not an intermediate)
+	// Scenario 1: CertificateModel with BasicConstraintsValid, IsCA but is self-signed (not an intermediate)
 	selfSignedTemplate := &x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
@@ -237,12 +237,12 @@ func TestCertificate_IsIntermediateCertificate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to parse self-signed certificate: %v", err)
 	}
-	modelSelfSignedCert := appmodels.NewCertificate("Org1", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, selfSignedCert)
+	modelSelfSignedCert := appmodels.NewCertificate("Org1", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, selfSignedCert)
 	if modelSelfSignedCert.IsIntermediateCertificate() {
 		t.Errorf("Expected IsIntermediateCertificate to be false for a self-signed CA")
 	}
 
-	// Scenario 2: Certificate with BasicConstraintsValid, IsCA and not self-signed (an intermediate)
+	// Scenario 2: CertificateModel with BasicConstraintsValid, IsCA and not self-signed (an intermediate)
 	issuerTemplate := &x509.Certificate{
 		SerialNumber: big.NewInt(2),
 		Subject: pkix.Name{
@@ -262,12 +262,12 @@ func TestCertificate_IsIntermediateCertificate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to parse issuer certificate: %v", err)
 	}
-	modelIssuerCert := appmodels.NewCertificate("Org2", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, issuerCert)
+	modelIssuerCert := appmodels.NewCertificate("Org2", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(2))}, issuerCert)
 	if !modelIssuerCert.IsIntermediateCertificate() {
 		t.Errorf("Expected IsIntermediateCertificate to be true for an intermediate CA")
 	}
 
-	// Scenario 3: Certificate without IsCA (not an intermediate, despite not being self-signed)
+	// Scenario 3: CertificateModel without IsCA (not an intermediate, despite not being self-signed)
 	nonCaTemplate := &x509.Certificate{
 		SerialNumber: big.NewInt(3),
 		Subject: pkix.Name{
@@ -287,7 +287,7 @@ func TestCertificate_IsIntermediateCertificate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to parse non-CA certificate: %v", err)
 	}
-	modelNonCaCert := appmodels.NewCertificate("Org3", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(3))}, nonCaCert)
+	modelNonCaCert := appmodels.NewCertificate("Org3", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(3))}, nonCaCert)
 	if modelNonCaCert.IsIntermediateCertificate() {
 		t.Errorf("Expected IsIntermediateCertificate to be false for a non-CA certificate")
 	}
@@ -311,30 +311,30 @@ func newMockX509CertificateWithExtUsage(extKeyUsage []x509.ExtKeyUsage, commonNa
 }
 
 func TestCertificate_IsServerCertificate(t *testing.T) {
-	// Test case 1: Certificate with server authentication usage
+	// Test case 1: CertificateModel with server authentication usage
 	serverAuthCert := appmodels.NewCertificate(
 		"ServerAuthOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
 		newMockX509CertificateWithExtUsage([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}, "ServerAuth"),
 	)
 	if !serverAuthCert.IsServerCertificate() {
 		t.Errorf("Expected IsServerCertificate to be true for a certificate with ExtKeyUsageServerAuth")
 	}
 
-	// Test case 2: Certificate without server authentication usage
+	// Test case 2: CertificateModel without server authentication usage
 	nonServerAuthCert := appmodels.NewCertificate(
 		"NonServerAuthOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(2))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(2))},
 		newMockX509CertificateWithExtUsage([]x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}, "NonServerAuth"),
 	)
 	if nonServerAuthCert.IsServerCertificate() {
 		t.Errorf("Expected IsServerCertificate to be false for a certificate without ExtKeyUsageServerAuth")
 	}
 
-	// Test case 3: Certificate with multiple extended key usages including server authentication
+	// Test case 3: CertificateModel with multiple extended key usages including server authentication
 	multiUsageCert := appmodels.NewCertificate(
 		"MultiUsageOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(3))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(3))},
 		newMockX509CertificateWithExtUsage([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth}, "MultiUsage"),
 	)
 	if !multiUsageCert.IsServerCertificate() {
@@ -358,30 +358,30 @@ func newMockX509CertificateWithClientExtUsage(extKeyUsage []x509.ExtKeyUsage, co
 }
 
 func TestCertificate_IsClientCertificate(t *testing.T) {
-	// Case 1: Certificate specifically marked for client authentication
+	// Case 1: CertificateModel specifically marked for client authentication
 	clientAuthCert := appmodels.NewCertificate(
 		"ClientAuthOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
 		newMockX509CertificateWithClientExtUsage([]x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth}, "ClientAuth"),
 	)
 	if !clientAuthCert.IsClientCertificate() {
 		t.Errorf("Expected IsClientCertificate to be true for a certificate with ExtKeyUsageClientAuth")
 	}
 
-	// Case 2: Certificate without client authentication usage
+	// Case 2: CertificateModel without client authentication usage
 	nonClientAuthCert := appmodels.NewCertificate(
 		"NonClientAuthOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(2))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(2))},
 		newMockX509CertificateWithClientExtUsage([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}, "NonClientAuth"),
 	)
 	if nonClientAuthCert.IsClientCertificate() {
 		t.Errorf("Expected IsClientCertificate to be false for a certificate without ExtKeyUsageClientAuth")
 	}
 
-	// Case 3: Certificate with multiple extended key usages including client authentication
+	// Case 3: CertificateModel with multiple extended key usages including client authentication
 	multiUsageCert := appmodels.NewCertificate(
 		"MultiUsageOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(3))},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(3))},
 		newMockX509CertificateWithClientExtUsage([]x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth}, "MultiUsageClient"),
 	)
 	if !multiUsageCert.IsClientCertificate() {
@@ -417,33 +417,33 @@ func newMockSelfSignedX509Certificate(isCA bool, commonName string, serialNumber
 }
 
 func TestCertificate_IsRootCertificate(t *testing.T) {
-	// Root CA Certificate
+	// Root CA CertificateModel
 	rootCASerialNumber := big.NewInt(1)
 	rootCACert := appmodels.NewCertificate(
 		"RootCAOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(rootCASerialNumber)},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(rootCASerialNumber)},
 		newMockSelfSignedX509Certificate(true, "Root CA", rootCASerialNumber),
 	)
 	if !rootCACert.IsRootCertificate() {
 		t.Errorf("Expected IsRootCertificate to be true for a root CA certificate")
 	}
 
-	// Non-CA Certificate (should not be considered a root certificate)
+	// Non-CA CertificateModel (should not be considered a root certificate)
 	nonCASerialNumber := big.NewInt(2)
 	nonCACert := appmodels.NewCertificate(
 		"NonCAOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(nonCASerialNumber)},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(nonCASerialNumber)},
 		newMockSelfSignedX509Certificate(false, "Non CA", nonCASerialNumber),
 	)
 	if nonCACert.IsRootCertificate() {
 		t.Errorf("Expected IsRootCertificate to be false for a non-CA certificate")
 	}
 
-	// Intermediate CA Certificate (not self-signed, hence not a root certificate)
+	// Intermediate CA CertificateModel (not self-signed, hence not a root certificate)
 	intermediateCASerialNumber := big.NewInt(3)
 	intermediateCACert := appmodels.NewCertificate(
 		"IntermediateCAOrg",
-		[]appmodels.ISerialNumber{appmodels.NewSerialNumber(intermediateCASerialNumber)},
+		[]appmodels.SerialNumber{appmodels.NewSerialNumber(intermediateCASerialNumber)},
 		newMockSelfSignedX509Certificate(true, "Intermediate CA", intermediateCASerialNumber),
 	)
 	// Manually break the self-signed condition
@@ -476,7 +476,7 @@ func TestCertificate_GetCommonName(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			certData := newMockX509CertificateWithCommonName(test.commonName)
-			cert := appmodels.NewCertificate("Org123", []appmodels.ISerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, certData)
+			cert := appmodels.NewCertificate("Org123", []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}, certData)
 
 			if got := cert.GetCommonName(); got != test.commonName {
 				t.Errorf("GetCommonName() = %v, want %v", got, test.commonName)
@@ -487,7 +487,7 @@ func TestCertificate_GetCommonName(t *testing.T) {
 
 func TestCertificate_GetParents(t *testing.T) {
 	// Setup
-	parentSerialNumbers := []appmodels.ISerialNumber{
+	parentSerialNumbers := []appmodels.SerialNumber{
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		appmodels.NewSerialNumber(big.NewInt(2)),
 	}
@@ -519,7 +519,7 @@ func TestCertificate_GetParents(t *testing.T) {
 func TestCertificate_GetParents_Incomplete(t *testing.T) {
 
 	// Setup
-	cert := &appmodels.Certificate{}
+	cert := &appmodels.CertificateModel{}
 
 	// Act
 	returnedParents := cert.GetParents()
@@ -534,7 +534,7 @@ func TestCertificate_GetParents_Incomplete(t *testing.T) {
 func TestCertificate_GetSignedBy_WithParents(t *testing.T) {
 
 	// Setup a certificate with parents
-	parentSerialNumbers := []appmodels.ISerialNumber{
+	parentSerialNumbers := []appmodels.SerialNumber{
 		appmodels.NewSerialNumber(big.NewInt(1)),
 		appmodels.NewSerialNumber(big.NewInt(2)), // This should be returned by GetSignedBy
 	}
@@ -554,7 +554,7 @@ func TestCertificate_GetSignedBy_WithoutParents(t *testing.T) {
 
 	cert := appmodels.NewCertificate(
 		"Org123",
-		[]appmodels.ISerialNumber{},
+		[]appmodels.SerialNumber{},
 		newMockX509Certificate(
 			false,
 			[]string{"Test Org"},
@@ -606,7 +606,7 @@ func TestCertificate_GetNotBeforeAndAfter(t *testing.T) {
 	// Create a mock certificate with the specified validity
 	mockCert := newMockCertificateWithValidity(notBefore, notAfter)
 
-	// Wrap the mock certificate in your Certificate model
+	// Wrap the mock certificate in your CertificateModel model
 	certModel := appmodels.NewCertificate("org123", nil, mockCert)
 
 	assert.Equal(t, notBefore.String(), certModel.NotBefore().String())

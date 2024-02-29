@@ -11,7 +11,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 )
 
-func (c *ApiController) GetIndexDefinitions() swagger.Definitions {
+func (c *HttpApiController) GetIndexDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns information about the running server",
 		Description: "This includes the software name and a version",
@@ -26,11 +26,11 @@ func (c *ApiController) GetIndexDefinitions() swagger.Definitions {
 }
 
 // GetIndex handles the GET requests at the root URL.
-func (c *ApiController) GetIndex(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) GetIndex(response apitypes.Response, request apitypes.Request) error {
 	c.log(request, "IndexController")
 	dto := appdtos.NewIndexDTO(gocertcenter.Name, gocertcenter.Version)
 	return c.sendOK(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetIndexDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).GetIndex
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetIndexDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetIndex

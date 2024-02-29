@@ -6,29 +6,29 @@ import (
 	"os"
 )
 
-// FileManager wraps up operations to file system for easier testing
+// OSFileManager wraps up operations to file system for easier testing
 // See fsutils for higher level utilities.
-type File struct {
+type OSFile struct {
 	file *os.File
 }
 
 // Close wraps up a call to f.file.Close
-func (f *File) Close() error {
+func (f *OSFile) Close() error {
 	return f.file.Close()
 }
 
 // Name wraps up a call to f.file.Name
-func (f *File) Name() string {
+func (f *OSFile) Name() string {
 	return f.file.Name()
 }
 
 // Write wraps up a call to f.file.Write
-func (f *File) Write(b []byte) (int, error) {
+func (f *OSFile) Write(b []byte) (int, error) {
 	return f.file.Write(b)
 }
 
-func NewFile(file *os.File) *File {
-	return &File{file}
+func NewFile(file *os.File) *OSFile {
+	return &OSFile{file}
 }
 
-var _ IFile = (*File)(nil)
+var _ File = (*OSFile)(nil)

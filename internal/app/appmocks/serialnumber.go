@@ -24,7 +24,7 @@ func (m *MockSerialNumber) Value() *big.Int {
 	return args.Get(0).(*big.Int)
 }
 
-func (m *MockSerialNumber) Cmp(s2 appmodels.ISerialNumber) int {
+func (m *MockSerialNumber) Cmp(s2 appmodels.SerialNumber) int {
 	args := m.Called(s2)
 	return args.Int(0)
 }
@@ -39,4 +39,4 @@ func NewMockSerialNumber() *MockSerialNumber {
 	return &MockSerialNumber{}
 }
 
-var _ appmodels.ISerialNumber = (*MockSerialNumber)(nil)
+var _ appmodels.SerialNumber = (*MockSerialNumber)(nil)

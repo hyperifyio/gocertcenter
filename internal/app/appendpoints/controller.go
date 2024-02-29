@@ -8,24 +8,26 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// ApiController implements apitypes.IAppController and IApiController
-type ApiController struct {
-	server        apitypes.IServer
-	appController appmodels.IApplicationController
-	certManager   managers.ICertificateManager
+// HttpApiController implements apitypes.AppController and GoCertCenterController
+type HttpApiController struct {
+	server        apitypes.Server
+	appController appmodels.ApplicationController
+	certManager   managers.CertificateManager
 }
 
-func NewApiController(
-	server apitypes.IServer,
-	appController appmodels.IApplicationController,
-	certManager managers.ICertificateManager,
-) *ApiController {
-	return &ApiController{
+func NewHttpApiController(
+	server apitypes.Server,
+	appController appmodels.ApplicationController,
+	certManager managers.CertificateManager,
+) *HttpApiController {
+	return &HttpApiController{
 		server:        server,
 		appController: appController,
 		certManager:   certManager,
 	}
 }
 
-var _ apitypes.IAppController = (*ApiController)(nil)
-var _ IApiController = (*ApiController)(nil)
+// Note! Other methods are defined in adjacent files.
+
+var _ apitypes.AppController = (*HttpApiController)(nil)
+var _ GoCertCenterController = (*HttpApiController)(nil)

@@ -11,15 +11,15 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// MockRevokedCertificate is a mock type for the IRevokedCertificate interface
+// MockRevokedCertificate is a mock type for the RevokedCertificate interface
 type MockRevokedCertificate struct {
 	mock.Mock
 }
 
 // GetSerialNumber mocks the GetSerialNumber method
-func (m *MockRevokedCertificate) GetSerialNumber() appmodels.ISerialNumber {
+func (m *MockRevokedCertificate) GetSerialNumber() appmodels.SerialNumber {
 	args := m.Called()
-	return args.Get(0).(appmodels.ISerialNumber) // Ensure the return type matches the interface
+	return args.Get(0).(appmodels.SerialNumber) // Ensure the return type matches the interface
 }
 
 // GetRevocationTime mocks the GetRevocationTime method

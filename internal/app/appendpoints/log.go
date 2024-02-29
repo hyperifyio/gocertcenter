@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
 )
 
-func (c *ApiController) logf(request apitypes.IRequest, format string, args ...interface{}) {
+func (c *HttpApiController) logf(request apitypes.Request, format string, args ...interface{}) {
 
 	// Prepend the request method and URL to the format
 	fullFormat := "[%s %s]: " + format
@@ -23,7 +23,7 @@ func (c *ApiController) logf(request apitypes.IRequest, format string, args ...i
 
 }
 
-func (c *ApiController) log(request apitypes.IRequest, args ...interface{}) {
+func (c *HttpApiController) log(request apitypes.Request, args ...interface{}) {
 
 	// Convert each argument in args to a string using fmt.Sprint
 	stringArgs := make([]string, len(args))

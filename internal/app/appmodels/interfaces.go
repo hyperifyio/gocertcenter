@@ -9,15 +9,15 @@ import (
 	"time"
 )
 
-type ISerialNumber interface {
+type SerialNumber interface {
 	String() string
 	Value() *big.Int
-	Cmp(s2 ISerialNumber) int
+	Cmp(s2 SerialNumber) int
 	Sign() int
 }
 
-// IOrganization describes an interface for Organization model
-type IOrganization interface {
+// Organization describes an interface for OrganizationModel model
+type Organization interface {
 
 	// GetID returns unique identifier for this organization
 	GetID() string
@@ -29,8 +29,8 @@ type IOrganization interface {
 	GetNames() []string
 }
 
-// ICertificate describes an interface for Certificate model
-type ICertificate interface {
+// Certificate describes an interface for CertificateModel model
+type Certificate interface {
 
 	// GetCommonName
 	GetCommonName() string
@@ -64,25 +64,25 @@ type ICertificate interface {
 	IsClientCertificate() bool
 
 	// GetParents returns all parent certificate serial numbers
-	GetParents() []ISerialNumber
+	GetParents() []SerialNumber
 
-	GetSerialNumber() ISerialNumber
+	GetSerialNumber() SerialNumber
 	GetOrganizationID() string
 	GetOrganizationName() string
 	GetOrganization() []string
-	GetSignedBy() ISerialNumber
+	GetSignedBy() SerialNumber
 	GetCertificate() *x509.Certificate
 }
 
-// IPublicKey describes an interface for PublicKey model
-type IPublicKey interface {
+// PublicKey describes an interface for PublicKey model
+type PublicKey interface {
 
 	// GetPublicKey returns the public key
 	GetPublicKey() any
 }
 
-// IPrivateKey describes an interface for PrivateKey model
-type IPrivateKey interface {
+// PrivateKey describes an interface for PrivateKeyModel model
+type PrivateKey interface {
 
 	// GetPrivateKey returns the internal private key
 	GetPrivateKey() any
@@ -97,22 +97,22 @@ type IPrivateKey interface {
 	GetOrganizationID() string
 
 	// GetParents returns all parent certificate serial numbers
-	GetParents() []ISerialNumber
+	GetParents() []SerialNumber
 
 	// GetCertificates returns all serial numbers from root certificate to the
 	// certificate this key belongs to
-	GetCertificates() []ISerialNumber
+	GetCertificates() []SerialNumber
 
 	// GetSerialNumber returns the serial number of the certificate which this
 	// key belongs to
-	GetSerialNumber() ISerialNumber
+	GetSerialNumber() SerialNumber
 }
 
-// IRevokedCertificate describes an interface for RevokedCertificate model
-type IRevokedCertificate interface {
+// RevokedCertificate describes an interface for RevokedCertificateModel model
+type RevokedCertificate interface {
 
 	// GetSerialNumber returns the serial number of the certificate which was revoked
-	GetSerialNumber() ISerialNumber
+	GetSerialNumber() SerialNumber
 
 	GetRevocationTime() time.Time
 	GetExpirationTime() time.Time
@@ -120,98 +120,98 @@ type IRevokedCertificate interface {
 	GetRevokedCertificate() pkix.RevokedCertificate
 }
 
-// IOrganizationService defines the interface for storing organization models,
+// OrganizationRepository defines the interface for storing organization models,
 // facilitating the abstraction of data access mechanisms. By declaring this
 // interface it supports easy substitution of its implementation, thereby
 // promoting loose coupling between the application's business logic and its
 // data layer.
-type IOrganizationService interface {
-	FindAll() ([]IOrganization, error)
-	FindById(organization string) (IOrganization, error)
-	Save(certificate IOrganization) (IOrganization, error)
+type OrganizationRepository interface {
+	FindAll() ([]Organization, error)
+	FindById(organization string) (Organization, error)
+	Save(certificate Organization) (Organization, error)
 }
 
-// ICertificateService defines the interface for storing certificate models,
+// CertificateRepository defines the interface for storing certificate models,
 // facilitating the abstraction of data access mechanisms. By declaring this
 // interface it supports easy substitution of its implementation, thereby
 // promoting loose coupling between the application's business logic and its data layer.
-type ICertificateService interface {
-	FindAllByOrganization(organization string) ([]ICertificate, error)
-	FindAllByOrganizationAndSerialNumbers(organization string, certificates []ISerialNumber) ([]ICertificate, error)
-	FindByOrganizationAndSerialNumbers(organization string, certificates []ISerialNumber) (ICertificate, error)
-	Save(certificate ICertificate) (ICertificate, error)
+type CertificateRepository interface {
+	FindAllByOrganization(organization string) ([]Certificate, error)
+	FindAllByOrganizationAndSerialNumbers(organization string, certificates []SerialNumber) ([]Certificate, error)
+	FindByOrganizationAndSerialNumbers(organization string, certificates []SerialNumber) (Certificate, error)
+	Save(certificate Certificate) (Certificate, error)
 }
 
-// IPrivateKeyService defines the interface for storing private keys,
+// PrivateKeyRepository defines the interface for storing private keys,
 // facilitating the abstraction of data access mechanisms. By declaring this
 // interface it supports easy substitution of its implementation, thereby
 // promoting loose coupling between the application's business logic and its
 // data layer.
-type IPrivateKeyService interface {
+type PrivateKeyRepository interface {
 
-	// GetExistingPrivateKey only returns public properties of the private key
-	FindByOrganizationAndSerialNumbers(organization string, certificates []ISerialNumber) (IPrivateKey, error)
-	Save(key IPrivateKey) (IPrivateKey, error)
+	// FindByOrganizationAndSerialNumbers only returns public properties of the private key
+	FindByOrganizationAndSerialNumbers(organization string, certificates []SerialNumber) (PrivateKey, error)
+	Save(key PrivateKey) (PrivateKey, error)
 }
 
-// IApplicationController controls an application. An application may own one
+// ApplicationController controls an application. An application may own one
 // or more organizations.
-type IApplicationController interface {
+type ApplicationController interface {
 
 	// UsesOrganizationService returns true if this controller is using the
 	// specified data layer service. We're intentionally not returning a
 	// reference to the service because we want to keep all the control inside
 	// the controller
-	UsesOrganizationService(service IOrganizationService) bool
+	UsesOrganizationService(service OrganizationRepository) bool
 
 	// UsesCertificateService returns true if this controller is using the
 	// specified data layer service. We're intentionally not returning a
 	// reference to the service because we want to keep all the control inside
 	// the controller
-	UsesCertificateService(service ICertificateService) bool
+	UsesCertificateService(service CertificateRepository) bool
 
 	// UsesPrivateKeyService returns true if this controller is using the
 	// specified data layer service. We're intentionally not returning a
 	// reference to the service because we want to keep all the control inside
 	// the controller
-	UsesPrivateKeyService(service IPrivateKeyService) bool
+	UsesPrivateKeyService(service PrivateKeyRepository) bool
 
 	// GetOrganizationCollection returns all organizations
-	GetOrganizationCollection() ([]IOrganization, error)
+	GetOrganizationCollection() ([]Organization, error)
 
 	// GetOrganizationModel returns an organization model by an organization ID
-	GetOrganizationModel(organization string) (IOrganization, error)
+	GetOrganizationModel(organization string) (Organization, error)
 
 	// GetOrganizationController returns an organization controller by an organization ID
-	GetOrganizationController(name string) (IOrganizationController, error)
+	GetOrganizationController(name string) (OrganizationController, error)
 
 	// NewOrganization creates a new organization
-	NewOrganization(model IOrganization) (IOrganization, error)
+	NewOrganization(model Organization) (Organization, error)
 }
 
-// IOrganizationController controls an organization owned by the application. An
+// OrganizationController controls an organization owned by the application. An
 // organization may own one or more root certificates.
-type IOrganizationController interface {
+type OrganizationController interface {
 
 	// GetOrganizationID returns the organization ID which this controller controls
 	GetOrganizationID() string
 
 	// GetOrganizationModel returns the model of the organization this controller controls
-	GetOrganizationModel() IOrganization
+	GetOrganizationModel() Organization
 
 	// GetApplicationController returns the parent controller who owns this organization controller
-	GetApplicationController() IApplicationController
+	GetApplicationController() ApplicationController
 
 	// GetCertificateCollection returns all the root level certificates for the organization
-	GetCertificateCollection() ([]ICertificate, error)
+	GetCertificateCollection() ([]Certificate, error)
 
 	// GetCertificateController returns a controller for a root certificate specified by its serial number
 	//  * serialNumber - The serial number of the root certificate
-	GetCertificateController(serialNumber ISerialNumber) (ICertificateController, error)
+	GetCertificateController(serialNumber SerialNumber) (CertificateController, error)
 
 	// GetCertificateModel returns a model for a root certificate specified by its serial number
 	//  * serialNumber - The serial number of the root certificate
-	GetCertificateModel(serialNumber ISerialNumber) (ICertificate, error)
+	GetCertificateModel(serialNumber SerialNumber) (Certificate, error)
 
 	// SetExpirationDuration sets the expiration duration used in NewRootCertificate
 	//  * expiration - the expiration duration
@@ -219,23 +219,23 @@ type IOrganizationController interface {
 
 	// NewRootCertificate creates a new root certificate for the organization
 	//  * commonName - The name of the root CA
-	NewRootCertificate(commonName string) (ICertificate, error)
+	NewRootCertificate(commonName string) (Certificate, error)
 
-	UsesOrganizationService(service IOrganizationService) bool
-	UsesApplicationController(service IApplicationController) bool
+	UsesOrganizationService(service OrganizationRepository) bool
+	UsesApplicationController(service ApplicationController) bool
 
-	RevokeCertificate(certificate ICertificate) (IRevokedCertificate, error)
+	RevokeCertificate(certificate Certificate) (RevokedCertificate, error)
 }
 
-// ICertificateController controls a certificate owned by the organization. It
+// CertificateController controls a certificate owned by the organization. It
 // can be directly owned by the organization (when it's a root certificate),
 // or it may be owned by another root or intermediate certificate. It also owns
 // one private key.
-type ICertificateController interface {
+type CertificateController interface {
 
 	// GetApplicationController returns the parent controller who owns this
 	// organization controller
-	GetApplicationController() IApplicationController
+	GetApplicationController() ApplicationController
 
 	// GetOrganizationID returns the organization ID who owns the certificate
 	// this controller controls
@@ -243,41 +243,41 @@ type ICertificateController interface {
 
 	// GetOrganizationModel returns the model of the organization who owns the
 	// certificate this controller controls
-	GetOrganizationModel() IOrganization
+	GetOrganizationModel() Organization
 
 	// GetOrganizationController returns the organization controller who owns
 	// the certificate this controller controls
-	GetOrganizationController() IOrganizationController
+	GetOrganizationController() OrganizationController
 
 	// GetCertificateModel returns the model of the certificate this controller
 	// controls
-	GetCertificateModel() ICertificate
+	GetCertificateModel() Certificate
 
 	// GetChildCertificateCollection returns all child certificates
-	GetChildCertificateCollection(certificateType string) ([]ICertificate, error)
+	GetChildCertificateCollection(certificateType string) ([]Certificate, error)
 
 	// GetChildCertificateModel returns a child certificate model
 	//  * serialNumber - The serial number of the child certificate
-	GetChildCertificateModel(serialNumber ISerialNumber) (ICertificate, error)
+	GetChildCertificateModel(serialNumber SerialNumber) (Certificate, error)
 
 	// GetChildCertificateController returns a child certificate controller
 	//  * serialNumber - The serial number of the child certificate
-	GetChildCertificateController(serialNumber ISerialNumber) (ICertificateController, error)
+	GetChildCertificateController(serialNumber SerialNumber) (CertificateController, error)
 
 	// GetParentCertificateModel returns the parent certificate model if this
 	// certificate is not a root certificate
-	GetParentCertificateModel() ICertificate
+	GetParentCertificateModel() Certificate
 
 	// GetParentCertificateController returns the parent certificate controller
 	// if this certificate is not a root certificate
-	GetParentCertificateController() ICertificateController
+	GetParentCertificateController() CertificateController
 
 	// GetPrivateKeyModel returns the private key model of this certificate
-	GetPrivateKeyModel() (IPrivateKey, error)
+	GetPrivateKeyModel() (PrivateKey, error)
 
 	// GetPrivateKeyController returns the private key controller of this
 	// certificate
-	GetPrivateKeyController() (IPrivateKeyController, error)
+	GetPrivateKeyController() (PrivateKeyController, error)
 
 	// SetExpirationDuration sets the expiration duration used in
 	// NewIntermediateCertificate, NewServerCertificate, or NewClientCertificate
@@ -287,24 +287,24 @@ type ICertificateController interface {
 	// NewIntermediateCertificate creates a new child certificate as an
 	// intermediate CA certificate
 	//  * commonName - The name of the intermediate CA
-	NewIntermediateCertificate(commonName string) (ICertificate, IPrivateKey, error)
+	NewIntermediateCertificate(commonName string) (Certificate, PrivateKey, error)
 
 	// NewServerCertificate creates a new server certificate.
 	//   - dnsNames: List of domain names the new certificate. The first one is
 	//     used as a common name as well.
-	NewServerCertificate(dnsNames ...string) (ICertificate, IPrivateKey, error)
+	NewServerCertificate(dnsNames ...string) (Certificate, PrivateKey, error)
 
 	// NewClientCertificate creates a new client certificate
 	//  * commonName - The name of the client
-	NewClientCertificate(commonName string) (ICertificate, IPrivateKey, error)
+	NewClientCertificate(commonName string) (Certificate, PrivateKey, error)
 }
 
-// IPrivateKeyController controls a private key owned by the certificate
-type IPrivateKeyController interface {
+// PrivateKeyController controls a private key owned by the certificate
+type PrivateKeyController interface {
 
 	// GetApplicationController returns the parent controller who owns this
 	// organization controller
-	GetApplicationController() IApplicationController
+	GetApplicationController() ApplicationController
 
 	// GetOrganizationID returns the organization ID who owns the certificate
 	// this controller controls
@@ -312,17 +312,17 @@ type IPrivateKeyController interface {
 
 	// GetOrganizationModel returns the model of the organization who owns the
 	// certificate this controller controls
-	GetOrganizationModel() IOrganization
+	GetOrganizationModel() Organization
 
 	// GetOrganizationController returns the model of the organization who owns the
 	// certificate this controller controls
-	GetOrganizationController() IOrganizationController
+	GetOrganizationController() OrganizationController
 
 	// GetCertificateModel returns the model of the certificate this controller
 	// controls
-	GetCertificateModel() ICertificate
+	GetCertificateModel() Certificate
 
 	// GetCertificateController returns the controller of the certificate
 	// controls
-	GetCertificateController() ICertificateController
+	GetCertificateController() CertificateController
 }

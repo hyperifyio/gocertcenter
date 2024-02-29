@@ -10,7 +10,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// MockServerManager is a mock type for apitypes.IServerManager interface.
+// MockServerManager is a mock type for apitypes.ServerManager interface.
 type MockServerManager struct {
 	mock.Mock
 }
@@ -27,4 +27,4 @@ func (m *MockServerManager) Shutdown() error {
 	return args.Error(0)
 }
 
-var _ managers.IServerManager = (*MockServerManager)(nil)
+var _ managers.ServerManager = (*MockServerManager)(nil)

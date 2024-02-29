@@ -12,21 +12,21 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// PrivateKeyRepository implements models.IPrivateKeyService for a file system
-type PrivateKeyRepository struct {
+// FilePrivateKeyRepository implements models.PrivateKeyRepository for a file system
+type FilePrivateKeyRepository struct {
 	filePath    string
-	certManager managers.ICertificateManager
-	fileManager managers.IFileManager
+	certManager managers.CertificateManager
+	fileManager managers.FileManager
 }
 
-func (r *PrivateKeyRepository) GetFilePath() string {
+func (r *FilePrivateKeyRepository) GetFilePath() string {
 	return r.filePath
 }
 
-func (r *PrivateKeyRepository) FindByOrganizationAndSerialNumbers(
+func (r *FilePrivateKeyRepository) FindByOrganizationAndSerialNumbers(
 	organization string,
-	certificates []appmodels.ISerialNumber,
-) (appmodels.IPrivateKey, error) {
+	certificates []appmodels.SerialNumber,
+) (appmodels.PrivateKey, error) {
 	if len(certificates) <= 0 {
 		return nil, errors.New("no certificate serial numbers provided")
 	}
@@ -38,7 +38,7 @@ func (r *PrivateKeyRepository) FindByOrganizationAndSerialNumbers(
 	return appmodels.NewPrivateKey(organization, certificates, keyType, privkey), nil
 }
 
-func (r *PrivateKeyRepository) Save(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
+func (r *FilePrivateKeyRepository) Save(key appmodels.PrivateKey) (appmodels.PrivateKey, error) {
 
 	organization := key.GetOrganizationID()
 	certificates := key.GetParents()
@@ -65,15 +65,15 @@ func (r *PrivateKeyRepository) Save(key appmodels.IPrivateKey) (appmodels.IPriva
 
 // NewPrivateKeyRepository creates a file based repository for private keys
 func NewPrivateKeyRepository(
-	certManager managers.ICertificateManager,
-	fileManager managers.IFileManager,
+	certManager managers.CertificateManager,
+	fileManager managers.FileManager,
 	filePath string,
-) *PrivateKeyRepository {
-	return &PrivateKeyRepository{
+) *FilePrivateKeyRepository {
+	return &FilePrivateKeyRepository{
 		fileManager: fileManager,
 		certManager: certManager,
 		filePath:    filePath,
 	}
 }
 
-var _ appmodels.IPrivateKeyService = (*PrivateKeyRepository)(nil)
+var _ appmodels.PrivateKeyRepository = (*FilePrivateKeyRepository)(nil)

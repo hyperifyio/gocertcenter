@@ -8,14 +8,14 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// MockPrivateKeyController is a mock implementation of appmodels.IPrivateKeyController for testing purposes.
+// MockPrivateKeyController is a mock implementation of appmodels.PrivateKeyController for testing purposes.
 type MockPrivateKeyController struct {
 	mock.Mock
 }
 
-func (m *MockPrivateKeyController) GetApplicationController() appmodels.IApplicationController {
+func (m *MockPrivateKeyController) GetApplicationController() appmodels.ApplicationController {
 	args := m.Called()
-	return args.Get(0).(appmodels.IApplicationController)
+	return args.Get(0).(appmodels.ApplicationController)
 }
 
 func (m *MockPrivateKeyController) GetOrganizationID() string {
@@ -23,24 +23,24 @@ func (m *MockPrivateKeyController) GetOrganizationID() string {
 	return args.String(0)
 }
 
-func (m *MockPrivateKeyController) GetOrganizationModel() appmodels.IOrganization {
+func (m *MockPrivateKeyController) GetOrganizationModel() appmodels.Organization {
 	args := m.Called()
-	return args.Get(0).(appmodels.IOrganization)
+	return args.Get(0).(appmodels.Organization)
 }
 
-func (m *MockPrivateKeyController) GetOrganizationController() appmodels.IOrganizationController {
+func (m *MockPrivateKeyController) GetOrganizationController() appmodels.OrganizationController {
 	args := m.Called()
-	return args.Get(0).(appmodels.IOrganizationController)
+	return args.Get(0).(appmodels.OrganizationController)
 }
 
-func (m *MockPrivateKeyController) GetCertificateModel() appmodels.ICertificate {
+func (m *MockPrivateKeyController) GetCertificateModel() appmodels.Certificate {
 	args := m.Called()
-	return args.Get(0).(appmodels.ICertificate)
+	return args.Get(0).(appmodels.Certificate)
 }
 
-func (m *MockPrivateKeyController) GetCertificateController() appmodels.ICertificateController {
+func (m *MockPrivateKeyController) GetCertificateController() appmodels.CertificateController {
 	args := m.Called()
-	return args.Get(0).(appmodels.ICertificateController)
+	return args.Get(0).(appmodels.CertificateController)
 }
 
-var _ appmodels.IPrivateKeyController = (*MockPrivateKeyController)(nil)
+var _ appmodels.PrivateKeyController = (*MockPrivateKeyController)(nil)

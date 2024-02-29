@@ -21,13 +21,13 @@ func TestSaveBytes(t *testing.T) {
 	dir, fileName, data := "/test/dir", "/test/dir/file.txt", []byte("data")
 	filePerms, dirPerms := os.FileMode(0644), os.FileMode(0755)
 
-	// Setup mock expectations for FileManager
+	// Setup mock expectations for OSFileManager
 	mockFS.On("MkdirAll", mock.AnythingOfType("string"), dirPerms).Return(nil)
 	mockFS.On("CreateTemp", dir, "*.tmp").Return(mockFile, nil)
 	mockFS.On("Chmod", mock.AnythingOfType("string"), filePerms).Return(nil)
 	mockFS.On("Rename", mock.AnythingOfType("string"), fileName).Return(nil)
 
-	// Setup mock expectations for File
+	// Setup mock expectations for OSFile
 	mockTempFileName := "tempfile.tmp"
 	mockFile.On("Write", data).Return(len(data), nil)
 	mockFile.On("Close").Return(nil)
@@ -68,7 +68,7 @@ func TestSaveBytes_FailToCreateTempFile(t *testing.T) {
 	dir, fileName, data := "/test/dir", "/test/dir/file.txt", []byte("data")
 	filePerms, dirPerms := os.FileMode(0644), os.FileMode(0755)
 
-	// Setup mock expectations for FileManager
+	// Setup mock expectations for OSFileManager
 	// Simulate success for directory creation
 	mockFS.On("MkdirAll", mock.AnythingOfType("string"), dirPerms).Return(nil)
 
@@ -93,7 +93,7 @@ func TestSaveBytes_FailToSetFilePermissions(t *testing.T) {
 	filePerms, dirPerms := os.FileMode(0644), os.FileMode(0755)
 	mockTempFileName := "tempfile.tmp"
 
-	// Mock expectations for FileManager to simulate directory creation and temporary file creation
+	// Mock expectations for OSFileManager to simulate directory creation and temporary file creation
 	mockFile.On("Name").Return(mockTempFileName)
 	mockFile.On("Close").Return(nil)
 

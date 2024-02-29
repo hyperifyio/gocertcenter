@@ -32,33 +32,33 @@ const DefaultOpenApiVersion = "0.0.0"
 // DefaultStartDuration This is a time to wait for any possible errors while starting the server
 const DefaultStartDuration = 500 * time.Millisecond
 
-// Server implements apitypes.IServer
-type Server struct {
+// ApplicationServer implements apitypes.Server
+type ApplicationServer struct {
 	listen         string
-	server         managers.IServerManager
+	server         managers.ServerManager
 	router         *mux.Router
 	listener       *net.Listener
 	context        *context.Context
-	swaggerManager managers.ISwaggerManager
+	swaggerManager managers.SwaggerManager
 	swaggerFactory apitypes.NewSwaggerManagerFunc
 	serverFactory  apitypes.NewServerManagerFunc
 	info           *openapi3.Info
 	hashFactory    apitypes.Hash64FactoryFunc
 }
 
-func (s *Server) IsStarted() bool {
+func (s *ApplicationServer) IsStarted() bool {
 	return s.server != nil
 }
 
-func (s *Server) GetAddress() string {
+func (s *ApplicationServer) GetAddress() string {
 	return s.listen
 }
 
-func (s *Server) SetInfo(info *openapi3.Info) {
+func (s *ApplicationServer) SetInfo(info *openapi3.Info) {
 	s.info = info
 }
 
-func (s *Server) GetInfo() *openapi3.Info {
+func (s *ApplicationServer) GetInfo() *openapi3.Info {
 	if s.info == nil {
 		s.info = &openapi3.Info{
 			Title:   DefaultOpenApiTitle,
@@ -68,7 +68,7 @@ func (s *Server) GetInfo() *openapi3.Info {
 	return s.info
 }
 
-func (s *Server) GetURL() string {
+func (s *ApplicationServer) GetURL() string {
 	url := s.listen
 	if strings.HasPrefix(url, ":") {
 		return fmt.Sprintf("%s://%s%s", DefaultProtocol, DefaultHostname, url)
@@ -76,15 +76,15 @@ func (s *Server) GetURL() string {
 	return fmt.Sprintf("%s://%s", DefaultProtocol, url)
 }
 
-func (s *Server) SetSwaggerFactory(factory apitypes.NewSwaggerManagerFunc) {
+func (s *ApplicationServer) SetSwaggerFactory(factory apitypes.NewSwaggerManagerFunc) {
 	s.swaggerFactory = factory
 }
 
-func (s *Server) SetServerFactory(factory apitypes.NewServerManagerFunc) {
+func (s *ApplicationServer) SetServerFactory(factory apitypes.NewServerManagerFunc) {
 	s.serverFactory = factory
 }
 
-func (s *Server) InitSetup() error {
+func (s *ApplicationServer) InitSetup() error {
 
 	if s.context == nil {
 		ctx := context.Background()
@@ -104,7 +104,7 @@ func (s *Server) InitSetup() error {
 			s.router,
 			s.context,
 			s.GetURL(),
-			"Server location",
+			"ApplicationServer location",
 			s.GetInfo(),
 		)
 		if err != nil {
@@ -117,7 +117,7 @@ func (s *Server) InitSetup() error {
 
 }
 
-func (s *Server) SetupRoutes(
+func (s *ApplicationServer) SetupRoutes(
 	routes []apitypes.Route,
 ) error {
 	for _, route := range routes {
@@ -129,22 +129,22 @@ func (s *Server) SetupRoutes(
 	return nil
 }
 
-func (s *Server) SetupNotFoundHandler(handler apitypes.RequestHandlerFunc) {
+func (s *ApplicationServer) SetupNotFoundHandler(handler apitypes.RequestHandlerFunc) {
 	s.router.NotFoundHandler = ResponseHandler(handler)
 }
 
-func (s *Server) SetupMethodNotAllowedHandler(handler apitypes.RequestHandlerFunc) {
+func (s *ApplicationServer) SetupMethodNotAllowedHandler(handler apitypes.RequestHandlerFunc) {
 	s.router.MethodNotAllowedHandler = ResponseHandler(handler)
 }
 
-func (s *Server) FinalizeSetup() error {
+func (s *ApplicationServer) FinalizeSetup() error {
 	if err := s.swaggerManager.GenerateAndExposeOpenapi(); err != nil {
 		return fmt.Errorf("failed to initialize OpenAPI integration: %v", err)
 	}
 	return nil
 }
 
-func (s *Server) SetupHandler(
+func (s *ApplicationServer) SetupHandler(
 	method string,
 	path string,
 	apiHandler apitypes.RequestHandlerFunc,
@@ -163,7 +163,7 @@ func (s *Server) SetupHandler(
 	return nil
 }
 
-func (s *Server) Start() error {
+func (s *ApplicationServer) Start() error {
 
 	if s.server != nil {
 		return errors.New("[server] Already started")
@@ -244,16 +244,16 @@ func (s *Server) Start() error {
 	return nil
 }
 
-func (s *Server) Stop() error {
+func (s *ApplicationServer) Stop() error {
 	if s.server != nil {
 		if err := s.server.Shutdown(); err != nil {
-			return fmt.Errorf("[server] Server shutdown error: %v", err)
+			return fmt.Errorf("[server] ApplicationServer shutdown error: %v", err)
 		}
 	}
 	return nil
 }
 
-func (s *Server) SetListener(ln *net.Listener) error {
+func (s *ApplicationServer) SetListener(ln *net.Listener) error {
 	if s.listener != nil {
 		return fmt.Errorf("[server] Cannot set listener: Listening already")
 	}
@@ -261,7 +261,7 @@ func (s *Server) SetListener(ln *net.Listener) error {
 	return nil
 }
 
-func (s *Server) UnSetup() error {
+func (s *ApplicationServer) UnSetup() error {
 
 	if s.server != nil {
 		return errors.New("[server] Cannot revert route setup, server still running")
@@ -279,7 +279,7 @@ func (s *Server) UnSetup() error {
 }
 
 // GetInternalHash returns a hash value representing the current internal state of the server
-func (s *Server) GetInternalHash() (uint64, error) {
+func (s *ApplicationServer) GetInternalHash() (uint64, error) {
 	if s.hashFactory == nil {
 		s.hashFactory = fnv.New64a
 	}
@@ -304,7 +304,7 @@ func (s *Server) GetInternalHash() (uint64, error) {
 func NewServer(
 	listen string,
 	swaggerFactory apitypes.NewSwaggerManagerFunc,
-) (*Server, error) {
+) (*ApplicationServer, error) {
 	s := NewUninitializedServer(listen, swaggerFactory)
 	if err := s.InitSetup(); err != nil {
 		return nil, fmt.Errorf("[server] server initialization failed: %v", err)
@@ -317,8 +317,8 @@ func NewServer(
 func NewUninitializedServer(
 	listen string,
 	swaggerFactory apitypes.NewSwaggerManagerFunc,
-) *Server {
-	s := &Server{
+) *ApplicationServer {
+	s := &ApplicationServer{
 		listen:         listen,
 		swaggerFactory: swaggerFactory,
 		serverFactory:  nil,
@@ -327,4 +327,4 @@ func NewUninitializedServer(
 	return s
 }
 
-var _ apitypes.IServer = (*Server)(nil)
+var _ apitypes.Server = (*ApplicationServer)(nil)

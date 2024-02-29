@@ -8,15 +8,15 @@ import (
 
 // Collection implements collection of model controllers
 type Collection struct {
-	Organization appmodels.IOrganizationController
-	Certificate  appmodels.ICertificateController
-	PrivateKey   appmodels.IPrivateKeyController
+	Organization appmodels.OrganizationController
+	Certificate  appmodels.CertificateController
+	PrivateKey   appmodels.PrivateKeyController
 }
 
 func NewCollection(
-	organization appmodels.IOrganizationController,
-	certificate appmodels.ICertificateController,
-	privateKey appmodels.IPrivateKeyController,
+	organization appmodels.OrganizationController,
+	certificate appmodels.CertificateController,
+	privateKey appmodels.PrivateKeyController,
 ) *Collection {
 	return &Collection{
 		Organization: organization,

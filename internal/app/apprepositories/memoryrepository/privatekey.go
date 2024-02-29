@@ -9,33 +9,33 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// PrivateKeyRepository implements models.IPrivateKeyService in a memory
-// @implements models.IPrivateKeyService
-type PrivateKeyRepository struct {
-	keys map[string]appmodels.IPrivateKey
+// MemoryPrivateKeyRepository implements models.PrivateKeyRepository in a memory
+// @implements models.PrivateKeyRepository
+type MemoryPrivateKeyRepository struct {
+	keys map[string]appmodels.PrivateKey
 }
 
-func (r *PrivateKeyRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.IPrivateKey, error) {
+func (r *MemoryPrivateKeyRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) (appmodels.PrivateKey, error) {
 	id := getCertificateLocator(organization, certificates)
 	if key, exists := r.keys[id]; exists {
 		return key, nil
 	}
-	return nil, fmt.Errorf("[PrivateKey:FindById]: not found: %s", id)
+	return nil, fmt.Errorf("[PrivateKeyModel:FindById]: not found: %s", id)
 }
 
-func (r *PrivateKeyRepository) Save(key appmodels.IPrivateKey) (appmodels.IPrivateKey, error) {
+func (r *MemoryPrivateKeyRepository) Save(key appmodels.PrivateKey) (appmodels.PrivateKey, error) {
 	id := getCertificateLocator(key.GetOrganizationID(), append(key.GetParents(), key.GetSerialNumber()))
 	r.keys[id] = key
-	log.Printf("[PrivateKey:Save:%s] Saved: %v", id, key)
+	log.Printf("[PrivateKeyModel:Save:%s] Saved: %v", id, key)
 	return key, nil
 }
 
 // NewPrivateKeyRepository is a memory based repository for private keys
-func NewPrivateKeyRepository() *PrivateKeyRepository {
-	return &PrivateKeyRepository{
-		keys: make(map[string]appmodels.IPrivateKey),
+func NewPrivateKeyRepository() *MemoryPrivateKeyRepository {
+	return &MemoryPrivateKeyRepository{
+		keys: make(map[string]appmodels.PrivateKey),
 	}
 }
 
 // Compile time assertion for implementing the interface
-var _ appmodels.IPrivateKeyService = (*PrivateKeyRepository)(nil)
+var _ appmodels.PrivateKeyRepository = (*MemoryPrivateKeyRepository)(nil)

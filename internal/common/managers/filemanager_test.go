@@ -16,7 +16,7 @@ import (
 
 func TestFileManager_ReadFile(t *testing.T) {
 	// Setup: Create a temporary file with content
-	content := []byte("Hello, FileManager!")
+	content := []byte("Hello, OSFileManager!")
 	tmpFile, err := ioutil.TempFile("", "example")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name()) // Clean up

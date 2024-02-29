@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-// Certificate model implements ICertificate
-type Certificate struct {
+// CertificateModel model implements Certificate
+type CertificateModel struct {
 
 	// organization is the organization ID this certificate belongs to
 	organization string
 
 	// parents is all parent certificates in the chain
-	parents []ISerialNumber
+	parents []SerialNumber
 
 	// data is the certificate data
 	certificate *x509.Certificate
@@ -24,40 +24,40 @@ type Certificate struct {
 // NewCertificate creates a certificate model from existing data
 func NewCertificate(
 	organization string,
-	parents []ISerialNumber,
+	parents []SerialNumber,
 	certificate *x509.Certificate,
-) *Certificate {
-	return &Certificate{
+) *CertificateModel {
+	return &CertificateModel{
 		organization: organization,
 		parents:      parents,
 		certificate:  certificate,
 	}
 }
 
-func (c *Certificate) NotBefore() time.Time {
+func (c *CertificateModel) NotBefore() time.Time {
 	return c.certificate.NotBefore
 }
 
-func (c *Certificate) NotAfter() time.Time {
+func (c *CertificateModel) NotAfter() time.Time {
 	return c.certificate.NotAfter
 }
 
-func (c *Certificate) IsCA() bool {
+func (c *CertificateModel) IsCA() bool {
 	return c.certificate.IsCA
 }
 
-func (c *Certificate) IsSelfSigned() bool {
+func (c *CertificateModel) IsSelfSigned() bool {
 	if len(c.certificate.AuthorityKeyId) > 0 && len(c.certificate.SubjectKeyId) > 0 {
 		return bytes.Equal(c.certificate.AuthorityKeyId, c.certificate.SubjectKeyId)
 	}
 	return c.certificate.Issuer.String() == c.certificate.Subject.String()
 }
 
-func (c *Certificate) IsIntermediateCertificate() bool {
+func (c *CertificateModel) IsIntermediateCertificate() bool {
 	return c.certificate.BasicConstraintsValid && c.certificate.IsCA && !c.IsSelfSigned()
 }
 
-func (c *Certificate) IsServerCertificate() bool {
+func (c *CertificateModel) IsServerCertificate() bool {
 	for _, usage := range c.certificate.ExtKeyUsage {
 		if usage == x509.ExtKeyUsageServerAuth {
 			return true
@@ -66,7 +66,7 @@ func (c *Certificate) IsServerCertificate() bool {
 	return false
 }
 
-func (c *Certificate) IsClientCertificate() bool {
+func (c *CertificateModel) IsClientCertificate() bool {
 	for _, usage := range c.certificate.ExtKeyUsage {
 		if usage == x509.ExtKeyUsageClientAuth {
 			return true
@@ -75,33 +75,33 @@ func (c *Certificate) IsClientCertificate() bool {
 	return false
 }
 
-func (c *Certificate) IsRootCertificate() bool {
+func (c *CertificateModel) IsRootCertificate() bool {
 	return c.certificate.BasicConstraintsValid && c.certificate.IsCA && c.IsSelfSigned()
 }
 
-func (c *Certificate) GetSerialNumber() ISerialNumber {
+func (c *CertificateModel) GetSerialNumber() SerialNumber {
 	return NewSerialNumber(c.certificate.SerialNumber)
 }
 
-func (c *Certificate) GetOrganizationID() string {
+func (c *CertificateModel) GetOrganizationID() string {
 	return c.organization
 }
 
-func (c *Certificate) GetParents() []ISerialNumber {
+func (c *CertificateModel) GetParents() []SerialNumber {
 	originalSlice := c.parents
 	if originalSlice == nil {
-		return make([]ISerialNumber, 0)
+		return make([]SerialNumber, 0)
 	}
-	newSlice := make([]ISerialNumber, len(originalSlice))
+	newSlice := make([]SerialNumber, len(originalSlice))
 	copy(newSlice, originalSlice)
 	return newSlice
 }
 
-func (c *Certificate) GetCommonName() string {
+func (c *CertificateModel) GetCommonName() string {
 	return c.certificate.Subject.CommonName
 }
 
-func (c *Certificate) GetOrganizationName() string {
+func (c *CertificateModel) GetOrganizationName() string {
 	slice := c.GetOrganization()
 	if len(slice) > 0 {
 		return slice[0]
@@ -109,23 +109,23 @@ func (c *Certificate) GetOrganizationName() string {
 	return ""
 }
 
-func (c *Certificate) GetOrganization() []string {
+func (c *CertificateModel) GetOrganization() []string {
 	originalSlice := c.certificate.Subject.Organization
 	sliceCopy := make([]string, len(originalSlice))
 	copy(sliceCopy, originalSlice)
 	return sliceCopy
 }
 
-func (c *Certificate) GetSignedBy() ISerialNumber {
+func (c *CertificateModel) GetSignedBy() SerialNumber {
 	if len(c.parents) >= 1 {
 		return c.parents[len(c.parents)-1]
 	}
 	return c.GetSerialNumber()
 }
 
-func (c *Certificate) GetCertificate() *x509.Certificate {
+func (c *CertificateModel) GetCertificate() *x509.Certificate {
 	return c.certificate
 }
 
 // Compile time assertion for implementing the interface
-var _ ICertificate = (*Certificate)(nil)
+var _ Certificate = (*CertificateModel)(nil)

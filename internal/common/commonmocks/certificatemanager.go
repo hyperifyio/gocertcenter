@@ -14,14 +14,14 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
 )
 
-// MockCertificateManager is a mock implementation of models.ICertificateManager for testing.
+// MockCertificateManager is a mock implementation of models.CertificateManager for testing.
 type MockCertificateManager struct {
 	mock.Mock
 }
 
-func (m *MockCertificateManager) GetRandomManager() managers.IRandomManager {
+func (m *MockCertificateManager) RandomManager() managers.RandomManager {
 	args := m.Called()
-	return args.Get(0).(managers.IRandomManager)
+	return args.Get(0).(managers.RandomManager)
 }
 
 // CreateCertificate mocks a call to x509.CreateCertificate
@@ -130,4 +130,4 @@ func NewMockCertificateManager() *MockCertificateManager {
 	return &MockCertificateManager{}
 }
 
-var _ managers.ICertificateManager = (*MockCertificateManager)(nil)
+var _ managers.CertificateManager = (*MockCertificateManager)(nil)

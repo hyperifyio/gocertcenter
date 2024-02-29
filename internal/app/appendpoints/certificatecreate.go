@@ -15,12 +15,12 @@ import (
 )
 
 // CreateCertificateDefinitions returns OpenAPI definitions
-func (c *ApiController) CreateCertificateDefinitions() swagger.Definitions {
+func (c *HttpApiController) CreateCertificateDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Creates another certificate under a root certificate",
 		Description: "",
 		RequestBody: &swagger.ContentValue{
-			Description: "Certificate request data",
+			Description: "CertificateModel request data",
 			Content: swagger.Content{
 				"application/json": {
 					Value: appdtos.CertificateRequestDTO{},
@@ -38,7 +38,7 @@ func (c *ApiController) CreateCertificateDefinitions() swagger.Definitions {
 }
 
 // CreateCertificate handles a request
-func (c *ApiController) CreateCertificate(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) CreateCertificate(response apitypes.Response, request apitypes.Request) error {
 
 	// Decode request body
 	body, err := c.DecodeCertificateRequestFromRequestBody(request)
@@ -68,8 +68,8 @@ func (c *ApiController) CreateCertificate(response apitypes.IResponse, request a
 		return c.sendNotFound(response, request, err)
 	}
 
-	var cert appmodels.ICertificate
-	var privateKey appmodels.IPrivateKey
+	var cert appmodels.Certificate
+	var privateKey appmodels.PrivateKey
 
 	if certificateType == appdtos.ClientCertificate {
 
@@ -107,5 +107,5 @@ func (c *ApiController) CreateCertificate(response apitypes.IResponse, request a
 	return c.sendOK(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).CreateCertificateDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).CreateCertificate
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).CreateCertificateDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).CreateCertificate

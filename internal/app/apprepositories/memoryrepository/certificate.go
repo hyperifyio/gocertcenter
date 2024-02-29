@@ -10,14 +10,14 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-// CertificateRepository implements models.ICertificateService in a memory
-// @implements models.ICertificateService
-type CertificateRepository struct {
-	certificates map[string]appmodels.ICertificate
+// MemoryCertificateRepository implements models.CertificateRepository in a memory
+// @implements models.CertificateRepository
+type MemoryCertificateRepository struct {
+	certificates map[string]appmodels.Certificate
 }
 
-func (r *CertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) ([]appmodels.ICertificate, error) {
-	var result []appmodels.ICertificate
+func (r *MemoryCertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) ([]appmodels.Certificate, error) {
+	var result []appmodels.Certificate
 	if r.certificates == nil {
 		return result, nil
 	}
@@ -31,11 +31,11 @@ func (r *CertificateRepository) FindAllByOrganizationAndSerialNumbers(organizati
 	return result, nil
 }
 
-func (r *CertificateRepository) FindAllByOrganization(organization string) ([]appmodels.ICertificate, error) {
+func (r *MemoryCertificateRepository) FindAllByOrganization(organization string) ([]appmodels.Certificate, error) {
 	if r.certificates == nil {
-		return nil, errors.New("[Certificate:FindAllByOrganization]: not initialized")
+		return nil, errors.New("[CertificateModel:FindAllByOrganization]: not initialized")
 	}
-	var result []appmodels.ICertificate
+	var result []appmodels.Certificate
 	for _, cert := range r.certificates {
 		if cert.GetOrganizationID() == organization {
 			result = append(result, cert)
@@ -44,27 +44,27 @@ func (r *CertificateRepository) FindAllByOrganization(organization string) ([]ap
 	return result, nil
 }
 
-func (r *CertificateRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.ISerialNumber) (appmodels.ICertificate, error) {
+func (r *MemoryCertificateRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) (appmodels.Certificate, error) {
 	id := getCertificateLocator(organization, certificates)
 	if certificate, exists := r.certificates[id]; exists {
 		return certificate, nil
 	}
-	return nil, fmt.Errorf("[Certificate:FindByOrganizationAndSerialNumbers]: not found: %s", id)
+	return nil, fmt.Errorf("[CertificateModel:FindByOrganizationAndSerialNumbers]: not found: %s", id)
 }
 
-func (r *CertificateRepository) Save(certificate appmodels.ICertificate) (appmodels.ICertificate, error) {
+func (r *MemoryCertificateRepository) Save(certificate appmodels.Certificate) (appmodels.Certificate, error) {
 	id := getCertificateLocator(certificate.GetOrganizationID(), append(certificate.GetParents(), certificate.GetSerialNumber()))
 	r.certificates[id] = certificate
-	log.Printf("[Certificate:Save:%s] Saved: %v", id, certificate)
+	log.Printf("[CertificateModel:Save:%s] Saved: %v", id, certificate)
 	return certificate, nil
 }
 
 // NewCertificateRepository creates a memory based repository for certificates
-func NewCertificateRepository() *CertificateRepository {
-	return &CertificateRepository{
-		certificates: make(map[string]appmodels.ICertificate),
+func NewCertificateRepository() *MemoryCertificateRepository {
+	return &MemoryCertificateRepository{
+		certificates: make(map[string]appmodels.Certificate),
 	}
 }
 
 // Compile time assertion for implementing the interface
-var _ appmodels.ICertificateService = (*CertificateRepository)(nil)
+var _ appmodels.CertificateRepository = (*MemoryCertificateRepository)(nil)

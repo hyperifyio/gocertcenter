@@ -11,7 +11,7 @@ import (
 )
 
 // GetCertificateCollectionDefinitions returns OpenAPI definitions
-func (c *ApiController) GetCertificateCollectionDefinitions() swagger.Definitions {
+func (c *HttpApiController) GetCertificateCollectionDefinitions() swagger.Definitions {
 	return swagger.Definitions{
 		Summary:     "Returns a collection of root certificate entities",
 		Description: "",
@@ -26,7 +26,7 @@ func (c *ApiController) GetCertificateCollectionDefinitions() swagger.Definition
 }
 
 // GetCertificateCollection handles a request to get organization's certificates
-func (c *ApiController) GetCertificateCollection(response apitypes.IResponse, request apitypes.IRequest) error {
+func (c *HttpApiController) GetCertificateCollection(response apitypes.Response, request apitypes.Request) error {
 
 	// certificateType is server, client, root or intermediate
 	certificateType := request.GetQueryParam("type")
@@ -51,5 +51,5 @@ func (c *ApiController) GetCertificateCollection(response apitypes.IResponse, re
 	return c.sendOK(response, dto)
 }
 
-var _ apitypes.RequestDefinitionsFunc = (*ApiController)(nil).GetCertificateCollectionDefinitions
-var _ apitypes.RequestHandlerFunc = (*ApiController)(nil).GetCertificateCollection
+var _ apitypes.RequestDefinitionsFunc = (*HttpApiController)(nil).GetCertificateCollectionDefinitions
+var _ apitypes.RequestHandlerFunc = (*HttpApiController)(nil).GetCertificateCollection

@@ -8,7 +8,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-func getCertificateLocator(organization string, certificates []appmodels.ISerialNumber) string {
+func getCertificateLocator(organization string, certificates []appmodels.SerialNumber) string {
 	parts := []string{organization}
 	for _, certificate := range certificates {
 		parts = append(parts, certificate.String())

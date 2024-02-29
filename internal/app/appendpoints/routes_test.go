@@ -18,7 +18,7 @@ func TestGetRoutes(t *testing.T) {
 	mockApp := new(appmocks.MockApplicationController)
 	certManager := new(commonmocks.MockCertificateManager)
 
-	controller := appendpoints.NewApiController(mockServer, mockApp, certManager)
+	controller := appendpoints.NewHttpApiController(mockServer, mockApp, certManager)
 
 	routes := controller.GetRoutes()
 
