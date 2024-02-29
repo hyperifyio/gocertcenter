@@ -34,11 +34,11 @@ func NewCertificate(
 	}
 }
 
-func (c *Certificate) GetNotBefore() time.Time {
+func (c *Certificate) NotBefore() time.Time {
 	return c.certificate.NotBefore
 }
 
-func (c *Certificate) GetNotAfter() time.Time {
+func (c *Certificate) NotAfter() time.Time {
 	return c.certificate.NotAfter
 }
 

@@ -31,7 +31,6 @@ func (sender *JSONResponse) Send(statusCode int, data interface{}) {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		// FIXME: Add test
 		http.Error(sender.writer, "Error creating JSON writer", http.StatusInternalServerError)
 		return
 	}
@@ -42,7 +41,6 @@ func (sender *JSONResponse) Send(statusCode int, data interface{}) {
 	_, err = sender.writer.Write(jsonData)
 
 	if err != nil {
-		// FIXME: Add test
 		http.Error(sender.writer, "Error writing JSON writer", http.StatusInternalServerError)
 		return
 	}

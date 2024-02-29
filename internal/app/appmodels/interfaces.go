@@ -35,8 +35,8 @@ type ICertificate interface {
 	// GetCommonName
 	GetCommonName() string
 
-	GetNotBefore() time.Time
-	GetNotAfter() time.Time
+	NotBefore() time.Time
+	NotAfter() time.Time
 
 	// IsCA -
 	IsCA() bool

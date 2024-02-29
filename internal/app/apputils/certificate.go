@@ -93,7 +93,7 @@ func ToRevokedCertificate(
 	return appmodels.NewRevokedCertificate(
 		c.GetSerialNumber(),
 		revocationTime,
-		c.GetNotAfter(),
+		c.NotAfter(),
 	)
 }
 

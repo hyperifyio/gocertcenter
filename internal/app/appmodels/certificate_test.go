@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
@@ -565,4 +567,56 @@ func TestCertificate_GetSignedBy_WithoutParents(t *testing.T) {
 	if signedBy.String() != ownSerialNumber.String() {
 		t.Errorf("GetSignedBy() returned %v; want %v", signedBy.String(), ownSerialNumber.String())
 	}
+}
+
+func newMockCertificateWithValidity(notBefore, notAfter time.Time) *x509.Certificate {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		panic(err) // For simplicity in a test setup
+	}
+
+	template := &x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			CommonName: "www.example.com",
+		},
+		NotBefore: notBefore,
+		NotAfter:  notAfter,
+		PublicKey: key.Public(),
+	}
+
+	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
+	if err != nil {
+		panic(err) // For simplicity in a test setup
+	}
+
+	cert, err := x509.ParseCertificate(certDER)
+	if err != nil {
+		panic(err) // For simplicity in a test setup
+	}
+
+	return cert
+}
+
+func TestCertificate_GetNotBeforeAndAfter(t *testing.T) {
+	// Set up specific notBefore and notAfter times for the test
+	notBefore := time.Now().Add(-time.Hour).UTC().Truncate(time.Second)
+	notAfter := time.Now().Add(time.Hour).UTC().Truncate(time.Second)
+
+	// Create a mock certificate with the specified validity
+	mockCert := newMockCertificateWithValidity(notBefore, notAfter)
+
+	// Wrap the mock certificate in your Certificate model
+	certModel := appmodels.NewCertificate("org123", nil, mockCert)
+
+	assert.Equal(t, notBefore.String(), certModel.NotBefore().String())
+	assert.Equal(t, notAfter.String(), certModel.NotAfter().String())
+
+	// Test NotBefore method
+	assert.True(t, certModel.NotBefore().Equal(mockCert.NotBefore), "NotBefore should return the correct notBefore time")
+	assert.True(t, certModel.NotBefore().Equal(notBefore), "NotBefore should return the correct notBefore time")
+
+	// Test NotAfter method
+	assert.True(t, certModel.NotAfter().Equal(mockCert.NotAfter), "NotAfter should return the correct notAfter time")
+	assert.True(t, certModel.NotAfter().Equal(notAfter), "NotAfter should return the correct notAfter time")
 }

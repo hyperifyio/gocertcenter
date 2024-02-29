@@ -17,12 +17,12 @@ type MockCertificate struct {
 	mock.Mock
 }
 
-func (c *MockCertificate) GetNotBefore() time.Time {
+func (c *MockCertificate) NotBefore() time.Time {
 	args := c.Called()
 	return args.Get(0).(time.Time)
 }
 
-func (c *MockCertificate) GetNotAfter() time.Time {
+func (c *MockCertificate) NotAfter() time.Time {
 	args := c.Called()
 	return args.Get(0).(time.Time)
 }

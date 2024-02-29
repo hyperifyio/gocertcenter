@@ -43,7 +43,6 @@ func (r *RequestImpl) GetURL() *url.URL {
 }
 
 func (r *RequestImpl) GetMethod() string {
-	// FIXME: Add tests
 	return r.request.Method
 }
 

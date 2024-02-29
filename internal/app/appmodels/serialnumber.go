@@ -37,6 +37,10 @@ func ParseSerialNumber(value string, base int) (ISerialNumber, error) {
 		return nil, fmt.Errorf("[ParseSerialNumber]: no value provided")
 	}
 
+	if base <= 1 {
+		return nil, fmt.Errorf("[ParseSerialNumber]: invalid base: %d", base)
+	}
+
 	newSerialNumber := new(SerialNumber)
 	newSerialNumber.value = new(big.Int)
 	_, success := newSerialNumber.value.SetString(value, base)
