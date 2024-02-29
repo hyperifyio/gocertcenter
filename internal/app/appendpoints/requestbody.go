@@ -27,7 +27,7 @@ func (c *ApiController) DecodeOrganizationFromRequestBody(request apitypes.IRequ
 	if err != nil {
 		return appdtos.OrganizationDTO{}, fmt.Errorf("request decoding failed: %s", err)
 	}
-	defer bodyIO.Close()
+	_ = bodyIO.Close()
 
 	return body, nil
 }
@@ -47,7 +47,7 @@ func (c *ApiController) DecodeCertificateRequestFromRequestBody(request apitypes
 	if err != nil {
 		return appdtos.CertificateRequestDTO{}, fmt.Errorf("request decoding failed: %s", err)
 	}
-	defer bodyIO.Close()
+	_ = bodyIO.Close()
 
 	return body, nil
 }

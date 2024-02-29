@@ -30,7 +30,7 @@ func (r *RequestImpl) GetBodyBytes() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetBodyBytes: failed: %w", err)
 	}
-	defer r.request.Body.Close()
+	_ = r.request.Body.Close()
 	return bytes, nil
 }
 
