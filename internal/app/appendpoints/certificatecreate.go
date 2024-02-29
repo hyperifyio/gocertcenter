@@ -20,7 +20,7 @@ func (c *HttpApiController) CreateCertificateDefinitions() swagger.Definitions {
 		Summary:     "Creates another certificate under a root certificate",
 		Description: "",
 		RequestBody: &swagger.ContentValue{
-			Description: "CertificateModel request data",
+			Description: "Certificate request data",
 			Content: swagger.Content{
 				"application/json": {
 					Value: appdtos.CertificateRequestDTO{},
@@ -77,7 +77,7 @@ func (c *HttpApiController) CreateCertificate(response apitypes.Response, reques
 		if err != nil {
 			return c.sendInternalServerError(response, request, err)
 		}
-		c.logf(request, "created client certificate: %s", cert.GetSerialNumber())
+		c.logf(request, "created client certificate: %s", cert.SerialNumber())
 
 	} else if certificateType == appdtos.ServerCertificate {
 
@@ -85,7 +85,7 @@ func (c *HttpApiController) CreateCertificate(response apitypes.Response, reques
 		if err != nil {
 			return c.sendInternalServerError(response, request, err)
 		}
-		c.logf(request, "created server certificate: %s", cert.GetSerialNumber())
+		c.logf(request, "created server certificate: %s", cert.SerialNumber())
 
 	} else if certificateType == appdtos.IntermediateCertificate {
 
@@ -93,7 +93,7 @@ func (c *HttpApiController) CreateCertificate(response apitypes.Response, reques
 		if err != nil {
 			return c.sendInternalServerError(response, request, err)
 		}
-		c.logf(request, "created intermediate certificate: %s", cert.GetSerialNumber())
+		c.logf(request, "created intermediate certificate: %s", cert.SerialNumber())
 
 	} else {
 		return c.sendBadRequest(response, request, fmt.Sprintf("unsupported cert type: %s", certificateType), err)

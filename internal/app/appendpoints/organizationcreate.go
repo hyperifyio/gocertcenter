@@ -18,7 +18,7 @@ func (c *HttpApiController) CreateOrganizationDefinitions() swagger.Definitions 
 		Summary:     "Creates an organization",
 		Description: "",
 		RequestBody: &swagger.ContentValue{
-			Description: "OrganizationModel data",
+			Description: "Organization data",
 			Content: swagger.Content{
 				"application/json": {
 					Value: appdtos.OrganizationDTO{},

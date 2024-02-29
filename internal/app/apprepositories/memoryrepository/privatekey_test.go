@@ -20,11 +20,11 @@ func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 	repo := memoryrepository.NewPrivateKeyRepository()
 	serialNumber := appmodels.NewSerialNumber(big.NewInt(123))
 
-	// Setting up the mock to return the serial number when GetSerialNumber is called
+	// Setting up the mock to return the serial number when SerialNumber is called
 	mockKey := new(appmocks.MockPrivateKey)
-	mockKey.On("GetOrganizationID").Return(organization)
-	mockKey.On("GetSerialNumber").Return(serialNumber)
-	mockKey.On("GetParents").Return([]appmodels.SerialNumber{})
+	mockKey.On("OrganizationID").Return(organization)
+	mockKey.On("SerialNumber").Return(serialNumber)
+	mockKey.On("Parents").Return([]appmodels.SerialNumber{})
 
 	// Test Save
 	_, err := repo.Save(mockKey)

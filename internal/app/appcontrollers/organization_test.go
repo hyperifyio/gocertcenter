@@ -56,7 +56,7 @@ func TestOrganizationController_NewRootCertificate_SerialNumberExists(t *testing
 
 	mockOrganization := &appmocks.MockOrganization{}
 	organizationID := "testorg"
-	mockOrganization.On("GetID").Return(organizationID)
+	mockOrganization.On("ID").Return(organizationID)
 
 	// Simulate existing serial number
 	mockCertificateRepository.On("FindByOrganizationAndSerialNumbers", organizationID, mock.Anything).Return(&appmocks.MockCertificate{}, nil)
@@ -98,7 +98,7 @@ func TestOrganizationController_GetCertificateController_FetchFail(t *testing.T)
 		new(appmocks.MockApplicationController),
 	)
 
-	_, err := controller.GetCertificateController(serialNumber)
+	_, err := controller.CertificateController(serialNumber)
 	if err == nil || !strings.Contains(err.Error(), "failed") {
 		t.Errorf("Expected a failure fetching certificate model, got: %v", err)
 	}
@@ -126,7 +126,7 @@ func TestOrganizationController_GetCertificateCollection_Success(t *testing.T) {
 		new(appmocks.MockApplicationController),
 	)
 
-	certificates, err := controller.GetCertificateCollection()
+	certificates, err := controller.CertificateCollection()
 	assert.NoError(t, err)
 	assert.Equal(t, mockCertificates, certificates, "The returned certificates should match the mock certificates")
 	mockCertificateRepository.AssertExpectations(t)
@@ -147,7 +147,7 @@ func TestOrganizationController_GetCertificateCollection_NoCertificateRepository
 		new(appmocks.MockApplicationController),
 	)
 
-	_, err := controller.GetCertificateCollection()
+	_, err := controller.CertificateCollection()
 	if err == nil {
 		t.Fatal("Expected an error due to no certificate repository, got nil")
 	}
@@ -163,7 +163,7 @@ func TestOrganizationController_GetOrganizationModel(t *testing.T) {
 		new(appmocks.MockApplicationController),
 	)
 
-	model := controller.GetOrganizationModel()
+	model := controller.Organization()
 	assert.Equal(t, mockModel, model, "Expected organization model does not match")
 }
 
@@ -178,7 +178,7 @@ func TestOrganizationController_GetApplicationController(t *testing.T) {
 		mockParent,
 	)
 
-	parent := controller.GetApplicationController()
+	parent := controller.ApplicationController()
 	assert.Equal(t, mockParent, parent, "Expected application controller does not match")
 }
 
@@ -237,7 +237,7 @@ func TestOrganizationController_GetCertificateCollection_Failure(t *testing.T) {
 	organizationID := "testOrg"
 	expectedErr := fmt.Errorf("database error")
 
-	// Mocking OrganizationModel and its repositories
+	// Mocking Organization and its repositories
 	mockOrganization := &appmocks.MockOrganization{}
 	mockCertificateRepository := new(appmocks.MockCertificateService)
 	mockPrivateKeyRepository := new(appmocks.MockPrivateKeyService)
@@ -262,7 +262,7 @@ func TestOrganizationController_GetCertificateCollection_Failure(t *testing.T) {
 	mockCertificateRepository.On("FindAllByOrganizationAndSerialNumbers", organizationID, []appmodels.SerialNumber{}).Return(nil, expectedErr)
 
 	// Execute: Call the method we're testing
-	certificates, err := controller.GetCertificateCollection()
+	certificates, err := controller.CertificateCollection()
 
 	// Assert: Check that the error is as expected and no certificates are returned
 	assert.Nil(t, certificates, "Expected no certificates to be returned on error")
@@ -277,7 +277,7 @@ func TestOrganizationController_GetCertificateController(t *testing.T) {
 	organizationID := "testOrg"
 	serialNumber := appmodels.NewSerialNumber(big.NewInt(12345))
 
-	// Mocking OrganizationModel and its repositories
+	// Mocking Organization and its repositories
 	mockCertificate := &appmocks.MockCertificate{}
 	mockOrganization := &appmocks.MockOrganization{}
 	mockCertificateRepository := new(appmocks.MockCertificateService)
@@ -303,7 +303,7 @@ func TestOrganizationController_GetCertificateController(t *testing.T) {
 	mockCertificateRepository.On("FindByOrganizationAndSerialNumbers", organizationID, []appmodels.SerialNumber{serialNumber}).Return(mockCertificate, nil)
 
 	// Execute: Call the method we're testing
-	certificateController, err := controller.GetCertificateController(serialNumber)
+	certificateController, err := controller.CertificateController(serialNumber)
 
 	// Assert: Check that the error is as expected and no certificate controller is returned
 	assert.NotNil(t, certificateController, "Expected no certificate controller to be returned on error")

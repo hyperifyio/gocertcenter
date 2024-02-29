@@ -37,7 +37,7 @@ func (r *FileOrganizationRepository) FindById(id string) (appmodels.Organization
 }
 
 func (r *FileOrganizationRepository) Save(organization appmodels.Organization) (appmodels.Organization, error) {
-	id := organization.GetID()
+	id := organization.ID()
 	fileName := GetOrganizationJsonPath(r.filePath, id)
 	err := SaveOrganizationJsonFile(r.fileManager, fileName, apputils.GetOrganizationDTO(organization))
 	if err != nil {

@@ -20,20 +20,18 @@ type SerialNumber interface {
 type Organization interface {
 
 	// GetID returns unique identifier for this organization
-	GetID() string
+	ID() string
 
 	// GetName returns the primary organization name
-	GetName() string
+	Name() string
 
 	// GetNames returns the full name of the organization including department
-	GetNames() []string
+	Names() []string
 }
 
 // Certificate describes an interface for CertificateModel model
 type Certificate interface {
-
-	// GetCommonName
-	GetCommonName() string
+	CommonName() string
 
 	NotBefore() time.Time
 	NotAfter() time.Time
@@ -63,61 +61,61 @@ type Certificate interface {
 	// certificates and have specific extended key usages.
 	IsClientCertificate() bool
 
-	// GetParents returns all parent certificate serial numbers
-	GetParents() []SerialNumber
+	// Parents returns all parent certificate serial numbers
+	Parents() []SerialNumber
 
-	GetSerialNumber() SerialNumber
-	GetOrganizationID() string
-	GetOrganizationName() string
-	GetOrganization() []string
-	GetSignedBy() SerialNumber
-	GetCertificate() *x509.Certificate
+	SerialNumber() SerialNumber
+	OrganizationID() string
+	OrganizationName() string
+	Organization() []string
+	SignedBy() SerialNumber
+	Certificate() *x509.Certificate
 }
 
 // PublicKey describes an interface for PublicKey model
 type PublicKey interface {
 
 	// GetPublicKey returns the public key
-	GetPublicKey() any
+	PublicKey() any
 }
 
 // PrivateKey describes an interface for PrivateKeyModel model
 type PrivateKey interface {
 
 	// GetPrivateKey returns the internal private key
-	GetPrivateKey() any
+	PrivateKey() any
 
 	// GetKeyType returns the type of the internal key
-	GetKeyType() KeyType
+	KeyType() KeyType
 
 	// GetPublicKey returns the public key
-	GetPublicKey() any
+	PublicKey() any
 
-	// GetOrganizationID returns the organization this key belongs to
-	GetOrganizationID() string
+	// OrganizationID returns the organization this key belongs to
+	OrganizationID() string
 
 	// GetParents returns all parent certificate serial numbers
-	GetParents() []SerialNumber
+	Parents() []SerialNumber
 
 	// GetCertificates returns all serial numbers from root certificate to the
 	// certificate this key belongs to
-	GetCertificates() []SerialNumber
+	Certificates() []SerialNumber
 
-	// GetSerialNumber returns the serial number of the certificate which this
+	// SerialNumber returns the serial number of the certificate which this
 	// key belongs to
-	GetSerialNumber() SerialNumber
+	SerialNumber() SerialNumber
 }
 
 // RevokedCertificate describes an interface for RevokedCertificateModel model
 type RevokedCertificate interface {
 
 	// GetSerialNumber returns the serial number of the certificate which was revoked
-	GetSerialNumber() SerialNumber
+	SerialNumber() SerialNumber
 
-	GetRevocationTime() time.Time
-	GetExpirationTime() time.Time
+	RevocationTime() time.Time
+	ExpirationTime() time.Time
 
-	GetRevokedCertificate() pkix.RevokedCertificate
+	RevokedCertificate() pkix.RevokedCertificate
 }
 
 // OrganizationRepository defines the interface for storing organization models,
@@ -176,14 +174,14 @@ type ApplicationController interface {
 	// the controller
 	UsesPrivateKeyService(service PrivateKeyRepository) bool
 
-	// GetOrganizationCollection returns all organizations
-	GetOrganizationCollection() ([]Organization, error)
+	// OrganizationCollection returns all organizations
+	OrganizationCollection() ([]Organization, error)
 
-	// GetOrganizationModel returns an organization model by an organization ID
-	GetOrganizationModel(organization string) (Organization, error)
+	// Organization returns an organization model by an organization ID
+	Organization(organization string) (Organization, error)
 
-	// GetOrganizationController returns an organization controller by an organization ID
-	GetOrganizationController(name string) (OrganizationController, error)
+	// OrganizationController returns an organization controller by an organization ID
+	OrganizationController(name string) (OrganizationController, error)
 
 	// NewOrganization creates a new organization
 	NewOrganization(model Organization) (Organization, error)
@@ -193,25 +191,25 @@ type ApplicationController interface {
 // organization may own one or more root certificates.
 type OrganizationController interface {
 
-	// GetOrganizationID returns the organization ID which this controller controls
-	GetOrganizationID() string
+	// OrganizationID returns the organization ID which this controller controls
+	OrganizationID() string
 
-	// GetOrganizationModel returns the model of the organization this controller controls
-	GetOrganizationModel() Organization
+	// Organization returns the model of the organization this controller controls
+	Organization() Organization
 
-	// GetApplicationController returns the parent controller who owns this organization controller
-	GetApplicationController() ApplicationController
+	// ApplicationController returns the parent controller who owns this organization controller
+	ApplicationController() ApplicationController
 
 	// GetCertificateCollection returns all the root level certificates for the organization
-	GetCertificateCollection() ([]Certificate, error)
+	CertificateCollection() ([]Certificate, error)
 
-	// GetCertificateController returns a controller for a root certificate specified by its serial number
+	// CertificateController returns a controller for a root certificate specified by its serial number
 	//  * serialNumber - The serial number of the root certificate
-	GetCertificateController(serialNumber SerialNumber) (CertificateController, error)
+	CertificateController(serialNumber SerialNumber) (CertificateController, error)
 
-	// GetCertificateModel returns a model for a root certificate specified by its serial number
+	// Certificate returns a model for a root certificate specified by its serial number
 	//  * serialNumber - The serial number of the root certificate
-	GetCertificateModel(serialNumber SerialNumber) (Certificate, error)
+	Certificate(serialNumber SerialNumber) (Certificate, error)
 
 	// SetExpirationDuration sets the expiration duration used in NewRootCertificate
 	//  * expiration - the expiration duration
@@ -233,51 +231,51 @@ type OrganizationController interface {
 // one private key.
 type CertificateController interface {
 
-	// GetApplicationController returns the parent controller who owns this
+	// ApplicationController returns the parent controller who owns this
 	// organization controller
-	GetApplicationController() ApplicationController
+	ApplicationController() ApplicationController
 
-	// GetOrganizationID returns the organization ID who owns the certificate
+	// OrganizationID returns the organization ID who owns the certificate
 	// this controller controls
-	GetOrganizationID() string
+	OrganizationID() string
 
-	// GetOrganizationModel returns the model of the organization who owns the
+	// Organization returns the model of the organization who owns the
 	// certificate this controller controls
-	GetOrganizationModel() Organization
+	Organization() Organization
 
-	// GetOrganizationController returns the organization controller who owns
+	// OrganizationController returns the organization controller who owns
 	// the certificate this controller controls
-	GetOrganizationController() OrganizationController
+	OrganizationController() OrganizationController
 
-	// GetCertificateModel returns the model of the certificate this controller
+	// Certificate returns the model of the certificate this controller
 	// controls
-	GetCertificateModel() Certificate
+	Certificate() Certificate
 
-	// GetChildCertificateCollection returns all child certificates
-	GetChildCertificateCollection(certificateType string) ([]Certificate, error)
+	// ChildCertificateCollection returns all child certificates
+	ChildCertificateCollection(certificateType string) ([]Certificate, error)
 
-	// GetChildCertificateModel returns a child certificate model
+	// Certificate returns a child certificate model
 	//  * serialNumber - The serial number of the child certificate
-	GetChildCertificateModel(serialNumber SerialNumber) (Certificate, error)
+	ChildCertificate(serialNumber SerialNumber) (Certificate, error)
 
 	// GetChildCertificateController returns a child certificate controller
 	//  * serialNumber - The serial number of the child certificate
-	GetChildCertificateController(serialNumber SerialNumber) (CertificateController, error)
+	ChildCertificateController(serialNumber SerialNumber) (CertificateController, error)
 
-	// GetParentCertificateModel returns the parent certificate model if this
+	// ParentCertificate returns the parent certificate model if this
 	// certificate is not a root certificate
-	GetParentCertificateModel() Certificate
+	ParentCertificate() Certificate
 
 	// GetParentCertificateController returns the parent certificate controller
 	// if this certificate is not a root certificate
-	GetParentCertificateController() CertificateController
+	ParentCertificateController() CertificateController
 
-	// GetPrivateKeyModel returns the private key model of this certificate
-	GetPrivateKeyModel() (PrivateKey, error)
+	// PrivateKey returns the private key model of this certificate
+	PrivateKey() (PrivateKey, error)
 
 	// GetPrivateKeyController returns the private key controller of this
 	// certificate
-	GetPrivateKeyController() (PrivateKeyController, error)
+	PrivateKeyController() (PrivateKeyController, error)
 
 	// SetExpirationDuration sets the expiration duration used in
 	// NewIntermediateCertificate, NewServerCertificate, or NewClientCertificate
@@ -304,25 +302,25 @@ type PrivateKeyController interface {
 
 	// GetApplicationController returns the parent controller who owns this
 	// organization controller
-	GetApplicationController() ApplicationController
+	ApplicationController() ApplicationController
 
 	// GetOrganizationID returns the organization ID who owns the certificate
 	// this controller controls
-	GetOrganizationID() string
+	OrganizationID() string
 
-	// GetOrganizationModel returns the model of the organization who owns the
+	// Organization returns the model of the organization who owns the
 	// certificate this controller controls
-	GetOrganizationModel() Organization
+	Organization() Organization
 
 	// GetOrganizationController returns the model of the organization who owns the
 	// certificate this controller controls
-	GetOrganizationController() OrganizationController
+	OrganizationController() OrganizationController
 
-	// GetCertificateModel returns the model of the certificate this controller
+	// Certificate returns the model of the certificate this controller
 	// controls
-	GetCertificateModel() Certificate
+	Certificate() Certificate
 
 	// GetCertificateController returns the controller of the certificate
 	// controls
-	GetCertificateController() CertificateController
+	CertificateController() CertificateController
 }

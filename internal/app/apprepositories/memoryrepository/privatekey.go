@@ -20,13 +20,13 @@ func (r *MemoryPrivateKeyRepository) FindByOrganizationAndSerialNumbers(organiza
 	if key, exists := r.keys[id]; exists {
 		return key, nil
 	}
-	return nil, fmt.Errorf("[PrivateKeyModel:FindById]: not found: %s", id)
+	return nil, fmt.Errorf("[PrivateKey:FindById]: not found: %s", id)
 }
 
 func (r *MemoryPrivateKeyRepository) Save(key appmodels.PrivateKey) (appmodels.PrivateKey, error) {
-	id := getCertificateLocator(key.GetOrganizationID(), append(key.GetParents(), key.GetSerialNumber()))
+	id := getCertificateLocator(key.OrganizationID(), append(key.Parents(), key.SerialNumber()))
 	r.keys[id] = key
-	log.Printf("[PrivateKeyModel:Save:%s] Saved: %v", id, key)
+	log.Printf("[PrivateKey:Save:%s] Saved: %v", id, key)
 	return key, nil
 }
 

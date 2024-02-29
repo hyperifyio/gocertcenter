@@ -50,27 +50,27 @@ func TestGeneratePrivateKey(t *testing.T) {
 
 		// switch kt {
 		// case models.RSA:
-		//	if _, ok := privateKey.data.(*rsa.PrivateKeyModel); !ok {
+		//	if _, ok := privateKey.data.(*rsa.PrivateKey); !ok {
 		//		t.Errorf("Expected RSA private key, got %T", privateKey.data)
 		//	}
 		// case models.ECDSA_P224:
-		//	if _, ok := privateKey.data.(*ecdsa.PrivateKeyModel); !ok {
+		//	if _, ok := privateKey.data.(*ecdsa.PrivateKey); !ok {
 		//		t.Errorf("Expected ECDSA private key, got %T", privateKey.data)
 		//	}
 		// case models.ECDSA_P256:
-		//	if _, ok := privateKey.data.(*ecdsa.PrivateKeyModel); !ok {
+		//	if _, ok := privateKey.data.(*ecdsa.PrivateKey); !ok {
 		//		t.Errorf("Expected ECDSA private key, got %T", privateKey.data)
 		//	}
 		// case models.ECDSA_P384:
-		//	if _, ok := privateKey.data.(*ecdsa.PrivateKeyModel); !ok {
+		//	if _, ok := privateKey.data.(*ecdsa.PrivateKey); !ok {
 		//		t.Errorf("Expected ECDSA private key, got %T", privateKey.data)
 		//	}
 		// case models.ECDSA_P521:
-		//	if _, ok := privateKey.data.(*ecdsa.PrivateKeyModel); !ok {
+		//	if _, ok := privateKey.data.(*ecdsa.PrivateKey); !ok {
 		//		t.Errorf("Expected ECDSA private key, got %T", privateKey.data)
 		//	}
 		// case models.Ed25519:
-		//	if _, ok := privateKey.data.(ed25519.PrivateKeyModel); !ok {
+		//	if _, ok := privateKey.data.(ed25519.PrivateKey); !ok {
 		//		t.Errorf("Expected Ed25519 private key, got %T", privateKey.data)
 		//	}
 		// }
@@ -101,7 +101,7 @@ func TestGenerateRSAPrivateKey(t *testing.T) {
 		t.Fatalf("Expected private key, got: nil")
 	}
 
-	// if _, ok := privateKey.data.(*rsa.PrivateKeyModel); !ok {
+	// if _, ok := privateKey.data.(*rsa.PrivateKey); !ok {
 	//	t.Errorf("Expected RSA private key, got %T", privateKey.data)
 	// }
 
@@ -141,12 +141,12 @@ func TestGenerateEd25519PrivateKey(t *testing.T) {
 		t.Fatal("Expected non-nil private key")
 	}
 
-	// if _, ok := privateKey.data.(ed25519.PrivateKeyModel); !ok {
+	// if _, ok := privateKey.data.(ed25519.PrivateKey); !ok {
 	//	t.Errorf("Expected Ed25519 private key, got %T", privateKey.data)
 	// }
 }
 
-// TestPrivateKey_GetSerialNumber verifies that GetSerialNumber returns the correct serial number
+// TestPrivateKey_GetSerialNumber verifies that SerialNumber returns the correct serial number
 func TestPrivateKey_GetSerialNumber(t *testing.T) {
 	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
@@ -157,14 +157,14 @@ func TestPrivateKey_GetSerialNumber(t *testing.T) {
 		nil,
 	)
 
-	actualSerialNumber := privateKey.GetSerialNumber()
+	actualSerialNumber := privateKey.SerialNumber()
 
 	if actualSerialNumber.Cmp(expectedSerialNumber) != 0 {
 		t.Errorf("Expected serial number %v, got %v", expectedSerialNumber, actualSerialNumber)
 	}
 }
 
-// TestPrivateKey_GetPublicKey checks if GetPublicKey returns a valid public key from the private key
+// TestPrivateKey_GetPublicKey checks if PublicKey returns a valid public key from the private key
 func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
 	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
@@ -172,7 +172,7 @@ func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
 	key, _ := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	privateKey := appmodels.NewPrivateKey(organization, []appmodels.SerialNumber{serialNumber}, appmodels.ECDSA_P384, key)
 
-	publicKeyAny := privateKey.GetPublicKey()
+	publicKeyAny := privateKey.PublicKey()
 	publicKey, ok := publicKeyAny.(*ecdsa.PublicKey) // Type assertion
 	if !ok {
 		t.Fatalf("Expected ECDSA public key, got different type")
@@ -182,7 +182,7 @@ func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
 	}
 }
 
-// TestPrivateKey_GetPublicKey_Ed25519 checks if GetPublicKey returns a valid public key from the private key
+// TestPrivateKey_GetPublicKey_Ed25519 checks if PublicKey returns a valid public key from the private key
 func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
@@ -192,7 +192,7 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 		t.Fatalf("Could not generate private key: %v", err)
 	}
 
-	publicKeyAny := privateKey.GetPublicKey()
+	publicKeyAny := privateKey.PublicKey()
 	publicKey, ok := publicKeyAny.(ed25519.PublicKey) // Corrected type assertion
 	if !ok {
 		t.Fatalf("Expected Ed25519 public key, got different type")
@@ -378,9 +378,9 @@ func TestToPrivateKeyDTO(t *testing.T) {
 	expectedPEM := "FAKE_PEM_DATA"
 
 	mockSerialNumber.On("String").Return(expectedSerial)
-	mockPrivateKey.On("GetSerialNumber").Return(mockSerialNumber)
-	mockPrivateKey.On("GetKeyType").Return(appmodels.RSA_2048)
-	mockPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+	mockPrivateKey.On("SerialNumber").Return(mockSerialNumber)
+	mockPrivateKey.On("KeyType").Return(appmodels.RSA_2048)
+	mockPrivateKey.On("PrivateKey").Return(&rsa.PrivateKey{})
 	mockCertManager.On("MarshalPKCS1PrivateKey", mock.Anything).Return([]byte(expectedPEM))
 	mockCertManager.On("EncodePEMToMemory", mock.Anything).Return([]byte(expectedPEM))
 
@@ -406,9 +406,9 @@ func TestToPrivateKeyDTOList(t *testing.T) {
 	expectedPEM := "FAKE_PEM_DATA"
 
 	mockSerialNumber.On("String").Return(expectedSerial)
-	mockPrivateKey.On("GetSerialNumber").Return(mockSerialNumber)
-	mockPrivateKey.On("GetKeyType").Return(appmodels.RSA_2048)
-	mockPrivateKey.On("GetPrivateKey").Return(&rsa.PrivateKey{})
+	mockPrivateKey.On("SerialNumber").Return(mockSerialNumber)
+	mockPrivateKey.On("KeyType").Return(appmodels.RSA_2048)
+	mockPrivateKey.On("PrivateKey").Return(&rsa.PrivateKey{})
 	mockCertManager.On("MarshalPKCS1PrivateKey", mock.Anything).Return([]byte(expectedPEM))
 	mockCertManager.On("EncodePEMToMemory", mock.Anything).Return([]byte(expectedPEM))
 
@@ -735,11 +735,11 @@ func TestToPrivateKeyDTO_MarshalError(t *testing.T) {
 	mockPrivateKey := new(appmocks.MockPrivateKey)
 	privateKey := &rsa.PrivateKey{}
 
-	mockPrivateKey.On("GetPrivateKey").Return(privateKey)
+	mockPrivateKey.On("PrivateKey").Return(privateKey)
 
 	// serialNumber := appmocks.NewMockSerialNumber()
-	// mockPrivateKey.On("GetSerialNumber").Return(serialNumber)
-	// mockPrivateKey.On("GetKeyType").Return(appmodels.RSA_2048)
+	// mockPrivateKey.On("SerialNumber").Return(serialNumber)
+	// mockPrivateKey.On("KeyType").Return(appmodels.RSA_2048)
 
 	mockCertManager.On("MarshalPKCS1PrivateKey", privateKey).Return(nil)
 
@@ -760,7 +760,7 @@ func TestToPrivateKeyDTOList_Error(t *testing.T) {
 	mockPrivateKey2 := new(appmocks.MockPrivateKey)
 
 	// Setup private keys and their expected types
-	mockPrivateKey1.On("GetPrivateKey").Return(privateKey1)
+	mockPrivateKey1.On("PrivateKey").Return(privateKey1)
 
 	// Assuming PEM marshalling and encoding are successful
 	mockCertManager.On("MarshalPKCS1PrivateKey", privateKey1).Return(nil)

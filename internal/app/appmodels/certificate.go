@@ -79,15 +79,15 @@ func (c *CertificateModel) IsRootCertificate() bool {
 	return c.certificate.BasicConstraintsValid && c.certificate.IsCA && c.IsSelfSigned()
 }
 
-func (c *CertificateModel) GetSerialNumber() SerialNumber {
+func (c *CertificateModel) SerialNumber() SerialNumber {
 	return NewSerialNumber(c.certificate.SerialNumber)
 }
 
-func (c *CertificateModel) GetOrganizationID() string {
+func (c *CertificateModel) OrganizationID() string {
 	return c.organization
 }
 
-func (c *CertificateModel) GetParents() []SerialNumber {
+func (c *CertificateModel) Parents() []SerialNumber {
 	originalSlice := c.parents
 	if originalSlice == nil {
 		return make([]SerialNumber, 0)
@@ -97,33 +97,33 @@ func (c *CertificateModel) GetParents() []SerialNumber {
 	return newSlice
 }
 
-func (c *CertificateModel) GetCommonName() string {
+func (c *CertificateModel) CommonName() string {
 	return c.certificate.Subject.CommonName
 }
 
-func (c *CertificateModel) GetOrganizationName() string {
-	slice := c.GetOrganization()
+func (c *CertificateModel) OrganizationName() string {
+	slice := c.Organization()
 	if len(slice) > 0 {
 		return slice[0]
 	}
 	return ""
 }
 
-func (c *CertificateModel) GetOrganization() []string {
+func (c *CertificateModel) Organization() []string {
 	originalSlice := c.certificate.Subject.Organization
 	sliceCopy := make([]string, len(originalSlice))
 	copy(sliceCopy, originalSlice)
 	return sliceCopy
 }
 
-func (c *CertificateModel) GetSignedBy() SerialNumber {
+func (c *CertificateModel) SignedBy() SerialNumber {
 	if len(c.parents) >= 1 {
 		return c.parents[len(c.parents)-1]
 	}
-	return c.GetSerialNumber()
+	return c.SerialNumber()
 }
 
-func (c *CertificateModel) GetCertificate() *x509.Certificate {
+func (c *CertificateModel) Certificate() *x509.Certificate {
 	return c.certificate
 }
 

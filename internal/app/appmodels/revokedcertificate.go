@@ -20,19 +20,19 @@ type RevokedCertificateModel struct {
 	expirationTime time.Time
 }
 
-func (k *RevokedCertificateModel) GetSerialNumber() SerialNumber {
+func (k *RevokedCertificateModel) SerialNumber() SerialNumber {
 	return k.serialNumber
 }
 
-func (k *RevokedCertificateModel) GetRevocationTime() time.Time {
+func (k *RevokedCertificateModel) RevocationTime() time.Time {
 	return k.revocationTime
 }
 
-func (k *RevokedCertificateModel) GetExpirationTime() time.Time {
+func (k *RevokedCertificateModel) ExpirationTime() time.Time {
 	return k.expirationTime
 }
 
-func (k *RevokedCertificateModel) GetRevokedCertificate() pkix.RevokedCertificate {
+func (k *RevokedCertificateModel) RevokedCertificate() pkix.RevokedCertificate {
 	return pkix.RevokedCertificate{
 		SerialNumber:   k.serialNumber.Value(),
 		RevocationTime: k.revocationTime,

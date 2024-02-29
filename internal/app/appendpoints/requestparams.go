@@ -51,7 +51,7 @@ func (c *HttpApiController) getOrganizationController(request apitypes.Request) 
 	if organization == "" {
 		return nil, fmt.Errorf("[%s %s]: failed to find organization id", request.GetMethod(), request.GetURL())
 	}
-	controller, err := c.appController.GetOrganizationController(organization)
+	controller, err := c.appController.OrganizationController(organization)
 	if err != nil {
 		return nil, fmt.Errorf("[%s %s]: failed to find organization controller: %v", request.GetMethod(), request.GetURL(), err)
 	}
@@ -70,7 +70,7 @@ func (c *HttpApiController) getRootCertificateController(request apitypes.Reques
 		return nil, fmt.Errorf("[%s %s]: failed to find root serial number: %v", request.GetMethod(), request.GetURL(), err)
 	}
 
-	rootCertificateController, err := controller.GetCertificateController(rootSerialNumber)
+	rootCertificateController, err := controller.CertificateController(rootSerialNumber)
 	if err != nil {
 		return nil, fmt.Errorf("[%s %s]: failed to find root certificate controller: %v", request.GetMethod(), request.GetURL(), err)
 	}
@@ -90,7 +90,7 @@ func (c *HttpApiController) getInnerCertificateController(request apitypes.Reque
 		return nil, fmt.Errorf("[%s %s]: failed to find inner serial number: %v", request.GetMethod(), request.GetURL(), err)
 	}
 
-	certificateController, err := rootCertificateController.GetChildCertificateController(serialNumber)
+	certificateController, err := rootCertificateController.ChildCertificateController(serialNumber)
 	if err != nil {
 		return nil, fmt.Errorf("[%s %s]: failed to find inner certificate controller: %v", request.GetMethod(), request.GetURL(), err)
 	}

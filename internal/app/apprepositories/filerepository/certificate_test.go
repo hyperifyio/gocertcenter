@@ -52,7 +52,7 @@ func TestCertificateRepository_GetExistingCertificate(t *testing.T) {
 	cert := &x509.Certificate{
 		SerialNumber: serialNumbers[0].Value(),
 		Issuer:       pkix.Name{CommonName: "Test CA"},
-		Subject:      pkix.Name{CommonName: "Test CertificateModel"},
+		Subject:      pkix.Name{CommonName: "Test Certificate"},
 		NotBefore:    time.Now(),
 		NotAfter:     time.Now().Add(365 * 24 * time.Hour),
 		KeyUsage:     x509.KeyUsageDigitalSignature,
@@ -139,7 +139,7 @@ func TestCertificateRepository_CreateCertificate(t *testing.T) {
 	// Create a dummy certificate for testing.
 	template := &x509.Certificate{
 		SerialNumber: big.NewInt(1),
-		Subject:      pkix.Name{CommonName: "Test CertificateModel"},
+		Subject:      pkix.Name{CommonName: "Test Certificate"},
 		NotBefore:    time.Now(),
 		NotAfter:     time.Now().Add(365 * 24 * time.Hour), // 1 year
 		KeyUsage:     x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
@@ -152,11 +152,11 @@ func TestCertificateRepository_CreateCertificate(t *testing.T) {
 	assert.NoError(t, err)
 
 	mockCertificate := &appmocks.MockCertificate{}
-	mockCertificate.On("GetCertificate").Return(cert, nil)
-	mockCertificate.On("GetOrganizationID").Return("testOrg")
-	mockCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
-	mockCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(template.SerialNumber))
-	mockCertificate.On("GetID").Return("")
+	mockCertificate.On("Certificate").Return(cert, nil)
+	mockCertificate.On("OrganizationID").Return("testOrg")
+	mockCertificate.On("Parents").Return([]appmodels.SerialNumber{})
+	mockCertificate.On("SerialNumber").Return(appmodels.NewSerialNumber(template.SerialNumber))
+	mockCertificate.On("ID").Return("")
 
 	// Attempt to save the certificate.
 	_, err = repo.Save(mockCertificate)
@@ -192,10 +192,10 @@ func TestCertificateRepository_CreateCertificate_SaveFail(t *testing.T) {
 
 	// Use a mock or a simple certificate for testing
 	mockCertificate := appmocks.MockCertificate{}
-	mockCertificate.On("GetCertificate").Return(&x509.Certificate{}, nil)
-	mockCertificate.On("GetOrganizationID").Return("TestOrg")
-	mockCertificate.On("GetParents").Return([]appmodels.SerialNumber{})
-	mockCertificate.On("GetSerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(1)))
+	mockCertificate.On("Certificate").Return(&x509.Certificate{}, nil)
+	mockCertificate.On("OrganizationID").Return("TestOrg")
+	mockCertificate.On("Parents").Return([]appmodels.SerialNumber{})
+	mockCertificate.On("SerialNumber").Return(appmodels.NewSerialNumber(big.NewInt(1)))
 
 	// Attempt to save the certificate, expecting a failure
 	_, err = repo.Save(&mockCertificate)

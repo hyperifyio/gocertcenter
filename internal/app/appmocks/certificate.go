@@ -37,42 +37,42 @@ func (m *MockCertificate) IsCA() bool {
 	return args.Bool(0)
 }
 
-func (m *MockCertificate) GetSerialNumber() appmodels.SerialNumber {
+func (m *MockCertificate) SerialNumber() appmodels.SerialNumber {
 	args := m.Called()
 	return args.Get(0).(appmodels.SerialNumber)
 }
 
-func (m *MockCertificate) GetOrganizationID() string {
+func (m *MockCertificate) OrganizationID() string {
 	args := m.Called()
 	return args.String(0)
 }
 
-func (m *MockCertificate) GetOrganizationName() string {
+func (m *MockCertificate) OrganizationName() string {
 	args := m.Called()
 	return args.String(0)
 }
 
-func (m *MockCertificate) GetOrganization() []string {
+func (m *MockCertificate) Organization() []string {
 	args := m.Called()
 	return args.Get(0).([]string)
 }
 
-func (m *MockCertificate) GetParents() []appmodels.SerialNumber {
+func (m *MockCertificate) Parents() []appmodels.SerialNumber {
 	args := m.Called()
 	return args.Get(0).([]appmodels.SerialNumber)
 }
 
-func (m *MockCertificate) GetSignedBy() appmodels.SerialNumber {
+func (m *MockCertificate) SignedBy() appmodels.SerialNumber {
 	args := m.Called()
 	return args.Get(0).(appmodels.SerialNumber)
 }
 
-func (m *MockCertificate) GetCertificate() *x509.Certificate {
+func (m *MockCertificate) Certificate() *x509.Certificate {
 	args := m.Called()
 	return args.Get(0).(*x509.Certificate)
 }
 
-func (m *MockCertificate) GetCommonName() string {
+func (m *MockCertificate) CommonName() string {
 	args := m.Called()
 	return args.String(0)
 }

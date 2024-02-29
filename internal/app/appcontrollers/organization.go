@@ -46,34 +46,34 @@ type CertOrganizationController struct {
 	defaultKeyType appmodels.KeyType
 }
 
-func (r *CertOrganizationController) GetCertificateCollection() ([]appmodels.Certificate, error) {
-	organization := r.GetOrganizationID()
+func (r *CertOrganizationController) CertificateCollection() ([]appmodels.Certificate, error) {
+	organization := r.OrganizationID()
 	if r.certificateRepository == nil {
-		return nil, fmt.Errorf("[%s:GetCertificateCollection]: no certificate repository", organization)
+		return nil, fmt.Errorf("[%s:CertificateCollection]: no certificate repository", organization)
 	}
 	list, err := r.certificateRepository.FindAllByOrganizationAndSerialNumbers(organization, []appmodels.SerialNumber{})
 	if err != nil {
-		return nil, fmt.Errorf("[%s:GetCertificateCollection]: failed: %w", organization, err)
+		return nil, fmt.Errorf("[%s:CertificateCollection]: failed: %w", organization, err)
 	}
 	return list, nil
 }
 
-func (r *CertOrganizationController) GetOrganizationID() string {
+func (r *CertOrganizationController) OrganizationID() string {
 	return r.id
 }
 
-func (r *CertOrganizationController) GetOrganizationModel() appmodels.Organization {
+func (r *CertOrganizationController) Organization() appmodels.Organization {
 	return r.model
 }
 
-func (r *CertOrganizationController) GetApplicationController() appmodels.ApplicationController {
+func (r *CertOrganizationController) ApplicationController() appmodels.ApplicationController {
 	return r.parent
 }
 
-func (r *CertOrganizationController) GetCertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
-	model, err := r.GetCertificateModel(serialNumber)
+func (r *CertOrganizationController) CertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
+	model, err := r.Certificate(serialNumber)
 	if err != nil {
-		return nil, fmt.Errorf("[%s:GetCertificateController:%s]: failed: %w", r.id, serialNumber, err)
+		return nil, fmt.Errorf("[%s:CertificateController:%s]: failed: %w", r.id, serialNumber, err)
 	}
 	return NewCertificateController(
 		r,
@@ -88,10 +88,10 @@ func (r *CertOrganizationController) GetCertificateController(serialNumber appmo
 	), nil
 }
 
-func (r *CertOrganizationController) GetCertificateModel(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
+func (r *CertOrganizationController) Certificate(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
 	model, err := r.certificateRepository.FindByOrganizationAndSerialNumbers(r.id, []appmodels.SerialNumber{serialNumber})
 	if err != nil {
-		return nil, fmt.Errorf("[%s:GetCertificateModel:%s]: failed: %w", r.id, serialNumber.String(), err)
+		return nil, fmt.Errorf("[%s:Certificate:%s]: failed: %w", r.id, serialNumber.String(), err)
 	}
 	return model, nil
 }
@@ -106,7 +106,7 @@ func (r *CertOrganizationController) ExpirationDuration() time.Duration {
 
 func (r *CertOrganizationController) NewRootCertificate(commonName string) (appmodels.Certificate, error) {
 
-	organization := r.GetOrganizationID()
+	organization := r.OrganizationID()
 
 	if r.certificateRepository == nil {
 		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: no certificate repository", organization, commonName)
@@ -143,7 +143,7 @@ func (r *CertOrganizationController) NewRootCertificate(commonName string) (appm
 	cert, err := apputils.NewRootCertificate(
 		r.certManager,
 		serialNumber,
-		r.GetOrganizationModel(),
+		r.Organization(),
 		r.defaultExpiration,
 		privateKey,
 		commonName,

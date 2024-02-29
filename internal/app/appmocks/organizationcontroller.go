@@ -20,7 +20,7 @@ func (m *MockOrganizationController) RevokeCertificate(certificate appmodels.Cer
 	return args.Get(0).(appmodels.RevokedCertificate), args.Error(1)
 }
 
-func (m *MockOrganizationController) GetCertificateCollection() ([]appmodels.Certificate, error) {
+func (m *MockOrganizationController) CertificateCollection() ([]appmodels.Certificate, error) {
 	args := m.Called()
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -28,27 +28,27 @@ func (m *MockOrganizationController) GetCertificateCollection() ([]appmodels.Cer
 	return args.Get(0).([]appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockOrganizationController) GetOrganizationID() string {
+func (m *MockOrganizationController) OrganizationID() string {
 	args := m.Called()
 	return args.String(0)
 }
 
-func (m *MockOrganizationController) GetOrganizationModel() appmodels.Organization {
+func (m *MockOrganizationController) Organization() appmodels.Organization {
 	args := m.Called()
 	return args.Get(0).(appmodels.Organization)
 }
 
-func (m *MockOrganizationController) GetApplicationController() appmodels.ApplicationController {
+func (m *MockOrganizationController) ApplicationController() appmodels.ApplicationController {
 	args := m.Called()
 	return args.Get(0).(appmodels.ApplicationController)
 }
 
-func (m *MockOrganizationController) GetCertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
+func (m *MockOrganizationController) CertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
 	args := m.Called(serialNumber)
 	return args.Get(0).(appmodels.CertificateController), args.Error(1)
 }
 
-func (m *MockOrganizationController) GetCertificateModel(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
+func (m *MockOrganizationController) Certificate(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
 	args := m.Called(serialNumber)
 	return args.Get(0).(appmodels.Certificate), args.Error(1)
 }

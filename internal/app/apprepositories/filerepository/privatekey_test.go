@@ -70,10 +70,10 @@ func TestPrivateKeyRepository_CreatePrivateKey(t *testing.T) {
 	assert.NotNil(t, rsaPrivKey)
 
 	mockPrivateKey := &appmocks.MockPrivateKey{}
-	mockPrivateKey.On("GetOrganizationID").Return("TestOrg")
-	mockPrivateKey.On("GetParents").Return([]appmodels.SerialNumber{parentSerialNumber})
-	mockPrivateKey.On("GetSerialNumber").Return(serialNumber)
-	mockPrivateKey.On("GetPrivateKey").Return(rsaPrivKey)
+	mockPrivateKey.On("OrganizationID").Return("TestOrg")
+	mockPrivateKey.On("Parents").Return([]appmodels.SerialNumber{parentSerialNumber})
+	mockPrivateKey.On("SerialNumber").Return(serialNumber)
+	mockPrivateKey.On("PrivateKey").Return(rsaPrivKey)
 
 	// Act
 	createdKey, err := repo.Save(mockPrivateKey)

@@ -41,7 +41,7 @@ func (c *HttpApiController) GetCertificateCollection(response apitypes.Response,
 	}
 
 	// Get certificate list
-	list, err := controller.GetChildCertificateCollection(certificateType)
+	list, err := controller.ChildCertificateCollection(certificateType)
 	if err != nil {
 		return c.sendInternalServerError(response, request, err)
 	}

@@ -22,9 +22,9 @@ func TestCertificateRepository_CreateAndGetCertificate(t *testing.T) {
 	serialNumber := appmodels.NewSerialNumber(big.NewInt(123))
 
 	// Setting up expectations
-	mockCert.On("GetSerialNumber").Return(serialNumber)
-	mockCert.On("GetOrganizationID").Return(organization)
-	mockCert.On("GetParents").Return([]appmodels.SerialNumber{signedBy})
+	mockCert.On("SerialNumber").Return(serialNumber)
+	mockCert.On("OrganizationID").Return(organization)
+	mockCert.On("Parents").Return([]appmodels.SerialNumber{signedBy})
 
 	// Test Save
 	_, err := repo.Save(mockCert)
@@ -60,13 +60,13 @@ func TestCertificateRepository_FindAllByOrganizationAndSerialNumbers(t *testing.
 	serialNumber2 := appmodels.NewSerialNumber(big.NewInt(456))
 
 	// Setting up expectations
-	mockCert1.On("GetSerialNumber").Return(serialNumber1)
-	mockCert1.On("GetOrganizationID").Return(organization)
-	mockCert1.On("GetParents").Return([]appmodels.SerialNumber{signedBy1})
+	mockCert1.On("SerialNumber").Return(serialNumber1)
+	mockCert1.On("OrganizationID").Return(organization)
+	mockCert1.On("Parents").Return([]appmodels.SerialNumber{signedBy1})
 
-	mockCert2.On("GetSerialNumber").Return(serialNumber2)
-	mockCert2.On("GetOrganizationID").Return(organization)
-	mockCert2.On("GetParents").Return([]appmodels.SerialNumber{signedBy1})
+	mockCert2.On("SerialNumber").Return(serialNumber2)
+	mockCert2.On("OrganizationID").Return(organization)
+	mockCert2.On("Parents").Return([]appmodels.SerialNumber{signedBy1})
 
 	// Test Save
 	_, err1 := repo.Save(mockCert1)
@@ -95,13 +95,13 @@ func TestCertificateRepository_FindAllByOrganization(t *testing.T) {
 	signedBy1 := appmodels.NewSerialNumber(big.NewInt(1))
 
 	// Setting up expectations
-	mockCert1.On("GetSerialNumber").Return(serialNumber1)
-	mockCert1.On("GetOrganizationID").Return(organization)
-	mockCert1.On("GetParents").Return([]appmodels.SerialNumber{signedBy1})
+	mockCert1.On("SerialNumber").Return(serialNumber1)
+	mockCert1.On("OrganizationID").Return(organization)
+	mockCert1.On("Parents").Return([]appmodels.SerialNumber{signedBy1})
 
-	mockCert2.On("GetSerialNumber").Return(serialNumber2)
-	mockCert2.On("GetOrganizationID").Return(organization)
-	mockCert2.On("GetParents").Return([]appmodels.SerialNumber{signedBy1})
+	mockCert2.On("SerialNumber").Return(serialNumber2)
+	mockCert2.On("OrganizationID").Return(organization)
+	mockCert2.On("Parents").Return([]appmodels.SerialNumber{signedBy1})
 
 	// Test Save
 	_, err1 := repo.Save(mockCert1)
@@ -152,6 +152,6 @@ func TestCertificateRepository_FindAllByOrganization_WithNilCertificates(t *test
 	_, err := repo.FindAllByOrganization(organization)
 
 	// Assert that the function returns the expected error
-	assert.Error(t, err, "[CertificateModel:FindAllByOrganization]: not initialized")
-	assert.Contains(t, err.Error(), "[CertificateModel:FindAllByOrganization]: not initialized", "Error message should indicate that the repository is not initialized")
+	assert.Error(t, err, "[Certificate:FindAllByOrganization]: not initialized")
+	assert.Contains(t, err.Error(), "[Certificate:FindAllByOrganization]: not initialized", "Error message should indicate that the repository is not initialized")
 }

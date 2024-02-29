@@ -17,25 +17,25 @@ type MockRevokedCertificate struct {
 }
 
 // GetSerialNumber mocks the GetSerialNumber method
-func (m *MockRevokedCertificate) GetSerialNumber() appmodels.SerialNumber {
+func (m *MockRevokedCertificate) SerialNumber() appmodels.SerialNumber {
 	args := m.Called()
 	return args.Get(0).(appmodels.SerialNumber) // Ensure the return type matches the interface
 }
 
 // GetRevocationTime mocks the GetRevocationTime method
-func (m *MockRevokedCertificate) GetRevocationTime() time.Time {
+func (m *MockRevokedCertificate) RevocationTime() time.Time {
 	args := m.Called()
 	return args.Get(0).(time.Time) // Ensure the return type matches the interface
 }
 
 // GetExpirationTime mocks the GetExpirationTime method
-func (m *MockRevokedCertificate) GetExpirationTime() time.Time {
+func (m *MockRevokedCertificate) ExpirationTime() time.Time {
 	args := m.Called()
 	return args.Get(0).(time.Time) // Ensure the return type matches the interface
 }
 
 // GetRevokedCertificate mocks the GetRevokedCertificate method
-func (m *MockRevokedCertificate) GetRevokedCertificate() pkix.RevokedCertificate {
+func (m *MockRevokedCertificate) RevokedCertificate() pkix.RevokedCertificate {
 	args := m.Called()
 	return args.Get(0).(pkix.RevokedCertificate) // Ensure the return type matches the interface
 }

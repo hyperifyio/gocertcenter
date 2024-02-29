@@ -20,14 +20,14 @@ import (
 
 func ToPrivateKeyDTO(certManager managers.CertificateManager, c appmodels.PrivateKey) (appdtos.PrivateKeyDTO, error) {
 
-	bytes, err := MarshalPrivateKeyAsPEM(certManager, c.GetPrivateKey())
+	bytes, err := MarshalPrivateKeyAsPEM(certManager, c.PrivateKey())
 	if err != nil {
 		return appdtos.PrivateKeyDTO{}, fmt.Errorf("ToPrivateKeyDTO: rsa: failed to marshal RSA private key: %v", err)
 	}
 
 	return appdtos.NewPrivateKeyDTO(
-		c.GetSerialNumber().String(),
-		c.GetKeyType().String(),
+		c.SerialNumber().String(),
+		c.KeyType().String(),
 		string(bytes),
 	), nil
 }
@@ -93,8 +93,8 @@ func GeneratePrivateKey(
 }
 
 // GenerateRSAPrivateKey creates a new RSA private key
-//   - organization: OrganizationModel ID
-//   - certificates: CertificateModel serial numbers from root certificate to the one owning this key
+//   - organization: Organization ID
+//   - certificates: Certificate serial numbers from root certificate to the one owning this key
 //   - keyType: Should be appmodels.RSA_1024, appmodels.RSA_2048, appmodels.RSA_3072 or appmodels.RSA_4096
 func GenerateRSAPrivateKey(
 	organization string,

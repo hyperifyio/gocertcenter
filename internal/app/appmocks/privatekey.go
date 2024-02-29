@@ -16,37 +16,37 @@ type MockPrivateKey struct {
 	mock.Mock
 }
 
-func (m *MockPrivateKey) GetOrganizationID() string {
+func (m *MockPrivateKey) OrganizationID() string {
 	args := m.Called()
 	return args.Get(0).(string)
 }
 
-func (m *MockPrivateKey) GetPrivateKey() any {
+func (m *MockPrivateKey) PrivateKey() any {
 	args := m.Called()
 	return args.Get(0).(any)
 }
 
-func (m *MockPrivateKey) GetSerialNumber() appmodels.SerialNumber {
+func (m *MockPrivateKey) SerialNumber() appmodels.SerialNumber {
 	args := m.Called()
 	return args.Get(0).(appmodels.SerialNumber)
 }
 
-func (m *MockPrivateKey) GetParents() []appmodels.SerialNumber {
+func (m *MockPrivateKey) Parents() []appmodels.SerialNumber {
 	args := m.Called()
 	return args.Get(0).([]appmodels.SerialNumber)
 }
 
-func (m *MockPrivateKey) GetCertificates() []appmodels.SerialNumber {
+func (m *MockPrivateKey) Certificates() []appmodels.SerialNumber {
 	args := m.Called()
 	return args.Get(0).([]appmodels.SerialNumber)
 }
 
-func (m *MockPrivateKey) GetKeyType() appmodels.KeyType {
+func (m *MockPrivateKey) KeyType() appmodels.KeyType {
 	args := m.Called()
 	return args.Get(0).(appmodels.KeyType)
 }
 
-func (m *MockPrivateKey) GetPublicKey() any {
+func (m *MockPrivateKey) PublicKey() any {
 	args := m.Called()
 	return args.Get(0)
 }

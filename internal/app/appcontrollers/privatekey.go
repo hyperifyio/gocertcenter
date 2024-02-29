@@ -20,30 +20,30 @@ type CertPrivateKeyController struct {
 	privateKeyRepository appmodels.PrivateKeyRepository
 }
 
-func (r *CertPrivateKeyController) GetApplicationController() appmodels.ApplicationController {
-	return r.parent.GetApplicationController()
+func (r *CertPrivateKeyController) ApplicationController() appmodels.ApplicationController {
+	return r.parent.ApplicationController()
 }
 
-func (r *CertPrivateKeyController) GetOrganizationID() string {
-	return r.parent.GetOrganizationID()
+func (r *CertPrivateKeyController) OrganizationID() string {
+	return r.parent.OrganizationID()
 }
 
-func (r *CertPrivateKeyController) GetOrganizationModel() appmodels.Organization {
-	return r.parent.GetOrganizationModel()
+func (r *CertPrivateKeyController) Organization() appmodels.Organization {
+	return r.parent.Organization()
 }
 
-func (r *CertPrivateKeyController) GetOrganizationController() appmodels.OrganizationController {
+func (r *CertPrivateKeyController) OrganizationController() appmodels.OrganizationController {
 	if r.parent == nil {
 		return nil
 	}
-	return r.parent.GetOrganizationController()
+	return r.parent.OrganizationController()
 }
 
-func (r *CertPrivateKeyController) GetCertificateModel() appmodels.Certificate {
-	return r.parent.GetCertificateModel()
+func (r *CertPrivateKeyController) Certificate() appmodels.Certificate {
+	return r.parent.Certificate()
 }
 
-func (r *CertPrivateKeyController) GetCertificateController() appmodels.CertificateController {
+func (r *CertPrivateKeyController) CertificateController() appmodels.CertificateController {
 	return r.parent
 }
 

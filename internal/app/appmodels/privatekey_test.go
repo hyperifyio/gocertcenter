@@ -31,14 +31,14 @@ func TestNewPrivateKey(t *testing.T) {
 	// Call the function under test
 	privateKey := appmodels.NewPrivateKey(organization, []appmodels.SerialNumber{serialNumber}, keyType, mockData)
 
-	bigIntSSerialNumber := privateKey.GetSerialNumber()
+	bigIntSSerialNumber := privateKey.SerialNumber()
 
-	// Verify the PrivateKeyModel fields are correctly assigned
+	// Verify the PrivateKey fields are correctly assigned
 	if bigIntSSerialNumber.Cmp(serialNumber) != 0 {
-		t.Errorf("serialNumber = %v, want %v", privateKey.GetSerialNumber(), serialNumber)
+		t.Errorf("serialNumber = %v, want %v", privateKey.SerialNumber(), serialNumber)
 	}
-	if privateKey.GetKeyType() != keyType {
-		t.Errorf("keyType = %v, want %v", privateKey.GetSerialNumber(), keyType)
+	if privateKey.KeyType() != keyType {
+		t.Errorf("keyType = %v, want %v", privateKey.SerialNumber(), keyType)
 	}
 
 	// // Since data is of type any, we assert its type and value where applicable
@@ -55,10 +55,10 @@ func TestPrivateKey_GetPublicKey_NilCase(t *testing.T) {
 	unsupportedKeyType := "unsupported key type" // Simulate incorrect initialization
 
 	privateKey := appmodels.NewPrivateKey(organization, []appmodels.SerialNumber{serialNumber}, mockKeyType, unsupportedKeyType)
-	publicKey := privateKey.GetPublicKey()
+	publicKey := privateKey.PublicKey()
 
 	if publicKey != nil {
-		t.Fatalf("Expected GetPublicKey to return nil for unsupported key type, got %v", publicKey)
+		t.Fatalf("Expected PublicKey to return nil for unsupported key type, got %v", publicKey)
 	}
 }
 
@@ -71,7 +71,7 @@ func TestPrivateKey_GetPublicKey_RSA(t *testing.T) {
 		t.Fatalf("Failed to generate RSA private key: %v", err)
 	}
 
-	// Create a PrivateKeyModel instance with the RSA private key
+	// Create a PrivateKey instance with the RSA private key
 	privateKey := appmodels.NewPrivateKey(
 		organization,
 		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
@@ -79,8 +79,8 @@ func TestPrivateKey_GetPublicKey_RSA(t *testing.T) {
 		rsaPrivKey,
 	)
 
-	// Get the public key from the PrivateKeyModel instance
-	publicKey := privateKey.GetPublicKey()
+	// Get the public key from the PrivateKey instance
+	publicKey := privateKey.PublicKey()
 
 	// Type assert the returned public key to *rsa.PublicKey
 	rsaPubKey, ok := publicKey.(*rsa.PublicKey)
@@ -103,15 +103,15 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 		t.Fatalf("Failed to generate Ed25519 private key: %v", err)
 	}
 
-	// Create a PrivateKeyModel instance with the Ed25519 private key
+	// Create a PrivateKey instance with the Ed25519 private key
 	privateKey := appmodels.NewPrivateKey(
 		organization,
 		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
 		appmodels.Ed25519, ed25519PrivKey,
 	)
 
-	// Get the public key from the PrivateKeyModel instance
-	publicKey := privateKey.GetPublicKey()
+	// Get the public key from the PrivateKey instance
+	publicKey := privateKey.PublicKey()
 
 	// Type assert the returned public key to ed25519.PublicKey
 	ed25519PubKey, ok := publicKey.(ed25519.PublicKey)
@@ -138,9 +138,9 @@ func TestPrivateKey_Methods(t *testing.T) {
 	}
 	privateKey := appmodels.NewPrivateKey(organization, serialNumbers, appmodels.RSA_2048, rsaPrivKey)
 
-	// Test GetParents
+	// Test Parents
 	expectedParents := serialNumbers[:len(serialNumbers)-1]
-	parents := privateKey.GetParents()
+	parents := privateKey.Parents()
 	if len(parents) != len(expectedParents) {
 		t.Errorf("Expected %d parent serial numbers, got %d", len(expectedParents), len(parents))
 	}
@@ -150,9 +150,9 @@ func TestPrivateKey_Methods(t *testing.T) {
 		}
 	}
 
-	// Test GetCertificates
+	// Test Certificates
 	expectedCertificates := serialNumbers
-	certificates := privateKey.GetCertificates()
+	certificates := privateKey.Certificates()
 	if len(certificates) != len(expectedCertificates) {
 		t.Errorf("Expected %d certificates, got %d", len(expectedCertificates), len(certificates))
 	}
@@ -162,13 +162,13 @@ func TestPrivateKey_Methods(t *testing.T) {
 		}
 	}
 
-	// Test GetOrganizationID
-	if gotOrgID := privateKey.GetOrganizationID(); gotOrgID != organization {
+	// Test OrganizationID
+	if gotOrgID := privateKey.OrganizationID(); gotOrgID != organization {
 		t.Errorf("Expected organization ID %s, got %s", organization, gotOrgID)
 	}
 
-	// Test GetPrivateKey
-	if gotPrivKey := privateKey.GetPrivateKey(); gotPrivKey != rsaPrivKey {
+	// Test PrivateKey
+	if gotPrivKey := privateKey.PrivateKey(); gotPrivKey != rsaPrivKey {
 		t.Errorf("Expected private key %v, got %v", rsaPrivKey, gotPrivKey)
 	}
 }
@@ -183,8 +183,8 @@ func TestPrivateKey_GetParents_WithSingleSerialNumber(t *testing.T) {
 	}
 	privateKey := appmodels.NewPrivateKey(organization, serialNumbers, appmodels.RSA_2048, rsaPrivKey)
 
-	// Test GetParents when certificates slice has only one serial number
-	parents := privateKey.GetParents()
+	// Test Parents when certificates slice has only one serial number
+	parents := privateKey.Parents()
 	if len(parents) != 0 {
 		t.Errorf("Expected 0 parent serial numbers for a root certificate, got %d", len(parents))
 	}
@@ -192,13 +192,13 @@ func TestPrivateKey_GetParents_WithSingleSerialNumber(t *testing.T) {
 
 func TestPrivateKey_GetSerialNumber_WithZeroCertificates(t *testing.T) {
 	organization := "testOrg"
-	// Create a PrivateKeyModel instance with no certificates
+	// Create a PrivateKey instance with no certificates
 	privateKey := appmodels.NewPrivateKey(organization, []appmodels.SerialNumber{}, appmodels.RSA_2048, "mockData")
 
-	// Test GetSerialNumber when certificates slice is empty
-	serialNumber := privateKey.GetSerialNumber()
+	// Test SerialNumber when certificates slice is empty
+	serialNumber := privateKey.SerialNumber()
 	if serialNumber != nil {
-		t.Errorf("Expected nil serial number for PrivateKeyModel with zero certificates, got %v", serialNumber)
+		t.Errorf("Expected nil serial number for PrivateKey with zero certificates, got %v", serialNumber)
 	}
 }
 
@@ -211,7 +211,7 @@ func TestPrivateKey_GetPublicKey_ECDSA(t *testing.T) {
 		t.Fatalf("Failed to generate ECDSA private key: %v", err)
 	}
 
-	// Create a PrivateKeyModel instance with the ECDSA private key
+	// Create a PrivateKey instance with the ECDSA private key
 	privateKey := appmodels.NewPrivateKey(
 		organization,
 		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
@@ -219,8 +219,8 @@ func TestPrivateKey_GetPublicKey_ECDSA(t *testing.T) {
 		ecdsaPrivKey,
 	)
 
-	// Get the public key from the PrivateKeyModel instance
-	publicKey := privateKey.GetPublicKey()
+	// Get the public key from the PrivateKey instance
+	publicKey := privateKey.PublicKey()
 
 	// Type assert the returned public key to *ecdsa.PublicKey
 	ecdsaPubKey, ok := publicKey.(*ecdsa.PublicKey)

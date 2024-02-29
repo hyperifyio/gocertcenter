@@ -35,18 +35,18 @@ func (a *CertApplicationController) UsesPrivateKeyService(service appmodels.Priv
 	return service == a.privateKeyRepository
 }
 
-func (a *CertApplicationController) GetOrganizationModel(organization string) (appmodels.Organization, error) {
+func (a *CertApplicationController) Organization(organization string) (appmodels.Organization, error) {
 	model, err := a.organizationRepository.FindById(organization)
 	if err != nil {
-		return nil, fmt.Errorf("[GetOrganizationModel]: failed: '%s': %w", organization, err)
+		return nil, fmt.Errorf("[Organization]: failed: '%s': %w", organization, err)
 	}
 	return model, nil
 }
 
-func (a *CertApplicationController) GetOrganizationController(organization string) (appmodels.OrganizationController, error) {
-	model, err := a.GetOrganizationModel(organization)
+func (a *CertApplicationController) OrganizationController(organization string) (appmodels.OrganizationController, error) {
+	model, err := a.Organization(organization)
 	if err != nil {
-		return nil, fmt.Errorf("[GetOrganizationController:%s]: not found: %w", organization, err)
+		return nil, fmt.Errorf("[OrganizationController:%s]: not found: %w", organization, err)
 	}
 	return NewOrganizationController(
 		organization,
@@ -67,7 +67,7 @@ func (a *CertApplicationController) NewOrganization(model appmodels.Organization
 		return nil, fmt.Errorf("CertApplicationController.NewOrganization: organization model invalid: %w", err)
 	}
 
-	organization := model.GetID()
+	organization := model.ID()
 
 	_, err := a.organizationRepository.FindById(organization)
 	if err == nil {
@@ -81,10 +81,10 @@ func (a *CertApplicationController) NewOrganization(model appmodels.Organization
 	return savedModel, nil
 }
 
-func (a *CertApplicationController) GetOrganizationCollection() ([]appmodels.Organization, error) {
+func (a *CertApplicationController) OrganizationCollection() ([]appmodels.Organization, error) {
 	list, err := a.organizationRepository.FindAll()
 	if err != nil {
-		return nil, fmt.Errorf("[GetOrganizationCollection]: failed: %w", err)
+		return nil, fmt.Errorf("[OrganizationCollection]: failed: %w", err)
 	}
 	return list, nil
 }

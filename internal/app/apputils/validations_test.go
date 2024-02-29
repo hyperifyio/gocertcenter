@@ -229,35 +229,35 @@ func TestValidateOrganizationModel(t *testing.T) {
 		{
 			name: "Valid Organization",
 			setupMocks: func(m *appmocks.MockOrganization) {
-				m.On("GetID").Return("valid-id")
-				m.On("GetName").Return("Valid Organization")
-				m.On("GetNames").Return([]string{"Valid Org", "Another Valid Name"})
+				m.On("ID").Return("valid-id")
+				m.On("Name").Return("Valid Organization")
+				m.On("Names").Return([]string{"Valid Org", "Another Valid Name"})
 			},
 		},
 		{
 			name: "Invalid Organization ID",
 			setupMocks: func(m *appmocks.MockOrganization) {
-				m.On("GetID").Return("!!!!!!")
-				m.On("GetName").Return("Valid Organization")
-				m.On("GetNames").Return([]string{"Valid Org", "Another Valid Name"})
+				m.On("ID").Return("!!!!!!")
+				m.On("Name").Return("Valid Organization")
+				m.On("Names").Return([]string{"Valid Org", "Another Valid Name"})
 			},
 			expectedError: "id: '!!!!!!': contains invalid characters, or has leading/trailing spaces, '-', or '.'",
 		},
 		{
 			name: "Invalid Organization Name",
 			setupMocks: func(m *appmocks.MockOrganization) {
-				m.On("GetID").Return("valid-id")
-				m.On("GetName").Return("!!!!!!!")
-				m.On("GetNames").Return([]string{"Valid Org", "Another Valid Name"})
+				m.On("ID").Return("valid-id")
+				m.On("Name").Return("!!!!!!!")
+				m.On("Names").Return([]string{"Valid Org", "Another Valid Name"})
 			},
 			expectedError: "name: '!!!!!!!': contains invalid characters",
 		},
 		{
 			name: "Invalid Organization Names",
 			setupMocks: func(m *appmocks.MockOrganization) {
-				m.On("GetID").Return("valid-id")
-				m.On("GetName").Return("Valid Organization")
-				m.On("GetNames").Return([]string{"Valid Org", "!!!!!!"})
+				m.On("ID").Return("valid-id")
+				m.On("Name").Return("Valid Organization")
+				m.On("Names").Return([]string{"Valid Org", "!!!!!!"})
 			},
 			expectedError: "names: '[Valid Org !!!!!!]': contains invalid characters",
 		},

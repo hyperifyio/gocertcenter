@@ -35,8 +35,8 @@ func (c *HttpApiController) RevokeCertificate(response apitypes.Response, reques
 		return c.sendNotFound(response, request, err)
 	}
 
-	cert := controller.GetCertificateModel()
-	model, err := controller.GetOrganizationController().RevokeCertificate(cert)
+	cert := controller.Certificate()
+	model, err := controller.OrganizationController().RevokeCertificate(cert)
 	if err != nil {
 		return c.sendInternalServerError(response, request, err)
 	}

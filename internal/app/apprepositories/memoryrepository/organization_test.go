@@ -18,7 +18,7 @@ func TestOrganizationRepository_CreateAndGetOrganization(t *testing.T) {
 	id := "orgId"
 
 	// Setting up expectations
-	mockOrg.On("GetID").Return(id)
+	mockOrg.On("ID").Return(id)
 
 	// Test Save
 	_, err := repo.Save(mockOrg)
@@ -54,8 +54,8 @@ func TestOrganizationRepository_FindAll(t *testing.T) {
 	id2 := "orgId2"
 
 	// Setting up expectations for the mock organizations
-	mockOrg1.On("GetID").Return(id1)
-	mockOrg2.On("GetID").Return(id2)
+	mockOrg1.On("ID").Return(id1)
+	mockOrg2.On("ID").Return(id2)
 
 	// Save mock organizations to the repository
 	_, err1 := repo.Save(mockOrg1)
@@ -73,7 +73,7 @@ func TestOrganizationRepository_FindAll(t *testing.T) {
 	// Since map iteration order is not guaranteed, use a map to verify existence
 	foundIds := make(map[string]bool)
 	for _, org := range organizations {
-		foundIds[org.GetID()] = true
+		foundIds[org.ID()] = true
 	}
 
 	assert.True(t, foundIds[id1], "Expected to find organization with ID %s", id1)

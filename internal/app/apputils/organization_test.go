@@ -26,7 +26,7 @@ func TestGetOrganizationDTO(t *testing.T) {
 	}
 
 	// Verify Name
-	expectedName := names[0] // GetName returns the first name in the slice
+	expectedName := names[0] // Name returns the first name in the slice
 	if dto.Name != expectedName {
 		t.Errorf("GetOrganizationDTO().Name = %s, want %s", dto.Name, expectedName)
 	}
@@ -49,17 +49,17 @@ func TestToListOfOrganizationDTO(t *testing.T) {
 	name1 := "Test Org 1"
 	names1 := []string{name1, "Test Org Department 1"}
 	org1 := new(appmocks.MockOrganization)
-	org1.On("GetID").Return(orgID1)
-	org1.On("GetName").Return(name1)
-	org1.On("GetNames").Return(names1)
+	org1.On("ID").Return(orgID1)
+	org1.On("Name").Return(name1)
+	org1.On("Names").Return(names1)
 
 	orgID2 := "org456"
 	name2 := "Test Org 2"
 	names2 := []string{name2, "Test Org Department 2"}
 	org2 := new(appmocks.MockOrganization)
-	org2.On("GetID").Return(orgID2)
-	org2.On("GetName").Return(name2)
-	org2.On("GetNames").Return(names2)
+	org2.On("ID").Return(orgID2)
+	org2.On("Name").Return(name2)
+	org2.On("Names").Return(names2)
 
 	orgList := []appmodels.Organization{org1, org2}
 
@@ -72,9 +72,9 @@ func TestToListOfOrganizationDTO(t *testing.T) {
 	// Assert contents
 	for i, dto := range dtoList {
 		org := orgList[i]
-		assert.Equal(t, org.GetID(), dto.ID, "ID should match")
-		assert.Equal(t, org.GetName(), dto.Name, "Name should match")
-		assert.True(t, reflect.DeepEqual(org.GetNames(), dto.AllNames), "AllNames should match")
+		assert.Equal(t, org.ID(), dto.ID, "ID should match")
+		assert.Equal(t, org.Name(), dto.Name, "Name should match")
+		assert.True(t, reflect.DeepEqual(org.Names(), dto.AllNames), "AllNames should match")
 	}
 }
 
@@ -84,9 +84,9 @@ func TestToOrganizationListDTO(t *testing.T) {
 	name1 := "Test Org 3"
 	names1 := []string{name1, "Test Org Department 3"}
 	org1 := new(appmocks.MockOrganization)
-	org1.On("GetID").Return(orgID1)
-	org1.On("GetName").Return(name1)
-	org1.On("GetNames").Return(names1)
+	org1.On("ID").Return(orgID1)
+	org1.On("Name").Return(name1)
+	org1.On("Names").Return(names1)
 
 	orgList := []appmodels.Organization{org1}
 

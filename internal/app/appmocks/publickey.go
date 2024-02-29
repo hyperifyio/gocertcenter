@@ -15,7 +15,7 @@ type MockPublicKey struct {
 	mock.Mock
 }
 
-func (m *MockPublicKey) GetPublicKey() any {
+func (m *MockPublicKey) PublicKey() any {
 	args := m.Called()
 	return args.Get(0).(any)
 }
@@ -27,7 +27,7 @@ func NewMockPublicKey() *MockPublicKey {
 
 func NewMockRsaPublicKey() *MockPublicKey {
 	mockPublicKey := &MockPublicKey{}
-	mockPublicKey.On("GetPublicKey").Return(&rsa.PublicKey{})
+	mockPublicKey.On("PublicKey").Return(&rsa.PublicKey{})
 	return mockPublicKey
 }
 

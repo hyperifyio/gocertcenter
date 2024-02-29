@@ -46,11 +46,11 @@ func TestPrivateKeyController_Delegations(t *testing.T) {
 
 	// Organization ID and other return values for the mocked calls
 	orgID := "org123"
-	mockCertificateController.On("GetApplicationController").Return(mockApplicationController)
-	mockCertificateController.On("GetOrganizationID").Return(orgID)
-	mockCertificateController.On("GetOrganizationModel").Return(mockOrganization)
-	mockCertificateController.On("GetOrganizationController").Return(mockOrganizationController)
-	mockCertificateController.On("GetCertificateModel").Return(mockCertificate)
+	mockCertificateController.On("ApplicationController").Return(mockApplicationController)
+	mockCertificateController.On("OrganizationID").Return(orgID)
+	mockCertificateController.On("Organization").Return(mockOrganization)
+	mockCertificateController.On("OrganizationController").Return(mockOrganizationController)
+	mockCertificateController.On("Certificate").Return(mockCertificate)
 
 	controller := appcontrollers.NewPrivateKeyController(
 		mockPrivateKey,
@@ -58,28 +58,28 @@ func TestPrivateKeyController_Delegations(t *testing.T) {
 		mockPrivateKeyService,
 	)
 
-	t.Run("GetApplicationController", func(t *testing.T) {
-		assert.Equal(t, mockApplicationController, controller.GetApplicationController())
+	t.Run("ApplicationController", func(t *testing.T) {
+		assert.Equal(t, mockApplicationController, controller.ApplicationController())
 	})
 
-	t.Run("GetOrganizationID", func(t *testing.T) {
-		assert.Equal(t, orgID, controller.GetOrganizationID())
+	t.Run("OrganizationID", func(t *testing.T) {
+		assert.Equal(t, orgID, controller.OrganizationID())
 	})
 
-	t.Run("GetOrganizationModel", func(t *testing.T) {
-		assert.Equal(t, mockOrganization, controller.GetOrganizationModel())
+	t.Run("Organization", func(t *testing.T) {
+		assert.Equal(t, mockOrganization, controller.Organization())
 	})
 
-	t.Run("GetOrganizationController", func(t *testing.T) {
-		assert.Equal(t, mockOrganizationController, controller.GetOrganizationController())
+	t.Run("OrganizationController", func(t *testing.T) {
+		assert.Equal(t, mockOrganizationController, controller.OrganizationController())
 	})
 
-	t.Run("GetCertificateModel", func(t *testing.T) {
-		assert.Equal(t, mockCertificate, controller.GetCertificateModel())
+	t.Run("Certificate", func(t *testing.T) {
+		assert.Equal(t, mockCertificate, controller.Certificate())
 	})
 
-	t.Run("GetCertificateController", func(t *testing.T) {
-		assert.Equal(t, mockCertificateController, controller.GetCertificateController())
+	t.Run("CertificateController", func(t *testing.T) {
+		assert.Equal(t, mockCertificateController, controller.CertificateController())
 	})
 }
 
@@ -94,8 +94,8 @@ func TestPrivateKeyController_GetOrganizationController_WithNilParent(t *testing
 		mockPrivateKeyService,
 	)
 
-	orgController := controller.GetOrganizationController()
+	orgController := controller.OrganizationController()
 
 	// Verify that the method returns nil when parent is nil, and no error is involved
-	assert.Nil(t, orgController, "Expected GetOrganizationController to return nil when parent is nil")
+	assert.Nil(t, orgController, "Expected OrganizationController to return nil when parent is nil")
 }

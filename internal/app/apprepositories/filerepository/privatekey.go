@@ -40,15 +40,15 @@ func (r *FilePrivateKeyRepository) FindByOrganizationAndSerialNumbers(
 
 func (r *FilePrivateKeyRepository) Save(key appmodels.PrivateKey) (appmodels.PrivateKey, error) {
 
-	organization := key.GetOrganizationID()
-	certificates := key.GetParents()
-	serialNumber := key.GetSerialNumber()
+	organization := key.OrganizationID()
+	certificates := key.Parents()
+	serialNumber := key.SerialNumber()
 
 	// Determine file path for the private key
 	fileName := GetPrivateKeyPemPath(r.filePath, organization, append(certificates, serialNumber))
 
 	// Serialize the private key into PEM format
-	pemData, err := apputils.MarshalPrivateKeyAsPEM(r.certManager, key.GetPrivateKey())
+	pemData, err := apputils.MarshalPrivateKeyAsPEM(r.certManager, key.PrivateKey())
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize private key to PEM: %w", err)
 	}

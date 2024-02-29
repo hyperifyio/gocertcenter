@@ -27,7 +27,7 @@ func (c *HttpApiController) GetOrganizationCollectionDefinitions() swagger.Defin
 
 // GetOrganizationCollection handles a request
 func (c *HttpApiController) GetOrganizationCollection(response apitypes.Response, request apitypes.Request) error {
-	list, err := c.appController.GetOrganizationCollection()
+	list, err := c.appController.OrganizationCollection()
 	if err != nil {
 		return c.sendInternalServerError(response, request, err)
 	}

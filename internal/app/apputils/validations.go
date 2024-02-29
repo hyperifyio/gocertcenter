@@ -184,15 +184,15 @@ func ValidateOrganizationID(id string) error {
 }
 
 func ValidateOrganizationModel(model appmodels.Organization) error {
-	id := model.GetID()
+	id := model.ID()
 	if err := ValidateOrganizationID(id); err != nil {
 		return fmt.Errorf("id: '%v': %v", id, err)
 	}
-	name := model.GetName()
+	name := model.Name()
 	if err := ValidateOrganizationName(name); err != nil {
 		return fmt.Errorf("name: '%v': %v", name, err)
 	}
-	names := model.GetNames()
+	names := model.Names()
 	if err := ValidateOrganizationNames(names); err != nil {
 		return fmt.Errorf("names: '%v': %v", names, err)
 	}

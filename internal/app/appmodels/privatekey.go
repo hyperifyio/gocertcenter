@@ -24,14 +24,14 @@ type PrivateKeyModel struct {
 	data any
 }
 
-func (k *PrivateKeyModel) GetSerialNumber() SerialNumber {
+func (k *PrivateKeyModel) SerialNumber() SerialNumber {
 	if len(k.certificates) <= 0 {
 		return nil
 	}
 	return k.certificates[len(k.certificates)-1]
 }
 
-func (k *PrivateKeyModel) GetParents() []SerialNumber {
+func (k *PrivateKeyModel) Parents() []SerialNumber {
 	if len(k.certificates) <= 1 {
 		return []SerialNumber{}
 	}
@@ -41,26 +41,26 @@ func (k *PrivateKeyModel) GetParents() []SerialNumber {
 	return sliceCopy
 }
 
-func (k *PrivateKeyModel) GetCertificates() []SerialNumber {
+func (k *PrivateKeyModel) Certificates() []SerialNumber {
 	originalSlice := k.certificates
 	sliceCopy := make([]SerialNumber, len(originalSlice))
 	copy(sliceCopy, originalSlice)
 	return sliceCopy
 }
 
-func (k *PrivateKeyModel) GetOrganizationID() string {
+func (k *PrivateKeyModel) OrganizationID() string {
 	return k.organization
 }
 
-func (k *PrivateKeyModel) GetPrivateKey() any {
+func (k *PrivateKeyModel) PrivateKey() any {
 	return k.data
 }
 
-func (k *PrivateKeyModel) GetKeyType() KeyType {
+func (k *PrivateKeyModel) KeyType() KeyType {
 	return k.keyType
 }
 
-func (k *PrivateKeyModel) GetPublicKey() any {
+func (k *PrivateKeyModel) PublicKey() any {
 	switch k := k.data.(type) {
 	case *rsa.PrivateKey:
 		return &k.PublicKey

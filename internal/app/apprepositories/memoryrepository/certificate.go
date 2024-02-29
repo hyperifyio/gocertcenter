@@ -23,7 +23,7 @@ func (r *MemoryCertificateRepository) FindAllByOrganizationAndSerialNumbers(orga
 	}
 	targetLocator := getCertificateLocator(organization, certificates)
 	for _, cert := range r.certificates {
-		parentLocator := getCertificateLocator(organization, cert.GetParents())
+		parentLocator := getCertificateLocator(organization, cert.Parents())
 		if parentLocator == targetLocator {
 			result = append(result, cert)
 		}
@@ -33,11 +33,11 @@ func (r *MemoryCertificateRepository) FindAllByOrganizationAndSerialNumbers(orga
 
 func (r *MemoryCertificateRepository) FindAllByOrganization(organization string) ([]appmodels.Certificate, error) {
 	if r.certificates == nil {
-		return nil, errors.New("[CertificateModel:FindAllByOrganization]: not initialized")
+		return nil, errors.New("[Certificate:FindAllByOrganization]: not initialized")
 	}
 	var result []appmodels.Certificate
 	for _, cert := range r.certificates {
-		if cert.GetOrganizationID() == organization {
+		if cert.OrganizationID() == organization {
 			result = append(result, cert)
 		}
 	}
@@ -49,13 +49,13 @@ func (r *MemoryCertificateRepository) FindByOrganizationAndSerialNumbers(organiz
 	if certificate, exists := r.certificates[id]; exists {
 		return certificate, nil
 	}
-	return nil, fmt.Errorf("[CertificateModel:FindByOrganizationAndSerialNumbers]: not found: %s", id)
+	return nil, fmt.Errorf("[Certificate:FindByOrganizationAndSerialNumbers]: not found: %s", id)
 }
 
 func (r *MemoryCertificateRepository) Save(certificate appmodels.Certificate) (appmodels.Certificate, error) {
-	id := getCertificateLocator(certificate.GetOrganizationID(), append(certificate.GetParents(), certificate.GetSerialNumber()))
+	id := getCertificateLocator(certificate.OrganizationID(), append(certificate.Parents(), certificate.SerialNumber()))
 	r.certificates[id] = certificate
-	log.Printf("[CertificateModel:Save:%s] Saved: %v", id, certificate)
+	log.Printf("[Certificate:Save:%s] Saved: %v", id, certificate)
 	return certificate, nil
 }
 

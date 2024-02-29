@@ -27,13 +27,13 @@ func (r *MemoryOrganizationRepository) FindById(id string) (appmodels.Organizati
 	if organization, exists := r.organizations[id]; exists {
 		return organization, nil
 	}
-	return nil, fmt.Errorf("[OrganizationModel:FindById]: not found: %s", id)
+	return nil, fmt.Errorf("[Organization:FindById]: not found: %s", id)
 }
 
 func (r *MemoryOrganizationRepository) Save(organization appmodels.Organization) (appmodels.Organization, error) {
-	id := organization.GetID()
+	id := organization.ID()
 	r.organizations[id] = organization
-	log.Printf("[OrganizationModel:Save:%s] Saved: %v", id, organization)
+	log.Printf("[Organization:Save:%s] Saved: %v", id, organization)
 	return organization, nil
 }
 

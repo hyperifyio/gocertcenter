@@ -9,13 +9,13 @@ type OrganizationModel struct {
 }
 
 // GetID returns unique identifier for this organization
-func (o *OrganizationModel) GetID() string {
+func (o *OrganizationModel) ID() string {
 	return o.id
 }
 
 // GetName returns the primary organization name
-func (o *OrganizationModel) GetName() string {
-	slice := o.GetNames()
+func (o *OrganizationModel) Name() string {
+	slice := o.Names()
 	if len(slice) > 0 {
 		return slice[0]
 	}
@@ -23,7 +23,7 @@ func (o *OrganizationModel) GetName() string {
 }
 
 // GetNames returns the full name of the organization including department
-func (o *OrganizationModel) GetNames() []string {
+func (o *OrganizationModel) Names() []string {
 	originalSlice := o.names
 	sliceCopy := make([]string, len(originalSlice))
 	copy(sliceCopy, originalSlice)

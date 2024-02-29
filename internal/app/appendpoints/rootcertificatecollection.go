@@ -33,7 +33,7 @@ func (c *HttpApiController) GetRootCertificateCollection(response apitypes.Respo
 		return c.sendNotFound(response, request, err)
 	}
 
-	list, err := controller.GetCertificateCollection()
+	list, err := controller.CertificateCollection()
 	if err != nil {
 		return c.sendInternalServerError(response, request, err)
 	}

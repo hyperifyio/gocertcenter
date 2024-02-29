@@ -13,17 +13,17 @@ type MockOrganization struct {
 	mock.Mock
 }
 
-func (m *MockOrganization) GetID() string {
+func (m *MockOrganization) ID() string {
 	args := m.Called()
 	return args.String(0)
 }
 
-func (m *MockOrganization) GetName() string {
+func (m *MockOrganization) Name() string {
 	args := m.Called()
 	return args.String(0)
 }
 
-func (m *MockOrganization) GetNames() []string {
+func (m *MockOrganization) Names() []string {
 	args := m.Called()
 	return args.Get(0).([]string)
 }

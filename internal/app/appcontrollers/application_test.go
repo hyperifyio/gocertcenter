@@ -36,13 +36,13 @@ func TestApplicationController_GetOrganizationModel(t *testing.T) {
 		mockOrgService, nil, nil, nil, nil, 0,
 	)
 
-	org, err := controller.GetOrganizationModel(orgID)
+	org, err := controller.Organization(orgID)
 	assert.NoError(t, err)
 	assert.Equal(t, mockOrg, org, "should return the organization model")
 
 	// Test for not found
 	mockOrgService.On("FindById", "nonExistingOrg").Return(nil, fmt.Errorf("not found"))
-	_, err = controller.GetOrganizationModel("nonExistingOrg")
+	_, err = controller.Organization("nonExistingOrg")
 	assert.Error(t, err, "should return an error for non-existing organization")
 }
 
@@ -52,9 +52,9 @@ func TestApplicationController_NewOrganization(t *testing.T) {
 	orgID := "neworg"
 
 	// Setting up expectations for new organization creation
-	mockOrg.On("GetID").Return(orgID)
-	mockOrg.On("GetName").Return(orgID)
-	mockOrg.On("GetNames").Return([]string{orgID})
+	mockOrg.On("ID").Return(orgID)
+	mockOrg.On("Name").Return(orgID)
+	mockOrg.On("Names").Return([]string{orgID})
 	mockOrgService.On("FindById", orgID).Return(nil, fmt.Errorf("not found"))
 	mockOrgService.On("Save", mock.Anything).Return(mockOrg, nil)
 
@@ -105,13 +105,13 @@ func TestApplicationController_GetOrganizationController(t *testing.T) {
 		mockOrgService, nil, nil, nil, nil, 0,
 	)
 
-	orgController, err := controller.GetOrganizationController(orgID)
+	orgController, err := controller.OrganizationController(orgID)
 	assert.NoError(t, err)
 	assert.NotNil(t, orgController, "should return an CertOrganizationController instance")
 
 	// Test for not found
 	mockOrgService.On("FindById", "nonExistingOrg").Return(nil, fmt.Errorf("not found"))
-	_, err = controller.GetOrganizationController("nonExistingOrg")
+	_, err = controller.OrganizationController("nonExistingOrg")
 	assert.Error(t, err, "should return an error for non-existing organization")
 }
 
@@ -127,7 +127,7 @@ func TestApplicationController_GetOrganizationCollection(t *testing.T) {
 		mockOrgService, nil, nil, nil, nil, 0,
 	)
 
-	orgs, err := controller.GetOrganizationCollection()
+	orgs, err := controller.OrganizationCollection()
 	assert.NoError(t, err)
 	assert.Len(t, orgs, 2, "should return a collection of organizations")
 
@@ -135,7 +135,7 @@ func TestApplicationController_GetOrganizationCollection(t *testing.T) {
 
 	// Test for failure
 	mockOrgService.On("FindAll").Return(nil, fmt.Errorf("failed to fetch organizations"))
-	_, err = controller.GetOrganizationCollection()
+	_, err = controller.OrganizationCollection()
 	assert.Error(t, err, "should return an error when fetching organizations fails")
 }
 
@@ -144,8 +144,8 @@ func TestApplicationController_NewOrganization_ValidationFails(t *testing.T) {
 	invalidMockOrg := new(appmocks.MockOrganization)
 	orgID := "invalidOrgID"
 
-	// Assuming ValidateOrganizationModel will fail if GetID returns "invalidOrgID"
-	invalidMockOrg.On("GetID").Return(orgID)
+	// Assuming ValidateOrganizationModel will fail if ID returns "invalidOrgID"
+	invalidMockOrg.On("ID").Return(orgID)
 
 	controller := appcontrollers.NewApplicationController(
 		mockOrgService, nil, nil, nil, nil, 0,
@@ -162,9 +162,9 @@ func TestApplicationController_NewOrganization_SaveFails(t *testing.T) {
 	orgID := "org123"
 
 	// Setting up expectations for the successful path up to the save operation
-	mockOrg.On("GetID").Return(orgID)
-	mockOrg.On("GetName").Return(orgID)
-	mockOrg.On("GetNames").Return([]string{orgID})
+	mockOrg.On("ID").Return(orgID)
+	mockOrg.On("Name").Return(orgID)
+	mockOrg.On("Names").Return([]string{orgID})
 	mockOrgService.On("FindById", orgID).Return(nil, fmt.Errorf("not found"))      // Ensuring FindById indicates org does not exist
 	mockOrgService.On("Save", mock.Anything).Return(nil, fmt.Errorf("save error")) // Simulating failure on save
 

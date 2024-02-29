@@ -46,16 +46,16 @@ func (r *FileCertificateRepository) FindByOrganizationAndSerialNumbers(
 }
 
 func (r *FileCertificateRepository) Save(certificate appmodels.Certificate) (appmodels.Certificate, error) {
-	organization := certificate.GetOrganizationID()
-	parents := certificate.GetParents()
-	serialNumber := certificate.GetSerialNumber()
+	organization := certificate.OrganizationID()
+	parents := certificate.Parents()
+	serialNumber := certificate.SerialNumber()
 	fullPath := append(parents, serialNumber)
 	fileName := GetCertificatePemPath(
 		r.filePath,
 		organization,
 		fullPath,
 	)
-	err := SaveCertificateFile(r.fileManager, r.certManager, fileName, certificate.GetCertificate())
+	err := SaveCertificateFile(r.fileManager, r.certManager, fileName, certificate.Certificate())
 	if err != nil {
 		return nil, fmt.Errorf("failed to save certificate: %w", err)
 	}

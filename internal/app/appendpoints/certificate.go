@@ -35,7 +35,7 @@ func (c *HttpApiController) GetCertificate(response apitypes.Response, request a
 		return c.sendNotFound(response, request, err)
 	}
 
-	model := controller.GetCertificateModel()
+	model := controller.Certificate()
 	dto := apputils.ToCertificateDTO(model)
 	return c.sendOK(response, dto)
 }

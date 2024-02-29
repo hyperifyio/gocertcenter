@@ -17,16 +17,16 @@ func TestNewRevokedCertificate(t *testing.T) {
 
 	revokedCert := appmodels.NewRevokedCertificate(serialNumber, revocationTime, expirationTime)
 
-	if revokedCert.GetSerialNumber().Cmp(serialNumber) != 0 {
-		t.Errorf("Serial number mismatch, got %v, want %v", revokedCert.GetSerialNumber(), serialNumber)
+	if revokedCert.SerialNumber().Cmp(serialNumber) != 0 {
+		t.Errorf("Serial number mismatch, got %v, want %v", revokedCert.SerialNumber(), serialNumber)
 	}
 
-	if !revokedCert.GetRevocationTime().Equal(revocationTime) {
-		t.Errorf("Revocation time mismatch, got %v, want %v", revokedCert.GetRevocationTime(), revocationTime)
+	if !revokedCert.RevocationTime().Equal(revocationTime) {
+		t.Errorf("Revocation time mismatch, got %v, want %v", revokedCert.RevocationTime(), revocationTime)
 	}
 
-	if !revokedCert.GetExpirationTime().Equal(expirationTime) {
-		t.Errorf("Expiration time mismatch, got %v, want %v", revokedCert.GetExpirationTime(), expirationTime)
+	if !revokedCert.ExpirationTime().Equal(expirationTime) {
+		t.Errorf("Expiration time mismatch, got %v, want %v", revokedCert.ExpirationTime(), expirationTime)
 	}
 }
 
@@ -36,7 +36,7 @@ func TestGetRevokedCertificate(t *testing.T) {
 
 	revokedCert := appmodels.NewRevokedCertificate(serialNumber, revocationTime, time.Time{})
 
-	pkixRevokedCert := revokedCert.GetRevokedCertificate()
+	pkixRevokedCert := revokedCert.RevokedCertificate()
 
 	if pkixRevokedCert.SerialNumber.Cmp(serialNumber.Value()) != 0 {
 		t.Errorf("PKIX Serial number mismatch, got %v, want %v", pkixRevokedCert.SerialNumber, serialNumber.Value())

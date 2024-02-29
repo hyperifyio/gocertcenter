@@ -32,7 +32,7 @@ func (c *HttpApiController) GetOrganization(response apitypes.Response, request 
 	if err != nil {
 		return c.sendNotFound(response, request, err)
 	}
-	model := controller.GetOrganizationModel()
+	model := controller.Organization()
 	c.logf(request, "model = %v", model)
 	dto := apputils.GetOrganizationDTO(model)
 	return c.sendOK(response, dto)

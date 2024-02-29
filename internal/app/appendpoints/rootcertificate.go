@@ -34,7 +34,7 @@ func (c *HttpApiController) GetRootCertificate(response apitypes.Response, reque
 		return c.sendNotFound(response, request, err)
 	}
 
-	model := controller.GetCertificateModel()
+	model := controller.Certificate()
 	c.logf(request, "model = %v", model)
 
 	dto := apputils.ToCertificateDTO(model)

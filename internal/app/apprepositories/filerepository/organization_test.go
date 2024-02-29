@@ -43,10 +43,10 @@ func TestOrganizationRepository_GetExistingOrganization(t *testing.T) {
 	assert.NotNil(t, org)
 
 	// Perform more assertions based on the expected DTO to be returned
-	assert.Equal(t, orgID, org.GetID(), "The organization ID should match the requested ID")
-	assert.Equal(t, "Test Org", org.GetName(), "The organization name should match the saved name")
+	assert.Equal(t, orgID, org.ID(), "The organization ID should match the requested ID")
+	assert.Equal(t, "Test Org", org.Name(), "The organization name should match the saved name")
 	expectedNames := []string{"Test Org"} // This should match the names used in SaveOrganizationJsonFile
-	assert.Equal(t, expectedNames, org.GetNames(), "The organization names should match the saved names")
+	assert.Equal(t, expectedNames, org.Names(), "The organization names should match the saved names")
 
 }
 
@@ -64,9 +64,9 @@ func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 	orgID := "org123"
 	orgName := "Test Org"
 	mockOrg := &appmocks.MockOrganization{}
-	mockOrg.On("GetName").Return(orgName)
-	mockOrg.On("GetNames").Return([]string{orgName})
-	mockOrg.On("GetID").Return(orgID)
+	mockOrg.On("Name").Return(orgName)
+	mockOrg.On("Names").Return([]string{orgName})
+	mockOrg.On("ID").Return(orgID)
 	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	// Test
@@ -125,10 +125,10 @@ func TestOrganizationRepository_CreateOrganization_SaveFail(t *testing.T) {
 
 	// Mock organization to pass to Save
 	mockOrg := &appmocks.MockOrganization{}
-	mockOrg.On("GetID").Return(orgId)
-	mockOrg.On("GetName").Return(orgName)
-	mockOrg.On("GetNames").Return([]string{orgName})
-	mockOrg.On("GetID").Return(orgId)
+	mockOrg.On("ID").Return(orgId)
+	mockOrg.On("Name").Return(orgName)
+	mockOrg.On("Names").Return([]string{orgName})
+	mockOrg.On("ID").Return(orgId)
 
 	// Test
 	org, err := repo.Save(mockOrg)

@@ -19,8 +19,8 @@ import (
 
 // CreateSignedCertificate creates a new certificate signed by a root or
 // intermediate certificate
-//   - manager: CertificateModel manager
-//   - template: CertificateModel template
+//   - manager: Certificate manager
+//   - template: Certificate template
 //   - signingCertificate: The certificate to use for signing
 //   - signingPublicKey: The public key to use for signing
 //   - signingPrivateKey: The private key to use for signing
@@ -56,17 +56,17 @@ func CreateSignedCertificate(
 }
 
 func ToCertificateDTO(c appmodels.Certificate) appdtos.CertificateDTO {
-	parents := c.GetParents()
+	parents := c.Parents()
 	strings := make([]string, len(parents))
 	for i, p := range parents {
 		strings[i] = p.String()
 	}
 	return appdtos.NewCertificateDTO(
-		c.GetCommonName(),
-		c.GetSerialNumber().String(),
+		c.CommonName(),
+		c.SerialNumber().String(),
 		strings,
-		c.GetSignedBy().String(),
-		c.GetOrganizationName(),
+		c.SignedBy().String(),
+		c.OrganizationName(),
 		c.IsCA(),
 		c.IsRootCertificate(),
 		c.IsIntermediateCertificate(),
@@ -80,9 +80,9 @@ func ToCertificateRevokedDTO(
 	c appmodels.RevokedCertificate,
 ) appdtos.CertificateRevokedDTO {
 	return appdtos.NewCertificateRevokedDTO(
-		c.GetSerialNumber().String(),
-		c.GetRevocationTime(),
-		c.GetExpirationTime(),
+		c.SerialNumber().String(),
+		c.RevocationTime(),
+		c.ExpirationTime(),
 	)
 }
 
@@ -91,7 +91,7 @@ func ToRevokedCertificate(
 	revocationTime time.Time,
 ) appmodels.RevokedCertificate {
 	return appmodels.NewRevokedCertificate(
-		c.GetSerialNumber(),
+		c.SerialNumber(),
 		revocationTime,
 		c.NotAfter(),
 	)
@@ -198,7 +198,7 @@ func GetCertificatePEMBytes(c appmodels.Certificate) []byte {
 	// Convert the certificate to a PEM block
 	pemBlock := &pem.Block{
 		Type:  "CERTIFICATE",
-		Bytes: c.GetCertificate().Raw,
+		Bytes: c.Certificate().Raw,
 	}
 	// Encode the PEM block to memory
 	pemBytes := pem.EncodeToMemory(pemBlock)
@@ -254,7 +254,7 @@ func NewIntermediateCertificate(
 	certificateTemplate := x509.Certificate{
 		SerialNumber: serialNumber.Value(),
 		Subject: pkix.Name{
-			Organization: organization.GetNames(),
+			Organization: organization.Names(),
 			CommonName:   commonName,
 		},
 		NotBefore:             time.Now(),
@@ -273,24 +273,24 @@ func NewIntermediateCertificate(
 	cert, err := CreateSignedCertificate(
 		manager,
 		&certificateTemplate,
-		parentCertificate.GetCertificate(),
-		publicKey.GetPublicKey(),
-		parentPrivateKey.GetPrivateKey(),
+		parentCertificate.Certificate(),
+		publicKey.PublicKey(),
+		parentPrivateKey.PrivateKey(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("NewIntermediateCertificate: failed: %w", err)
 	}
 
 	return appmodels.NewCertificate(
-		organization.GetID(),
-		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()),
+		organization.ID(),
+		append(parentCertificate.Parents(), parentCertificate.SerialNumber()),
 		cert,
 	), nil
 
 }
 
 // NewServerCertificate creates an intermediate certificate
-//   - manager: CertificateModel manager
+//   - manager: Certificate manager
 //   - serialNumber: Serial number for the new certificate
 //   - organization: The organization for the new certificate
 //   - expiration: The expiration duration
@@ -348,7 +348,7 @@ func NewServerCertificate(
 	certificateTemplate := x509.Certificate{
 		SerialNumber: serialNumber.Value(),
 		Subject: pkix.Name{
-			Organization: organization.GetNames(),
+			Organization: organization.Names(),
 			CommonName:   commonName,
 		},
 		NotBefore:             time.Now(),
@@ -363,23 +363,23 @@ func NewServerCertificate(
 	cert, err := CreateSignedCertificate(
 		manager,
 		&certificateTemplate,
-		parentCertificate.GetCertificate(),
-		publicKey.GetPublicKey(),
-		parentPrivateKey.GetPrivateKey(),
+		parentCertificate.Certificate(),
+		publicKey.PublicKey(),
+		parentPrivateKey.PrivateKey(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("NewServerCertificate: failed: %w", err)
 	}
 
 	return appmodels.NewCertificate(
-		organization.GetID(),
-		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()),
+		organization.ID(),
+		append(parentCertificate.Parents(), parentCertificate.SerialNumber()),
 		cert,
 	), nil
 }
 
 // NewClientCertificate creates an intermediate certificate
-//   - manager: CertificateModel manager
+//   - manager: Certificate manager
 //   - serialNumber: Serial number for the new certificate
 //   - organization: The organization for the new certificate
 //   - expiration: The expiration duration
@@ -428,7 +428,7 @@ func NewClientCertificate(
 	certificateTemplate := x509.Certificate{
 		SerialNumber: serialNumber.Value(),
 		Subject: pkix.Name{
-			Organization: organization.GetNames(),
+			Organization: organization.Names(),
 			CommonName:   commonName,
 		},
 		NotBefore:             time.Now(),
@@ -442,23 +442,23 @@ func NewClientCertificate(
 	cert, err := CreateSignedCertificate(
 		manager,
 		&certificateTemplate,
-		parentCertificate.GetCertificate(),
-		publicKey.GetPublicKey(),
-		parentPrivateKey.GetPrivateKey(),
+		parentCertificate.Certificate(),
+		publicKey.PublicKey(),
+		parentPrivateKey.PrivateKey(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("NewClientCertificate: failed: %w", err)
 	}
 
 	return appmodels.NewCertificate(
-		organization.GetID(),
-		append(parentCertificate.GetParents(), parentCertificate.GetSerialNumber()),
+		organization.ID(),
+		append(parentCertificate.Parents(), parentCertificate.SerialNumber()),
 		cert,
 	), nil
 }
 
 // NewRootCertificate creates a new root certificate
-//   - manager: CertificateModel manager
+//   - manager: Certificate manager
 //   - serialNumber: Serial number for the new root certificate
 //   - organization: The organization for the new certificate
 //   - expiration: The expiration duration
@@ -498,7 +498,7 @@ func NewRootCertificate(
 	certificateTemplate := x509.Certificate{
 		SerialNumber: serialNumber.Value(),
 		Subject: pkix.Name{
-			Organization: organization.GetNames(),
+			Organization: organization.Names(),
 			CommonName:   commonName,
 		},
 		NotBefore:             time.Now(),
@@ -514,15 +514,15 @@ func NewRootCertificate(
 		manager,
 		&certificateTemplate,
 		&certificateTemplate,
-		privateKey.GetPublicKey(),
-		privateKey.GetPrivateKey(),
+		privateKey.PublicKey(),
+		privateKey.PrivateKey(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("NewRootCertificate: failed to create certificate: %w", err)
 	}
 
 	return appmodels.NewCertificate(
-		organization.GetID(),
+		organization.ID(),
 		[]appmodels.SerialNumber{},
 		cert,
 	), nil

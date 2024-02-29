@@ -13,7 +13,7 @@ type MockApplicationController struct {
 	mock.Mock
 }
 
-func (m *MockApplicationController) GetOrganizationCollection() ([]appmodels.Organization, error) {
+func (m *MockApplicationController) OrganizationCollection() ([]appmodels.Organization, error) {
 	// TODO implement me
 	panic("implement me")
 }
@@ -36,14 +36,14 @@ func (m *MockApplicationController) UsesPrivateKeyService(service appmodels.Priv
 	return args.Bool(0)
 }
 
-// GetOrganizationModel mocks the GetOrganizationModel method
-func (m *MockApplicationController) GetOrganizationModel(organization string) (appmodels.Organization, error) {
+// Organization mocks the Organization method
+func (m *MockApplicationController) Organization(organization string) (appmodels.Organization, error) {
 	args := m.Called(organization)
 	return args.Get(0).(appmodels.Organization), args.Error(1)
 }
 
-// GetOrganizationController mocks the GetOrganizationController method
-func (m *MockApplicationController) GetOrganizationController(name string) (appmodels.OrganizationController, error) {
+// OrganizationController mocks the OrganizationController method
+func (m *MockApplicationController) OrganizationController(name string) (appmodels.OrganizationController, error) {
 	args := m.Called(name)
 	return args.Get(0).(appmodels.OrganizationController), args.Error(1)
 }
