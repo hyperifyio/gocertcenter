@@ -10,4 +10,4 @@ make
 ./server
 ```
 
-...and open https://localhost:8080
+...and open http://localhost:8080
