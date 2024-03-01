@@ -1,1 +1,4 @@
 /.idea
+/cmd/server/web/myapp.wasm
+/cmd/server/web/wasm_exec.js
+/server
