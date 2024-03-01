@@ -5,6 +5,8 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+
+	"github.com/webview/webview_go"
 )
 
 //go:embed web/*
@@ -22,8 +24,19 @@ func main() {
 	http.Handle("/", http.FileServer(http.FS(contentFS)))
 
 	log.Println("Listening on http://localhost:8080...")
-	err = http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	go func() {
+		err = http.ListenAndServe(":8080", nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	// Open a webview window
+	w := webview.New(true)
+	defer w.Destroy()
+	w.SetTitle("Your Application")
+	w.SetSize(800, 600, webview.HintNone)
+	w.Navigate("http://localhost:8080")
+	w.Run()
+
 }
