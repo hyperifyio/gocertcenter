@@ -5,6 +5,7 @@ package filerepository
 import (
 	"errors"
 	"fmt"
+	"math/big"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
@@ -17,7 +18,7 @@ type FileCertificateRepository struct {
 	fileManager managers.FileManager
 }
 
-func (r *FileCertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) ([]appmodels.Certificate, error) {
+func (r *FileCertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) ([]appmodels.Certificate, error) {
 	// TODO implement me
 	panic("implement me")
 }
@@ -29,7 +30,7 @@ func (r *FileCertificateRepository) FindAllByOrganization(organization string) (
 
 func (r *FileCertificateRepository) FindByOrganizationAndSerialNumbers(
 	organization string,
-	certificates []appmodels.SerialNumber,
+	certificates []*big.Int,
 ) (appmodels.Certificate, error) {
 
 	if len(certificates) <= 0 {

@@ -5,6 +5,7 @@ package filerepository
 import (
 	"errors"
 	"fmt"
+	"math/big"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
@@ -25,7 +26,7 @@ func (r *FilePrivateKeyRepository) FilePath() string {
 
 func (r *FilePrivateKeyRepository) FindByOrganizationAndSerialNumbers(
 	organization string,
-	certificates []appmodels.SerialNumber,
+	certificates []*big.Int,
 ) (appmodels.PrivateKey, error) {
 	if len(certificates) <= 0 {
 		return nil, errors.New("no certificate serial numbers provided")

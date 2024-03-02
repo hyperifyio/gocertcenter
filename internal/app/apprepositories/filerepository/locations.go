@@ -3,9 +3,8 @@
 package filerepository
 
 import (
+	"math/big"
 	"path/filepath"
-
-	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
 const (
@@ -27,19 +26,19 @@ func OrganizationJsonPath(dir, organization string) string {
 }
 
 // PrivateKeyPemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/privkey.pem`
-func PrivateKeyPemPath(dir, organization string, certificates []appmodels.SerialNumber) string {
+func PrivateKeyPemPath(dir, organization string, certificates []*big.Int) string {
 	return filepath.Join(CertificateDirectory(dir, organization, certificates), PrivateKeyPemName)
 }
 
 // CertificatePemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/cert.pem`
-func CertificatePemPath(dir, organization string, certificates []appmodels.SerialNumber) string {
+func CertificatePemPath(dir, organization string, certificates []*big.Int) string {
 	return filepath.Join(CertificateDirectory(dir, organization, certificates), CertificatePemName)
 }
 
 // CertificateDirectory returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+`
 func CertificateDirectory(
 	dir, organization string,
-	certificates []appmodels.SerialNumber,
+	certificates []*big.Int,
 ) string {
 	parts := []string{dir, OrganizationsDirectoryName, organization}
 	for _, certificate := range certificates {

@@ -4,6 +4,7 @@ package appendpoints
 
 import (
 	"fmt"
+	"math/big"
 	"strings"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
@@ -26,7 +27,7 @@ func (c *HttpApiController) requestOrganization(request apitypes.Request) string
 	return organization
 }
 
-func (c *HttpApiController) rootSerialNumber(request apitypes.Request) (appmodels.SerialNumber, error) {
+func (c *HttpApiController) rootSerialNumber(request apitypes.Request) (*big.Int, error) {
 	serialNumberString := request.Variable("rootSerialNumber")
 	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
 	if err != nil {
@@ -36,7 +37,7 @@ func (c *HttpApiController) rootSerialNumber(request apitypes.Request) (appmodel
 	return serialNumber, nil
 }
 
-func (c *HttpApiController) serialNumber(request apitypes.Request) (appmodels.SerialNumber, error) {
+func (c *HttpApiController) serialNumber(request apitypes.Request) (*big.Int, error) {
 	serialNumberString := request.Variable("serialNumber")
 	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
 	if err != nil {

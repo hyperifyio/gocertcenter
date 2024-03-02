@@ -8,6 +8,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"math/big"
 	"strings"
 	"time"
 
@@ -207,7 +208,7 @@ func CertificateToPEMBytes(c appmodels.Certificate) []byte {
 
 // NewIntermediateCertificate creates an intermediate certificate
 //   - manager managers.CertificateManager is the certificate manager
-//   - serialNumber appmodels.SerialNumber is the serial number for the new certificate
+//   - serialNumber *big.Int is the serial number for the new certificate
 //   - organization appmodels.Organization is the organization for the new certificate
 //   - expiration time.Duration is the expiration duration of the new certificate
 //   - publicKey appmodels.PublicKey is public key of the new certificate
@@ -218,7 +219,7 @@ func CertificateToPEMBytes(c appmodels.Certificate) []byte {
 // Returns the new certificate or an error
 func NewIntermediateCertificate(
 	manager managers.CertificateManager,
-	serialNumber appmodels.SerialNumber,
+	serialNumber *big.Int,
 	organization appmodels.Organization,
 	expiration time.Duration,
 	publicKey appmodels.PublicKey,
@@ -252,7 +253,7 @@ func NewIntermediateCertificate(
 	}
 
 	certificateTemplate := x509.Certificate{
-		SerialNumber: serialNumber.Value(),
+		SerialNumber: serialNumber,
 		Subject: pkix.Name{
 			Organization: organization.Names(),
 			CommonName:   commonName,
@@ -303,7 +304,7 @@ func NewIntermediateCertificate(
 // Returns the new certificate or an error
 func NewServerCertificate(
 	manager managers.CertificateManager,
-	serialNumber appmodels.SerialNumber,
+	serialNumber *big.Int,
 	organization appmodels.Organization,
 	expiration time.Duration,
 	publicKey appmodels.PublicKey,
@@ -346,7 +347,7 @@ func NewServerCertificate(
 	}
 
 	certificateTemplate := x509.Certificate{
-		SerialNumber: serialNumber.Value(),
+		SerialNumber: serialNumber,
 		Subject: pkix.Name{
 			Organization: organization.Names(),
 			CommonName:   commonName,
@@ -392,7 +393,7 @@ func NewServerCertificate(
 // Returns the new certificate or an error
 func NewClientCertificate(
 	manager managers.CertificateManager,
-	serialNumber appmodels.SerialNumber,
+	serialNumber *big.Int,
 	organization appmodels.Organization,
 	expiration time.Duration,
 	publicKey appmodels.PublicKey,
@@ -426,7 +427,7 @@ func NewClientCertificate(
 	}
 
 	certificateTemplate := x509.Certificate{
-		SerialNumber: serialNumber.Value(),
+		SerialNumber: serialNumber,
 		Subject: pkix.Name{
 			Organization: organization.Names(),
 			CommonName:   commonName,
@@ -468,7 +469,7 @@ func NewClientCertificate(
 // Returns the new certificate or an error
 func NewRootCertificate(
 	manager managers.CertificateManager,
-	serialNumber appmodels.SerialNumber,
+	serialNumber *big.Int,
 	organization appmodels.Organization,
 	expiration time.Duration,
 	privateKey appmodels.PrivateKey,
@@ -496,7 +497,7 @@ func NewRootCertificate(
 	}
 
 	certificateTemplate := x509.Certificate{
-		SerialNumber: serialNumber.Value(),
+		SerialNumber: serialNumber,
 		Subject: pkix.Name{
 			Organization: organization.Names(),
 			CommonName:   commonName,
@@ -523,7 +524,7 @@ func NewRootCertificate(
 
 	return appmodels.NewCertificate(
 		organization.ID(),
-		[]appmodels.SerialNumber{},
+		[]*big.Int{},
 		cert,
 	), nil
 }

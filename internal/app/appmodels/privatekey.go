@@ -6,6 +6,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rsa"
+	"math/big"
 )
 
 // PrivateKeyModel model implements PrivateKey
@@ -15,7 +16,7 @@ type PrivateKeyModel struct {
 	organization string
 
 	// certificates is the path to the certificate as serial numbers from root certificate
-	certificates []SerialNumber
+	certificates []*big.Int
 
 	// The type of the key
 	keyType KeyType
@@ -24,26 +25,26 @@ type PrivateKeyModel struct {
 	data any
 }
 
-func (k *PrivateKeyModel) SerialNumber() SerialNumber {
+func (k *PrivateKeyModel) SerialNumber() *big.Int {
 	if len(k.certificates) <= 0 {
 		return nil
 	}
 	return k.certificates[len(k.certificates)-1]
 }
 
-func (k *PrivateKeyModel) Parents() []SerialNumber {
+func (k *PrivateKeyModel) Parents() []*big.Int {
 	if len(k.certificates) <= 1 {
-		return []SerialNumber{}
+		return []*big.Int{}
 	}
 	originalSlice := k.certificates[:len(k.certificates)-1]
-	sliceCopy := make([]SerialNumber, len(originalSlice))
+	sliceCopy := make([]*big.Int, len(originalSlice))
 	copy(sliceCopy, originalSlice)
 	return sliceCopy
 }
 
-func (k *PrivateKeyModel) Certificates() []SerialNumber {
+func (k *PrivateKeyModel) Certificates() []*big.Int {
 	originalSlice := k.certificates
-	sliceCopy := make([]SerialNumber, len(originalSlice))
+	sliceCopy := make([]*big.Int, len(originalSlice))
 	copy(sliceCopy, originalSlice)
 	return sliceCopy
 }
@@ -80,7 +81,7 @@ func (k *PrivateKeyModel) PublicKey() any {
 //   - data is the private key data
 func NewPrivateKey(
 	organization string,
-	certificates []SerialNumber,
+	certificates []*big.Int,
 	keyType KeyType,
 	data any,
 ) *PrivateKeyModel {

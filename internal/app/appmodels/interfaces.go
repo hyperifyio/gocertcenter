@@ -9,13 +9,6 @@ import (
 	"time"
 )
 
-type SerialNumber interface {
-	String() string
-	Value() *big.Int
-	Cmp(s2 SerialNumber) int
-	Sign() int
-}
-
 // Organization describes an interface for OrganizationModel model
 type Organization interface {
 
@@ -62,13 +55,13 @@ type Certificate interface {
 	IsClientCertificate() bool
 
 	// Parents returns all parent certificate serial numbers
-	Parents() []SerialNumber
+	Parents() []*big.Int
 
-	SerialNumber() SerialNumber
+	SerialNumber() *big.Int
 	OrganizationID() string
 	OrganizationName() string
 	Organization() []string
-	SignedBy() SerialNumber
+	SignedBy() *big.Int
 	Certificate() *x509.Certificate
 }
 
@@ -95,22 +88,22 @@ type PrivateKey interface {
 	OrganizationID() string
 
 	// GetParents returns all parent certificate serial numbers
-	Parents() []SerialNumber
+	Parents() []*big.Int
 
 	// GetCertificates returns all serial numbers from root certificate to the
 	// certificate this key belongs to
-	Certificates() []SerialNumber
+	Certificates() []*big.Int
 
 	// SerialNumber returns the serial number of the certificate which this
 	// key belongs to
-	SerialNumber() SerialNumber
+	SerialNumber() *big.Int
 }
 
 // RevokedCertificate describes an interface for RevokedCertificateModel model
 type RevokedCertificate interface {
 
 	// GetSerialNumber returns the serial number of the certificate which was revoked
-	SerialNumber() SerialNumber
+	SerialNumber() *big.Int
 
 	RevocationTime() time.Time
 	ExpirationTime() time.Time
@@ -135,8 +128,8 @@ type OrganizationRepository interface {
 // promoting loose coupling between the application's business logic and its data layer.
 type CertificateRepository interface {
 	FindAllByOrganization(organization string) ([]Certificate, error)
-	FindAllByOrganizationAndSerialNumbers(organization string, certificates []SerialNumber) ([]Certificate, error)
-	FindByOrganizationAndSerialNumbers(organization string, certificates []SerialNumber) (Certificate, error)
+	FindAllByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) ([]Certificate, error)
+	FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (Certificate, error)
 	Save(certificate Certificate) (Certificate, error)
 }
 
@@ -148,7 +141,7 @@ type CertificateRepository interface {
 type PrivateKeyRepository interface {
 
 	// FindByOrganizationAndSerialNumbers only returns public properties of the private key
-	FindByOrganizationAndSerialNumbers(organization string, certificates []SerialNumber) (PrivateKey, error)
+	FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (PrivateKey, error)
 	Save(key PrivateKey) (PrivateKey, error)
 }
 
@@ -205,11 +198,11 @@ type OrganizationController interface {
 
 	// CertificateController returns a controller for a root certificate specified by its serial number
 	//  * serialNumber - The serial number of the root certificate
-	CertificateController(serialNumber SerialNumber) (CertificateController, error)
+	CertificateController(serialNumber *big.Int) (CertificateController, error)
 
 	// Certificate returns a model for a root certificate specified by its serial number
 	//  * serialNumber - The serial number of the root certificate
-	Certificate(serialNumber SerialNumber) (Certificate, error)
+	Certificate(serialNumber *big.Int) (Certificate, error)
 
 	// SetExpirationDuration sets the expiration duration used in NewRootCertificate
 	//  * expiration - the expiration duration
@@ -256,11 +249,11 @@ type CertificateController interface {
 
 	// Certificate returns a child certificate model
 	//  * serialNumber - The serial number of the child certificate
-	ChildCertificate(serialNumber SerialNumber) (Certificate, error)
+	ChildCertificate(serialNumber *big.Int) (Certificate, error)
 
 	// GetChildCertificateController returns a child certificate controller
 	//  * serialNumber - The serial number of the child certificate
-	ChildCertificateController(serialNumber SerialNumber) (CertificateController, error)
+	ChildCertificateController(serialNumber *big.Int) (CertificateController, error)
 
 	// ParentCertificate returns the parent certificate model if this
 	// certificate is not a root certificate

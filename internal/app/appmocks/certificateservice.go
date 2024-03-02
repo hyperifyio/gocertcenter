@@ -3,6 +3,8 @@
 package appmocks
 
 import (
+	"math/big"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
@@ -13,7 +15,7 @@ type MockCertificateService struct {
 	mock.Mock
 }
 
-func (m *MockCertificateService) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) ([]appmodels.Certificate, error) {
+func (m *MockCertificateService) FindAllByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) ([]appmodels.Certificate, error) {
 	args := m.Called(organization, certificates)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -29,7 +31,7 @@ func (m *MockCertificateService) FindAllByOrganization(organization string) ([]a
 	return args.Get(0).([]appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockCertificateService) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) (appmodels.Certificate, error) {
+func (m *MockCertificateService) FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (appmodels.Certificate, error) {
 	args := m.Called(organization, certificates)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)

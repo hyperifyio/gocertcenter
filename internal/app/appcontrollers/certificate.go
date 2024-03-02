@@ -5,6 +5,7 @@ package appcontrollers
 import (
 	"fmt"
 	"log"
+	"math/big"
 	"strings"
 	"time"
 
@@ -22,7 +23,7 @@ import (
 // design promotes separation of concerns by decoupling the business logic from
 // the specific details of data persistence.
 type CertCertificateController struct {
-	serialNumber appmodels.SerialNumber
+	serialNumber *big.Int
 	model        appmodels.Certificate
 
 	// parentOrganizationController is the parent organization controller
@@ -89,7 +90,7 @@ func (r *CertCertificateController) ChildCertificateCollection(certificateType s
 	return list, nil
 }
 
-func (r *CertCertificateController) ChildCertificate(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
+func (r *CertCertificateController) ChildCertificate(serialNumber *big.Int) (appmodels.Certificate, error) {
 	organization := r.OrganizationID()
 	if r.certificateRepository == nil {
 		return nil, fmt.Errorf("[%s@%s:ChildCertificate:%s]: No parent certificateRepository", r.serialNumber.String(), organization, serialNumber.String())
@@ -107,7 +108,7 @@ func (r *CertCertificateController) ChildCertificate(serialNumber appmodels.Seri
 	return model, nil
 }
 
-func (r *CertCertificateController) ChildCertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
+func (r *CertCertificateController) ChildCertificateController(serialNumber *big.Int) (appmodels.CertificateController, error) {
 	organization := r.OrganizationID()
 	model, err := r.ChildCertificate(serialNumber)
 	if err != nil {
@@ -355,7 +356,7 @@ func (r *CertCertificateController) UsesCertificateService(service appmodels.Cer
 	return r.certificateRepository == service
 }
 
-func (r *CertCertificateController) FindCertificate(organization string, certificates []appmodels.SerialNumber) (appmodels.Certificate, error) {
+func (r *CertCertificateController) FindCertificate(organization string, certificates []*big.Int) (appmodels.Certificate, error) {
 	return r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, certificates)
 }
 
@@ -367,7 +368,7 @@ func (r *CertCertificateController) FindCertificate(organization string, certifi
 //
 //   - parentOrganizationController appmodels.OrganizationController
 //   - parentCertificateController appmodels.CertificateController
-//   - serialNumber appmodels.SerialNumber
+//   - serialNumber *big.Int
 //   - model appmodels.Certificate
 //   - certificateRepository is appmodels.CertificateRepository
 //   - privateKeyRepository is appmodels.PrivateKeyRepository
@@ -379,7 +380,7 @@ func (r *CertCertificateController) FindCertificate(organization string, certifi
 func NewCertificateController(
 	parentOrganizationController appmodels.OrganizationController,
 	parentCertificateController appmodels.CertificateController,
-	serialNumber appmodels.SerialNumber,
+	serialNumber *big.Int,
 	model appmodels.Certificate,
 	certificateRepository appmodels.CertificateRepository,
 	privateKeyRepository appmodels.PrivateKeyRepository,

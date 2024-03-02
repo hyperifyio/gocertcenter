@@ -5,6 +5,7 @@ package appmodels
 import (
 	"bytes"
 	"crypto/x509"
+	"math/big"
 	"time"
 )
 
@@ -15,7 +16,7 @@ type CertificateModel struct {
 	organization string
 
 	// parents is all parent certificates in the chain
-	parents []SerialNumber
+	parents []*big.Int
 
 	// data is the certificate data
 	certificate *x509.Certificate
@@ -24,7 +25,7 @@ type CertificateModel struct {
 // NewCertificate creates a certificate model from existing data
 func NewCertificate(
 	organization string,
-	parents []SerialNumber,
+	parents []*big.Int,
 	certificate *x509.Certificate,
 ) *CertificateModel {
 	return &CertificateModel{
@@ -79,20 +80,20 @@ func (c *CertificateModel) IsRootCertificate() bool {
 	return c.certificate.BasicConstraintsValid && c.certificate.IsCA && c.IsSelfSigned()
 }
 
-func (c *CertificateModel) SerialNumber() SerialNumber {
-	return NewSerialNumber(c.certificate.SerialNumber)
+func (c *CertificateModel) SerialNumber() *big.Int {
+	return c.certificate.SerialNumber
 }
 
 func (c *CertificateModel) OrganizationID() string {
 	return c.organization
 }
 
-func (c *CertificateModel) Parents() []SerialNumber {
+func (c *CertificateModel) Parents() []*big.Int {
 	originalSlice := c.parents
 	if originalSlice == nil {
-		return make([]SerialNumber, 0)
+		return make([]*big.Int, 0)
 	}
-	newSlice := make([]SerialNumber, len(originalSlice))
+	newSlice := make([]*big.Int, len(originalSlice))
 	copy(newSlice, originalSlice)
 	return newSlice
 }
@@ -116,7 +117,7 @@ func (c *CertificateModel) Organization() []string {
 	return sliceCopy
 }
 
-func (c *CertificateModel) SignedBy() SerialNumber {
+func (c *CertificateModel) SignedBy() *big.Int {
 	if len(c.parents) >= 1 {
 		return c.parents[len(c.parents)-1]
 	}

@@ -4,11 +4,10 @@ package appmocks
 
 import (
 	"crypto/x509/pkix"
+	"math/big"
 	"time"
 
 	"github.com/stretchr/testify/mock"
-
-	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
 // MockRevokedCertificate is a mock type for the RevokedCertificate interface
@@ -17,9 +16,9 @@ type MockRevokedCertificate struct {
 }
 
 // GetSerialNumber mocks the GetSerialNumber method
-func (m *MockRevokedCertificate) SerialNumber() appmodels.SerialNumber {
+func (m *MockRevokedCertificate) SerialNumber() *big.Int {
 	args := m.Called()
-	return args.Get(0).(appmodels.SerialNumber) // Ensure the return type matches the interface
+	return args.Get(0).(*big.Int) // Ensure the return type matches the interface
 }
 
 // GetRevocationTime mocks the GetRevocationTime method

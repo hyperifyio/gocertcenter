@@ -3,12 +3,11 @@
 package memoryrepository
 
 import (
+	"math/big"
 	"strings"
-
-	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
-func getCertificateLocator(organization string, certificates []appmodels.SerialNumber) string {
+func getCertificateLocator(organization string, certificates []*big.Int) string {
 	parts := []string{organization}
 	for _, certificate := range certificates {
 		parts = append(parts, certificate.String())

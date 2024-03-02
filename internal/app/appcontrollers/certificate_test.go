@@ -22,7 +22,7 @@ import (
 
 func TestNewCertificateController(t *testing.T) {
 
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(1))
+	serialNumber := appmodels.NewSerialNumber(1)
 	model := &appmocks.MockCertificate{}
 	mockOrganizationController := &appmocks.MockOrganizationController{}
 	mockCertificateRepository := &appmocks.MockCertificateService{}
@@ -50,7 +50,7 @@ func TestNewCertificateController(t *testing.T) {
 }
 
 func TestCertificateController_GetOrganizationController(t *testing.T) {
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(1))
+	serialNumber := appmodels.NewSerialNumber(1)
 	model := &appmocks.MockCertificate{}
 	mockCertificateRepository := &appmocks.MockCertificateService{}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
@@ -94,7 +94,7 @@ func TestCertificateController_GetOrganizationController(t *testing.T) {
 }
 
 func TestCertificateController_GetCertificateModel(t *testing.T) {
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(1))
+	serialNumber := appmodels.NewSerialNumber(1)
 	mockCert := new(appmocks.MockCertificate)
 	mockOrganizationController := &appmocks.MockOrganizationController{}
 	mockCertificateRepository := &appmocks.MockCertificateService{}
@@ -122,8 +122,8 @@ func TestCertificateController_GetCertificateModel(t *testing.T) {
 func TestCertificateController_GetChildCertificateCollection(t *testing.T) {
 	mockCertRepo := new(appmocks.MockCertificateService)
 	mockCert := new(appmocks.MockCertificate)
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(123))
-	mockCert.On("Parents").Return([]appmodels.SerialNumber{})
+	serialNumber := appmodels.NewSerialNumber(123)
+	mockCert.On("Parents").Return([]*big.Int{})
 	certs := []appmodels.Certificate{mockCert}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
 	mockOrganizationController := &appmocks.MockOrganizationController{}
@@ -175,22 +175,22 @@ func TestCertificateController_NewIntermediateCertificate(t *testing.T) {
 	mockOrgController.On("Organization").Return(mockOrganization)
 
 	// Simulating serial number generation
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(123))
-	newSerialNumber := appmodels.NewSerialNumber(big.NewInt(456))
+	serialNumber := appmodels.NewSerialNumber(123)
+	newSerialNumber := appmodels.NewSerialNumber(456)
 
 	// Assuming we have a way to simulate or directly set the serial number for testing
-	mockRandomManager.On("CreateBigInt", mock.Anything).Return(newSerialNumber.Value(), nil)
+	mockRandomManager.On("CreateBigInt", mock.Anything).Return(newSerialNumber, nil)
 
 	mockCertManager.On("CreateCertificate", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([]byte("certBytes"), nil)
-	mockCertManager.On("ParseCertificate", []byte("certBytes")).Return(&x509.Certificate{SerialNumber: newSerialNumber.Value()}, nil)
+	mockCertManager.On("ParseCertificate", []byte("certBytes")).Return(&x509.Certificate{SerialNumber: newSerialNumber}, nil)
 
 	mockCert.On("Certificate").Return(&x509.Certificate{})
 	mockCert.On("SerialNumber").Return(serialNumber)
-	mockCert.On("Parents").Return([]appmodels.SerialNumber{})
+	mockCert.On("Parents").Return([]*big.Int{})
 
 	mockPrivateKey.On("PrivateKey").Return(&rsa.PrivateKey{})
 
-	mockPrivateKeyRepo.On("FindByOrganizationAndSerialNumbers", orgID, []appmodels.SerialNumber{serialNumber}).Return(mockPrivateKey, nil)
+	mockPrivateKeyRepo.On("FindByOrganizationAndSerialNumbers", orgID, []*big.Int{serialNumber}).Return(mockPrivateKey, nil)
 	mockCertRepo.On("Save", mock.Anything).Return(mockCert, nil)
 
 	controller := appcontrollers.NewCertificateController(

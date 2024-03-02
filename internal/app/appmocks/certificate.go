@@ -4,6 +4,7 @@ package appmocks
 
 import (
 	"crypto/x509"
+	"math/big"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -31,9 +32,9 @@ func (m *MockCertificate) IsCA() bool {
 	return args.Bool(0)
 }
 
-func (m *MockCertificate) SerialNumber() appmodels.SerialNumber {
+func (m *MockCertificate) SerialNumber() *big.Int {
 	args := m.Called()
-	return args.Get(0).(appmodels.SerialNumber)
+	return args.Get(0).(*big.Int)
 }
 
 func (m *MockCertificate) OrganizationID() string {
@@ -51,14 +52,14 @@ func (m *MockCertificate) Organization() []string {
 	return args.Get(0).([]string)
 }
 
-func (m *MockCertificate) Parents() []appmodels.SerialNumber {
+func (m *MockCertificate) Parents() []*big.Int {
 	args := m.Called()
-	return args.Get(0).([]appmodels.SerialNumber)
+	return args.Get(0).([]*big.Int)
 }
 
-func (m *MockCertificate) SignedBy() appmodels.SerialNumber {
+func (m *MockCertificate) SignedBy() *big.Int {
 	args := m.Called()
-	return args.Get(0).(appmodels.SerialNumber)
+	return args.Get(0).(*big.Int)
 }
 
 func (m *MockCertificate) Certificate() *x509.Certificate {

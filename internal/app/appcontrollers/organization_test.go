@@ -81,10 +81,10 @@ func TestOrganizationController_NewRootCertificate_SerialNumberExists(t *testing
 
 func TestOrganizationController_GetCertificateController_FetchFail(t *testing.T) {
 	mockCertificateRepository := &appmocks.MockCertificateService{}
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(12345))
+	serialNumber := appmodels.NewSerialNumber(12345)
 
 	// Simulate failure to fetch the certificate model
-	mockCertificateRepository.On("FindByOrganizationAndSerialNumbers", mock.Anything, []appmodels.SerialNumber{serialNumber}).Return(nil, fmt.Errorf("fetch fail"))
+	mockCertificateRepository.On("FindByOrganizationAndSerialNumbers", mock.Anything, []*big.Int{serialNumber}).Return(nil, fmt.Errorf("fetch fail"))
 
 	controller := appcontrollers.NewOrganizationController(
 		"testorg",
@@ -112,7 +112,7 @@ func TestOrganizationController_GetCertificateCollection_Success(t *testing.T) {
 	}
 
 	// Setup mock to return a list of certificates
-	mockCertificateRepository.On("FindAllByOrganizationAndSerialNumbers", organizationID, []appmodels.SerialNumber{}).Return(mockCertificates, nil)
+	mockCertificateRepository.On("FindAllByOrganizationAndSerialNumbers", organizationID, []*big.Int{}).Return(mockCertificates, nil)
 
 	controller := appcontrollers.NewOrganizationController(
 		organizationID,
@@ -259,7 +259,7 @@ func TestOrganizationController_GetCertificateCollection_Failure(t *testing.T) {
 	)
 
 	// Mock the behavior of FindAllByOrganizationAndSerialNumbers to return an error
-	mockCertificateRepository.On("FindAllByOrganizationAndSerialNumbers", organizationID, []appmodels.SerialNumber{}).Return(nil, expectedErr)
+	mockCertificateRepository.On("FindAllByOrganizationAndSerialNumbers", organizationID, []*big.Int{}).Return(nil, expectedErr)
 
 	// Execute: Call the method we're testing
 	certificates, err := controller.CertificateCollection()
@@ -270,12 +270,12 @@ func TestOrganizationController_GetCertificateCollection_Failure(t *testing.T) {
 	assert.Contains(t, err.Error(), "database error", "Expected the error to be propagated from the certificate repository")
 
 	// Verify that the mocked method was called with expected parameters
-	mockCertificateRepository.AssertCalled(t, "FindAllByOrganizationAndSerialNumbers", organizationID, []appmodels.SerialNumber{})
+	mockCertificateRepository.AssertCalled(t, "FindAllByOrganizationAndSerialNumbers", organizationID, []*big.Int{})
 }
 
 func TestOrganizationController_GetCertificateController(t *testing.T) {
 	organizationID := "testOrg"
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(12345))
+	serialNumber := appmodels.NewSerialNumber(12345)
 
 	// Mocking Organization and its repositories
 	mockCertificate := &appmocks.MockCertificate{}
@@ -300,7 +300,7 @@ func TestOrganizationController_GetCertificateController(t *testing.T) {
 	)
 
 	// Mock the behavior of FindByOrganizationAndSerialNumbers to return an error
-	mockCertificateRepository.On("FindByOrganizationAndSerialNumbers", organizationID, []appmodels.SerialNumber{serialNumber}).Return(mockCertificate, nil)
+	mockCertificateRepository.On("FindByOrganizationAndSerialNumbers", organizationID, []*big.Int{serialNumber}).Return(mockCertificate, nil)
 
 	// Execute: Call the method we're testing
 	certificateController, err := controller.CertificateController(serialNumber)
@@ -310,7 +310,7 @@ func TestOrganizationController_GetCertificateController(t *testing.T) {
 	assert.NoError(t, err, "Expected success")
 
 	// Verify that the mocked method was called with expected parameters
-	mockCertificateRepository.AssertCalled(t, "FindByOrganizationAndSerialNumbers", organizationID, []appmodels.SerialNumber{serialNumber})
+	mockCertificateRepository.AssertCalled(t, "FindByOrganizationAndSerialNumbers", organizationID, []*big.Int{serialNumber})
 }
 
 func TestNewRootCertificate_SerialNumberGenerationFail(t *testing.T) {

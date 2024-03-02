@@ -4,6 +4,7 @@ package appmocks
 
 import (
 	"crypto/x509"
+	"math/big"
 
 	"github.com/stretchr/testify/mock"
 
@@ -26,19 +27,19 @@ func (m *MockPrivateKey) PrivateKey() any {
 	return args.Get(0).(any)
 }
 
-func (m *MockPrivateKey) SerialNumber() appmodels.SerialNumber {
+func (m *MockPrivateKey) SerialNumber() *big.Int {
 	args := m.Called()
-	return args.Get(0).(appmodels.SerialNumber)
+	return args.Get(0).(*big.Int)
 }
 
-func (m *MockPrivateKey) Parents() []appmodels.SerialNumber {
+func (m *MockPrivateKey) Parents() []*big.Int {
 	args := m.Called()
-	return args.Get(0).([]appmodels.SerialNumber)
+	return args.Get(0).([]*big.Int)
 }
 
-func (m *MockPrivateKey) Certificates() []appmodels.SerialNumber {
+func (m *MockPrivateKey) Certificates() []*big.Int {
 	args := m.Called()
-	return args.Get(0).([]appmodels.SerialNumber)
+	return args.Get(0).([]*big.Int)
 }
 
 func (m *MockPrivateKey) KeyType() appmodels.KeyType {

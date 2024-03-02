@@ -35,7 +35,7 @@ func TestNewSerialNumberWithMock(t *testing.T) {
 	}
 
 	expected := big.NewInt(12345)
-	if serialNumber.Value().Cmp(expected) != 0 {
+	if serialNumber.Cmp(expected) != 0 {
 		t.Errorf("Expected serial number %v, got %v", expected, serialNumber)
 	}
 }

@@ -11,6 +11,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"math/big"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appdtos"
 	"github.com/hyperifyio/gocertcenter/internal/common/managers"
@@ -50,7 +51,7 @@ func ToPrivateKeyDTOList(certManager managers.CertificateManager, list []appmode
 //   - keyType: The key type to generate
 func GeneratePrivateKey(
 	organization string,
-	certificates []appmodels.SerialNumber,
+	certificates []*big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
 
@@ -98,7 +99,7 @@ func GeneratePrivateKey(
 //   - keyType: Should be appmodels.RSA_1024, appmodels.RSA_2048, appmodels.RSA_3072 or appmodels.RSA_4096
 func GenerateRSAPrivateKey(
 	organization string,
-	certificates []appmodels.SerialNumber,
+	certificates []*big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
 	return GeneratePrivateKey(organization, certificates, keyType)
@@ -107,7 +108,7 @@ func GenerateRSAPrivateKey(
 // GenerateECDSAPrivateKey creates a new private key of type models.KeyType
 func GenerateECDSAPrivateKey(
 	organization string,
-	certificates []appmodels.SerialNumber,
+	certificates []*big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
 	return GeneratePrivateKey(organization, certificates, keyType)
@@ -116,7 +117,7 @@ func GenerateECDSAPrivateKey(
 // GenerateEd25519PrivateKey creates a new private key of type models.Ed25519
 func GenerateEd25519PrivateKey(
 	organization string,
-	certificates []appmodels.SerialNumber,
+	certificates []*big.Int,
 ) (appmodels.PrivateKey, error) {
 	return GeneratePrivateKey(organization, certificates, appmodels.Ed25519)
 }

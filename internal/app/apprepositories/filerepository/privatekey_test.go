@@ -31,7 +31,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey(t *testing.T) {
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
 	organization := "TestOrg"
-	certificates := []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}
+	certificates := []*big.Int{appmodels.NewSerialNumber(1)}
 
 	fileName := filerepository.PrivateKeyPemPath(tempDir, organization, certificates)
 
@@ -62,8 +62,8 @@ func TestPrivateKeyRepository_CreatePrivateKey(t *testing.T) {
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
 
-	parentSerialNumber := appmodels.NewSerialNumber(big.NewInt(1))
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(2))
+	parentSerialNumber := appmodels.NewSerialNumber(1)
+	serialNumber := appmodels.NewSerialNumber(2)
 
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	assert.NoError(t, err)
@@ -71,7 +71,7 @@ func TestPrivateKeyRepository_CreatePrivateKey(t *testing.T) {
 
 	mockPrivateKey := &appmocks.MockPrivateKey{}
 	mockPrivateKey.On("OrganizationID").Return("TestOrg")
-	mockPrivateKey.On("Parents").Return([]appmodels.SerialNumber{parentSerialNumber})
+	mockPrivateKey.On("Parents").Return([]*big.Int{parentSerialNumber})
 	mockPrivateKey.On("SerialNumber").Return(serialNumber)
 	mockPrivateKey.On("PrivateKey").Return(rsaPrivKey)
 
@@ -95,7 +95,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey_Nonexistent(t *testing.T) {
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
 	organization := "NonexistentOrg"
-	certificates := []appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))}
+	certificates := []*big.Int{appmodels.NewSerialNumber(1)}
 
 	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)
 	assert.Error(t, err)
@@ -111,7 +111,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey_EmptyCertificates(t *testing
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
 	organization := "NonexistentOrg"
-	var certificates []appmodels.SerialNumber
+	var certificates []*big.Int
 
 	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)
 	assert.Error(t, err)

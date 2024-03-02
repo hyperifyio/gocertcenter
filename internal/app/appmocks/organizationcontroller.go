@@ -3,6 +3,7 @@
 package appmocks
 
 import (
+	"math/big"
 	"time"
 
 	"github.com/stretchr/testify/mock"
@@ -43,12 +44,12 @@ func (m *MockOrganizationController) ApplicationController() appmodels.Applicati
 	return args.Get(0).(appmodels.ApplicationController)
 }
 
-func (m *MockOrganizationController) CertificateController(serialNumber appmodels.SerialNumber) (appmodels.CertificateController, error) {
+func (m *MockOrganizationController) CertificateController(serialNumber *big.Int) (appmodels.CertificateController, error) {
 	args := m.Called(serialNumber)
 	return args.Get(0).(appmodels.CertificateController), args.Error(1)
 }
 
-func (m *MockOrganizationController) Certificate(serialNumber appmodels.SerialNumber) (appmodels.Certificate, error) {
+func (m *MockOrganizationController) Certificate(serialNumber *big.Int) (appmodels.Certificate, error) {
 	args := m.Called(serialNumber)
 	return args.Get(0).(appmodels.Certificate), args.Error(1)
 }

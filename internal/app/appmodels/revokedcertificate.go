@@ -4,6 +4,7 @@ package appmodels
 
 import (
 	"crypto/x509/pkix"
+	"math/big"
 	"time"
 )
 
@@ -11,7 +12,7 @@ import (
 type RevokedCertificateModel struct {
 
 	// serialNumber is the serial number of the revoked certificate
-	serialNumber SerialNumber
+	serialNumber *big.Int
 
 	// revocationTime is the time when the certificate was revoked
 	revocationTime time.Time
@@ -20,7 +21,7 @@ type RevokedCertificateModel struct {
 	expirationTime time.Time
 }
 
-func (k *RevokedCertificateModel) SerialNumber() SerialNumber {
+func (k *RevokedCertificateModel) SerialNumber() *big.Int {
 	return k.serialNumber
 }
 
@@ -34,14 +35,14 @@ func (k *RevokedCertificateModel) ExpirationTime() time.Time {
 
 func (k *RevokedCertificateModel) RevokedCertificate() pkix.RevokedCertificate {
 	return pkix.RevokedCertificate{
-		SerialNumber:   k.serialNumber.Value(),
+		SerialNumber:   k.serialNumber,
 		RevocationTime: k.revocationTime,
 	}
 }
 
 // NewRevokedCertificate creates a private key model from existing data
 func NewRevokedCertificate(
-	serialNumber SerialNumber,
+	serialNumber *big.Int,
 	revocationTime time.Time,
 	expirationTime time.Time,
 ) *RevokedCertificateModel {

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/big"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
@@ -16,7 +17,7 @@ type MemoryCertificateRepository struct {
 	certificates map[string]appmodels.Certificate
 }
 
-func (r *MemoryCertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) ([]appmodels.Certificate, error) {
+func (r *MemoryCertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) ([]appmodels.Certificate, error) {
 	var result []appmodels.Certificate
 	if r.certificates == nil {
 		return result, nil
@@ -44,7 +45,7 @@ func (r *MemoryCertificateRepository) FindAllByOrganization(organization string)
 	return result, nil
 }
 
-func (r *MemoryCertificateRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) (appmodels.Certificate, error) {
+func (r *MemoryCertificateRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (appmodels.Certificate, error) {
 	id := getCertificateLocator(organization, certificates)
 	if certificate, exists := r.certificates[id]; exists {
 		return certificate, nil

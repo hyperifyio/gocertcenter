@@ -3,7 +3,6 @@
 package appmodels_test
 
 import (
-	"math/big"
 	"testing"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 )
 
 func TestNewRevokedCertificate(t *testing.T) {
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(12345))
+	serialNumber := appmodels.NewSerialNumber(12345)
 	revocationTime := time.Now().Round(time.Second) // Use Round to normalize to seconds for comparison
 	expirationTime := time.Now().Add(365 * 24 * time.Hour).Round(time.Second)
 
@@ -31,15 +30,15 @@ func TestNewRevokedCertificate(t *testing.T) {
 }
 
 func TestGetRevokedCertificate(t *testing.T) {
-	serialNumber := appmodels.NewSerialNumber(big.NewInt(12345))
+	serialNumber := appmodels.NewSerialNumber(12345)
 	revocationTime := time.Now().Round(time.Second) // Use Round to normalize to seconds for comparison
 
 	revokedCert := appmodels.NewRevokedCertificate(serialNumber, revocationTime, time.Time{})
 
 	pkixRevokedCert := revokedCert.RevokedCertificate()
 
-	if pkixRevokedCert.SerialNumber.Cmp(serialNumber.Value()) != 0 {
-		t.Errorf("PKIX Serial number mismatch, got %v, want %v", pkixRevokedCert.SerialNumber, serialNumber.Value())
+	if pkixRevokedCert.SerialNumber.Cmp(serialNumber) != 0 {
+		t.Errorf("PKIX Serial number mismatch, got %v, want %v", pkixRevokedCert.SerialNumber, serialNumber)
 	}
 
 	if !pkixRevokedCert.RevocationTime.Equal(revocationTime) {

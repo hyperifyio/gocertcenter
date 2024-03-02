@@ -5,6 +5,7 @@ package memoryrepository
 import (
 	"fmt"
 	"log"
+	"math/big"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
@@ -15,7 +16,7 @@ type MemoryPrivateKeyRepository struct {
 	keys map[string]appmodels.PrivateKey
 }
 
-func (r *MemoryPrivateKeyRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []appmodels.SerialNumber) (appmodels.PrivateKey, error) {
+func (r *MemoryPrivateKeyRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (appmodels.PrivateKey, error) {
 	id := getCertificateLocator(organization, certificates)
 	if key, exists := r.keys[id]; exists {
 		return key, nil

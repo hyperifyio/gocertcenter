@@ -40,7 +40,7 @@ func TestGeneratePrivateKey(t *testing.T) {
 		appmodels.ECDSA_P224, appmodels.ECDSA_P256, appmodels.ECDSA_P384, appmodels.ECDSA_P521, appmodels.Ed25519}
 	for _, kt := range keyTypes {
 		privateKey, err := apputils.GeneratePrivateKey(
-			organization, []appmodels.SerialNumber{serialNumber}, kt) // RSA bits size is only relevant for RSA keys
+			organization, []*big.Int{serialNumber}, kt) // RSA bits size is only relevant for RSA keys
 		if err != nil {
 			t.Fatalf("Failed to generate private key for %v: %v", kt, err)
 		}
@@ -82,7 +82,7 @@ func TestGeneratePrivateKey_InvalidKeyType(t *testing.T) {
 	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
-	_, err := apputils.GeneratePrivateKey(organization, []appmodels.SerialNumber{serialNumber}, InvalidKeyType) // Using the invalid KeyType here
+	_, err := apputils.GeneratePrivateKey(organization, []*big.Int{serialNumber}, InvalidKeyType) // Using the invalid KeyType here
 	if err == nil {
 		t.Fatal("Expected GeneratePrivateKey to return an error for an invalid keyType, but it did not")
 	}
@@ -93,7 +93,7 @@ func TestGenerateRSAPrivateKey(t *testing.T) {
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 
-	privateKey, err := apputils.GenerateRSAPrivateKey(organization, []appmodels.SerialNumber{serialNumber}, appmodels.RSA_2048)
+	privateKey, err := apputils.GenerateRSAPrivateKey(organization, []*big.Int{serialNumber}, appmodels.RSA_2048)
 	if err != nil {
 		t.Fatalf("Failed to generate RSA private key: %v", err)
 	}
@@ -116,7 +116,7 @@ func TestGenerateECDSAPrivateKey(t *testing.T) {
 		t.Fatalf("Failed to generate serial number: %v", err)
 	}
 
-	privateKey, err := apputils.GenerateECDSAPrivateKey(organization, []appmodels.SerialNumber{serialNumber}, appmodels.ECDSA_P384)
+	privateKey, err := apputils.GenerateECDSAPrivateKey(organization, []*big.Int{serialNumber}, appmodels.ECDSA_P384)
 	if err != nil {
 		t.Fatalf("Failed to generate private key: %v", err)
 	}
@@ -133,7 +133,7 @@ func TestGenerateEd25519PrivateKey(t *testing.T) {
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 
-	privateKey, err := apputils.GenerateEd25519PrivateKey(organization, []appmodels.SerialNumber{serialNumber})
+	privateKey, err := apputils.GenerateEd25519PrivateKey(organization, []*big.Int{serialNumber})
 	if err != nil {
 		t.Fatalf("Failed to generate Ed25519 private key: %v", err)
 	}
@@ -152,7 +152,7 @@ func TestPrivateKey_GetSerialNumber(t *testing.T) {
 	randomManager := managers.NewRandomManager()
 	expectedSerialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 	privateKey := appmodels.NewPrivateKey(
-		organization, []appmodels.SerialNumber{expectedSerialNumber},
+		organization, []*big.Int{expectedSerialNumber},
 		0,
 		nil,
 	)
@@ -170,7 +170,7 @@ func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 	key, _ := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	privateKey := appmodels.NewPrivateKey(organization, []appmodels.SerialNumber{serialNumber}, appmodels.ECDSA_P384, key)
+	privateKey := appmodels.NewPrivateKey(organization, []*big.Int{serialNumber}, appmodels.ECDSA_P384, key)
 
 	publicKeyAny := privateKey.PublicKey()
 	publicKey, ok := publicKeyAny.(*ecdsa.PublicKey) // Type assertion
@@ -187,7 +187,7 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 	organization := "testOrg"
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
-	privateKey, err := apputils.GenerateEd25519PrivateKey(organization, []appmodels.SerialNumber{serialNumber})
+	privateKey, err := apputils.GenerateEd25519PrivateKey(organization, []*big.Int{serialNumber})
 	if err != nil {
 		t.Fatalf("Could not generate private key: %v", err)
 	}
@@ -278,7 +278,7 @@ func TestMarshalPrivateKeyAsPEM_ECDSAError(t *testing.T) {
 func TestGeneratePrivateKey_EmptyOrganization(t *testing.T) {
 	_, err := apputils.GeneratePrivateKey(
 		"", // Empty organization
-		[]appmodels.SerialNumber{appmodels.NewSerialNumber(big.NewInt(1))},
+		[]*big.Int{big.NewInt(1)},
 		appmodels.RSA_2048,
 	)
 	assert.Error(t, err)
@@ -370,14 +370,13 @@ func TestMarshalPrivateKeyAsPEM_EncodePEMToMemoryFails(t *testing.T) {
 func TestToPrivateKeyDTO(t *testing.T) {
 	mockCertManager := new(commonmocks.MockCertificateManager)
 	mockPrivateKey := new(appmocks.MockPrivateKey)
-	mockSerialNumber := new(appmocks.MockSerialNumber)
+	mockSerialNumber := big.NewInt(123456789)
 
 	// Setup expected values
 	expectedSerial := "123456789"
 	expectedKeyType := appmodels.RSA_2048.String()
 	expectedPEM := "FAKE_PEM_DATA"
 
-	mockSerialNumber.On("String").Return(expectedSerial)
 	mockPrivateKey.On("SerialNumber").Return(mockSerialNumber)
 	mockPrivateKey.On("KeyType").Return(appmodels.RSA_2048)
 	mockPrivateKey.On("PrivateKey").Return(&rsa.PrivateKey{})
@@ -398,14 +397,13 @@ func TestToPrivateKeyDTO(t *testing.T) {
 func TestToPrivateKeyDTOList(t *testing.T) {
 	mockCertManager := new(commonmocks.MockCertificateManager)
 	mockPrivateKey := new(appmocks.MockPrivateKey)
-	mockSerialNumber := new(appmocks.MockSerialNumber)
+	mockSerialNumber := big.NewInt(123456789)
 
 	// Setup expected values for a list of one key for simplicity
 	expectedSerial := "123456789"
 	expectedKeyType := appmodels.RSA_2048.String()
 	expectedPEM := "FAKE_PEM_DATA"
 
-	mockSerialNumber.On("String").Return(expectedSerial)
 	mockPrivateKey.On("SerialNumber").Return(mockSerialNumber)
 	mockPrivateKey.On("KeyType").Return(appmodels.RSA_2048)
 	mockPrivateKey.On("PrivateKey").Return(&rsa.PrivateKey{})
