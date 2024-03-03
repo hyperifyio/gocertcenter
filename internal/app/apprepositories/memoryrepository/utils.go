@@ -3,14 +3,10 @@
 package memoryrepository
 
 import (
+	"fmt"
 	"math/big"
-	"strings"
 )
 
-func getCertificateLocator(organization string, certificates []*big.Int) string {
-	parts := []string{organization}
-	for _, certificate := range certificates {
-		parts = append(parts, certificate.String())
-	}
-	return strings.Join(parts, "/")
+func getCertificateLocator(organization string, certificate *big.Int) string {
+	return fmt.Sprintf("%s/%s", organization, certificate.String())
 }

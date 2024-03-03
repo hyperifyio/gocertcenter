@@ -57,15 +57,9 @@ func CreateSignedCertificate(
 }
 
 func ToCertificateDTO(c appmodels.Certificate) appdtos.CertificateDTO {
-	parents := c.Parents()
-	strings := make([]string, len(parents))
-	for i, p := range parents {
-		strings[i] = p.String()
-	}
 	return appdtos.NewCertificateDTO(
 		c.CommonName(),
 		c.SerialNumber().String(),
-		strings,
 		c.SignedBy().String(),
 		c.OrganizationName(),
 		c.IsCA(),
@@ -284,7 +278,7 @@ func NewIntermediateCertificate(
 
 	return appmodels.NewCertificate(
 		organization.ID(),
-		append(parentCertificate.Parents(), parentCertificate.SerialNumber()),
+		parentCertificate.SerialNumber(),
 		cert,
 	), nil
 
@@ -374,7 +368,7 @@ func NewServerCertificate(
 
 	return appmodels.NewCertificate(
 		organization.ID(),
-		append(parentCertificate.Parents(), parentCertificate.SerialNumber()),
+		parentCertificate.SerialNumber(),
 		cert,
 	), nil
 }
@@ -453,7 +447,7 @@ func NewClientCertificate(
 
 	return appmodels.NewCertificate(
 		organization.ID(),
-		append(parentCertificate.Parents(), parentCertificate.SerialNumber()),
+		parentCertificate.SerialNumber(),
 		cert,
 	), nil
 }
@@ -524,7 +518,7 @@ func NewRootCertificate(
 
 	return appmodels.NewCertificate(
 		organization.ID(),
-		[]*big.Int{},
+		nil,
 		cert,
 	), nil
 }

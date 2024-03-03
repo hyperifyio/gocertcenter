@@ -40,7 +40,6 @@ func TestNewCertificateDTO(t *testing.T) {
 				CommonName:                "Root CA certificate",
 				SerialNumber:              "123456789",
 				SignedBy:                  "Self",
-				Parents:                   []string{"Self"},
 				Organization:              "Test Org",
 				IsCA:                      true,
 				IsRootCertificate:         true,
@@ -66,7 +65,6 @@ func TestNewCertificateDTO(t *testing.T) {
 				CommonName:                "Intermediate CA certificate",
 				SerialNumber:              "987654321",
 				SignedBy:                  "Root CA",
-				Parents:                   []string{"Root CA"},
 				Organization:              "Test Org",
 				IsCA:                      true,
 				IsRootCertificate:         false,
@@ -84,7 +82,6 @@ func TestNewCertificateDTO(t *testing.T) {
 			got := appdtos.NewCertificateDTO(
 				tt.commonName,
 				tt.serialNumber,
-				tt.parents,
 				tt.signedBy,
 				tt.organization,
 				tt.isCA,

@@ -16,7 +16,6 @@ func TestNewCertificateListDTO(t *testing.T) {
 		{
 			CommonName:                "www.example.com",
 			SerialNumber:              "12345",
-			Parents:                   []string{"Parent1", "Parent2"},
 			SignedBy:                  "CA",
 			Organization:              "Example Org",
 			IsCA:                      false,
@@ -29,7 +28,6 @@ func TestNewCertificateListDTO(t *testing.T) {
 		{
 			CommonName:                "mail.example.com",
 			SerialNumber:              "67890",
-			Parents:                   []string{"Parent3", "Parent4"},
 			SignedBy:                  "CA",
 			Organization:              "Example Org",
 			IsCA:                      false,

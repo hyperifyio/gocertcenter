@@ -3,7 +3,6 @@
 package memoryrepository_test
 
 import (
-	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,20 +17,18 @@ func TestCertificateRepository_CreateAndGetCertificate(t *testing.T) {
 	organization := "testOrg"
 	repo := memoryrepository.NewCertificateRepository()
 	mockCert := new(appmocks.MockCertificate)
-	signedBy := appmodels.NewSerialNumber(345)
 	serialNumber := appmodels.NewSerialNumber(123)
 
 	// Setting up expectations
 	mockCert.On("SerialNumber").Return(serialNumber)
 	mockCert.On("OrganizationID").Return(organization)
-	mockCert.On("Parents").Return([]*big.Int{signedBy})
 
 	// Test Save
 	_, err := repo.Save(mockCert)
 	assert.NoError(t, err)
 
-	// Test FindByOrganizationAndSerialNumbers success
-	foundCert, err := repo.FindByOrganizationAndSerialNumbers(organization, []*big.Int{signedBy, serialNumber})
+	// Test FindByOrganizationAndSerialNumber success
+	foundCert, err := repo.FindByOrganizationAndSerialNumber(organization, serialNumber)
 	assert.NoError(t, err)
 	assert.NotNil(t, foundCert)
 
@@ -41,32 +38,32 @@ func TestCertificateRepository_CreateAndGetCertificate(t *testing.T) {
 
 func TestCertificateRepository_GetExistingCertificateNotFound(t *testing.T) {
 	repo := memoryrepository.NewCertificateRepository()
-	signedBy := appmodels.NewSerialNumber(111)
 	serialNumber := appmodels.NewSerialNumber(999)
 
 	// Test FindByOrganizationAndSerialNumbers for a non-existent certificate
-	_, err := repo.FindByOrganizationAndSerialNumbers("testorg", []*big.Int{signedBy, serialNumber})
+	_, err := repo.FindByOrganizationAndSerialNumber("testorg", serialNumber)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), ": not found:")
 }
 
-func TestCertificateRepository_FindAllByOrganizationAndSerialNumbers(t *testing.T) {
+func TestCertificateRepository_FindAllByOrganizationAndSignedBy(t *testing.T) {
 	organization := "testOrg"
 	repo := memoryrepository.NewCertificateRepository()
 	mockCert1 := new(appmocks.MockCertificate)
 	mockCert2 := new(appmocks.MockCertificate)
 	signedBy1 := appmodels.NewSerialNumber(1)
+	signedBy2 := appmodels.NewSerialNumber(2)
 	serialNumber1 := appmodels.NewSerialNumber(123)
 	serialNumber2 := appmodels.NewSerialNumber(456)
 
 	// Setting up expectations
 	mockCert1.On("SerialNumber").Return(serialNumber1)
 	mockCert1.On("OrganizationID").Return(organization)
-	mockCert1.On("Parents").Return([]*big.Int{signedBy1})
+	mockCert1.On("SignedBy").Return(signedBy1)
 
 	mockCert2.On("SerialNumber").Return(serialNumber2)
 	mockCert2.On("OrganizationID").Return(organization)
-	mockCert2.On("Parents").Return([]*big.Int{signedBy1})
+	mockCert2.On("SignedBy").Return(signedBy2)
 
 	// Test Save
 	_, err1 := repo.Save(mockCert1)
@@ -76,9 +73,9 @@ func TestCertificateRepository_FindAllByOrganizationAndSerialNumbers(t *testing.
 	assert.NoError(t, err2)
 
 	// Test FindAllByOrganizationAndSerialNumbers
-	foundCerts, err := repo.FindAllByOrganizationAndSerialNumbers(organization, []*big.Int{signedBy1})
+	foundCerts, err := repo.FindAllByOrganizationAndSignedBy(organization, signedBy1)
 	assert.NoError(t, err)
-	assert.Len(t, foundCerts, 2, "Expected to find 2 certificates")
+	assert.Len(t, foundCerts, 1, "Expected to find 1 certificates")
 
 	// Verify expectations were met
 	mockCert1.AssertExpectations(t)
@@ -92,16 +89,13 @@ func TestCertificateRepository_FindAllByOrganization(t *testing.T) {
 	mockCert2 := new(appmocks.MockCertificate)
 	serialNumber1 := appmodels.NewSerialNumber(123)
 	serialNumber2 := appmodels.NewSerialNumber(456)
-	signedBy1 := appmodels.NewSerialNumber(1)
 
 	// Setting up expectations
 	mockCert1.On("SerialNumber").Return(serialNumber1)
 	mockCert1.On("OrganizationID").Return(organization)
-	mockCert1.On("Parents").Return([]*big.Int{signedBy1})
 
 	mockCert2.On("SerialNumber").Return(serialNumber2)
 	mockCert2.On("OrganizationID").Return(organization)
-	mockCert2.On("Parents").Return([]*big.Int{signedBy1})
 
 	// Test Save
 	_, err1 := repo.Save(mockCert1)
@@ -120,20 +114,17 @@ func TestCertificateRepository_FindAllByOrganization(t *testing.T) {
 	mockCert2.AssertExpectations(t)
 }
 
-func TestCertificateRepository_FindAllByOrganizationAndSerialNumbers_WithNilCertificates(t *testing.T) {
+func TestCertificateRepository_FindByOrganizationAndSerialNumber_WithNoCertificates(t *testing.T) {
 	organization := "testOrg"
 
 	// Indirectly setting certificates to nil to test the specific case
 	repo := memoryrepository.MemoryCertificateRepository{}
 
 	// Mock serial numbers array to pass as parameter
-	serialNumbers := []*big.Int{
-		appmodels.NewSerialNumber(123),
-		appmodels.NewSerialNumber(456),
-	}
+	serialNumber := appmodels.NewSerialNumber(456)
 
 	// Call the method with the repository having nil certificates
-	foundCerts, err := repo.FindAllByOrganizationAndSerialNumbers(organization, serialNumbers)
+	foundCerts, err := repo.FindAllByOrganizationAndSignedBy(organization, serialNumber)
 
 	// Validate that no error is returned and the result is an empty slice
 	assert.NoError(t, err, "Expected no error when certificates map is nil")

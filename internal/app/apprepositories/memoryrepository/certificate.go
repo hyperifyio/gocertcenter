@@ -17,15 +17,13 @@ type MemoryCertificateRepository struct {
 	certificates map[string]appmodels.Certificate
 }
 
-func (r *MemoryCertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) ([]appmodels.Certificate, error) {
+func (r *MemoryCertificateRepository) FindAllByOrganizationAndSignedBy(organization string, certificate *big.Int) ([]appmodels.Certificate, error) {
 	var result []appmodels.Certificate
 	if r.certificates == nil {
 		return result, nil
 	}
-	targetLocator := getCertificateLocator(organization, certificates)
 	for _, cert := range r.certificates {
-		parentLocator := getCertificateLocator(organization, cert.Parents())
-		if parentLocator == targetLocator {
+		if cert.OrganizationID() == organization && certificate == cert.SignedBy() {
 			result = append(result, cert)
 		}
 	}
@@ -45,16 +43,16 @@ func (r *MemoryCertificateRepository) FindAllByOrganization(organization string)
 	return result, nil
 }
 
-func (r *MemoryCertificateRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (appmodels.Certificate, error) {
-	id := getCertificateLocator(organization, certificates)
+func (r *MemoryCertificateRepository) FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (appmodels.Certificate, error) {
+	id := getCertificateLocator(organization, certificate)
 	if certificate, exists := r.certificates[id]; exists {
 		return certificate, nil
 	}
-	return nil, fmt.Errorf("[Certificate:FindByOrganizationAndSerialNumbers]: not found: %s", id)
+	return nil, fmt.Errorf("[Certificate:FindByOrganizationAndSerialNumber]: not found: %s", id)
 }
 
 func (r *MemoryCertificateRepository) Save(certificate appmodels.Certificate) (appmodels.Certificate, error) {
-	id := getCertificateLocator(certificate.OrganizationID(), append(certificate.Parents(), certificate.SerialNumber()))
+	id := getCertificateLocator(certificate.OrganizationID(), certificate.SerialNumber())
 	r.certificates[id] = certificate
 	log.Printf("[Certificate:Save:%s] Saved: %v", id, certificate)
 	return certificate, nil

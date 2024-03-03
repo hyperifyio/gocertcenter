@@ -74,10 +74,9 @@ func (r *CertCertificateController) Certificate() appmodels.Certificate {
 
 func (r *CertCertificateController) ChildCertificateCollection(certificateType string) ([]appmodels.Certificate, error) {
 	organization := r.OrganizationID()
-	path := append(r.model.Parents(), r.serialNumber)
-	list, err := r.certificateRepository.FindAllByOrganizationAndSerialNumbers(
+	list, err := r.certificateRepository.FindAllByOrganizationAndSignedBy(
 		organization,
-		path,
+		r.serialNumber,
 	)
 
 	if certificateType != "" {
@@ -98,9 +97,9 @@ func (r *CertCertificateController) ChildCertificate(serialNumber *big.Int) (app
 	if r.model == nil {
 		return nil, fmt.Errorf("[%s@%s:ChildCertificate:%s]: No parent model", r.serialNumber.String(), organization, serialNumber.String())
 	}
-	model, err := r.certificateRepository.FindByOrganizationAndSerialNumbers(
+	model, err := r.certificateRepository.FindByOrganizationAndSerialNumber(
 		organization,
-		append(r.model.Parents(), r.serialNumber, serialNumber),
+		serialNumber,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("[%s@%s:ChildCertificate:%s]: failed: %w", r.serialNumber.String(), organization, serialNumber.String(), err)
@@ -146,9 +145,9 @@ func (r *CertCertificateController) PrivateKey() (appmodels.PrivateKey, error) {
 	if r.privateKeyRepository == nil {
 		return nil, fmt.Errorf("[%s@%s:PrivateKey]: no private key repository", r.serialNumber, organization)
 	}
-	model, err := r.privateKeyRepository.FindByOrganizationAndSerialNumbers(
+	model, err := r.privateKeyRepository.FindByOrganizationAndSerialNumber(
 		organization,
-		append(r.model.Parents(), r.serialNumber),
+		r.serialNumber,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("[%s@%s:PrivateKey]: failed: %w", r.serialNumber, organization, err)
@@ -192,7 +191,7 @@ func (r *CertCertificateController) NewIntermediateCertificate(commonName string
 
 	newPrivateKey, err := apputils.GeneratePrivateKey(
 		organization,
-		append(parentCertificate.Parents(), parentCertificate.SerialNumber(), serialNumber),
+		serialNumber,
 		appmodels.ECDSA_P384,
 	)
 	if err != nil {
@@ -253,7 +252,7 @@ func (r *CertCertificateController) NewServerCertificate(dnsNames ...string) (ap
 
 	newPrivateKey, err := apputils.GeneratePrivateKey(
 		model.ID(),
-		append(parentCertificate.Parents(), parentCertificate.SerialNumber(), serialNumber),
+		serialNumber,
 		appmodels.ECDSA_P384,
 	)
 	if err != nil {
@@ -314,7 +313,7 @@ func (r *CertCertificateController) NewClientCertificate(commonName string) (app
 
 	newPrivateKey, err := apputils.GeneratePrivateKey(
 		organization,
-		append(parentCertificate.Parents(), parentCertificate.SerialNumber(), serialNumber),
+		serialNumber,
 		appmodels.ECDSA_P384,
 	)
 	if err != nil {
@@ -356,8 +355,8 @@ func (r *CertCertificateController) UsesCertificateService(service appmodels.Cer
 	return r.certificateRepository == service
 }
 
-func (r *CertCertificateController) FindCertificate(organization string, certificates []*big.Int) (appmodels.Certificate, error) {
-	return r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, certificates)
+func (r *CertCertificateController) FindCertificate(organization string, certificate *big.Int) (appmodels.Certificate, error) {
+	return r.certificateRepository.FindByOrganizationAndSerialNumber(organization, certificate)
 }
 
 // NewCertificateController creates a new instance of CertCertificateController

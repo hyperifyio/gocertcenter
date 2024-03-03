@@ -16,8 +16,8 @@ type MemoryPrivateKeyRepository struct {
 	keys map[string]appmodels.PrivateKey
 }
 
-func (r *MemoryPrivateKeyRepository) FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (appmodels.PrivateKey, error) {
-	id := getCertificateLocator(organization, certificates)
+func (r *MemoryPrivateKeyRepository) FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (appmodels.PrivateKey, error) {
+	id := getCertificateLocator(organization, certificate)
 	if key, exists := r.keys[id]; exists {
 		return key, nil
 	}
@@ -25,7 +25,7 @@ func (r *MemoryPrivateKeyRepository) FindByOrganizationAndSerialNumbers(organiza
 }
 
 func (r *MemoryPrivateKeyRepository) Save(key appmodels.PrivateKey) (appmodels.PrivateKey, error) {
-	id := getCertificateLocator(key.OrganizationID(), append(key.Parents(), key.SerialNumber()))
+	id := getCertificateLocator(key.OrganizationID(), key.SerialNumber())
 	r.keys[id] = key
 	log.Printf("[PrivateKey:Save:%s] Saved: %v", id, key)
 	return key, nil

@@ -32,11 +32,6 @@ func (m *MockPrivateKey) SerialNumber() *big.Int {
 	return args.Get(0).(*big.Int)
 }
 
-func (m *MockPrivateKey) Parents() []*big.Int {
-	args := m.Called()
-	return args.Get(0).([]*big.Int)
-}
-
 func (m *MockPrivateKey) Certificates() []*big.Int {
 	args := m.Called()
 	return args.Get(0).([]*big.Int)

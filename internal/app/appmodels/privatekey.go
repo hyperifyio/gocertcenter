@@ -15,8 +15,8 @@ type PrivateKeyModel struct {
 	// organization is the organization this key belongs to
 	organization string
 
-	// certificates is the path to the certificate as serial numbers from root certificate
-	certificates []*big.Int
+	// certificate is the serial number of the certificate this private key is for
+	certificate *big.Int
 
 	// The type of the key
 	keyType KeyType
@@ -26,27 +26,7 @@ type PrivateKeyModel struct {
 }
 
 func (k *PrivateKeyModel) SerialNumber() *big.Int {
-	if len(k.certificates) <= 0 {
-		return nil
-	}
-	return k.certificates[len(k.certificates)-1]
-}
-
-func (k *PrivateKeyModel) Parents() []*big.Int {
-	if len(k.certificates) <= 1 {
-		return []*big.Int{}
-	}
-	originalSlice := k.certificates[:len(k.certificates)-1]
-	sliceCopy := make([]*big.Int, len(originalSlice))
-	copy(sliceCopy, originalSlice)
-	return sliceCopy
-}
-
-func (k *PrivateKeyModel) Certificates() []*big.Int {
-	originalSlice := k.certificates
-	sliceCopy := make([]*big.Int, len(originalSlice))
-	copy(sliceCopy, originalSlice)
-	return sliceCopy
+	return k.certificate
 }
 
 func (k *PrivateKeyModel) OrganizationID() string {
@@ -81,12 +61,12 @@ func (k *PrivateKeyModel) PublicKey() any {
 //   - data is the private key data
 func NewPrivateKey(
 	organization string,
-	certificates []*big.Int,
+	certificate *big.Int,
 	keyType KeyType,
 	data any,
 ) *PrivateKeyModel {
 	return &PrivateKeyModel{
-		certificates: certificates,
+		certificate:  certificate,
 		data:         data,
 		keyType:      keyType,
 		organization: organization,

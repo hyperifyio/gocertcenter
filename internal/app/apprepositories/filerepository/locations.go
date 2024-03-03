@@ -25,24 +25,21 @@ func OrganizationJsonPath(dir, organization string) string {
 	return filepath.Join(dir, OrganizationsDirectoryName, organization, OrganizationJsonName)
 }
 
-// PrivateKeyPemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/privkey.pem`
-func PrivateKeyPemPath(dir, organization string, certificates []*big.Int) string {
-	return filepath.Join(CertificateDirectory(dir, organization, certificates), PrivateKeyPemName)
+// PrivateKeyPemPath returns a path like `{dir}/organizations/{organization}/certificates/{certificate}/privkey.pem`
+func PrivateKeyPemPath(dir, organization string, certificate *big.Int) string {
+	return filepath.Join(CertificateDirectory(dir, organization, certificate), PrivateKeyPemName)
 }
 
-// CertificatePemPath returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+/cert.pem`
-func CertificatePemPath(dir, organization string, certificates []*big.Int) string {
-	return filepath.Join(CertificateDirectory(dir, organization, certificates), CertificatePemName)
+// CertificatePemPath returns a path like `{dir}/organizations/{organization}/certificates/{certificate}/cert.pem`
+func CertificatePemPath(dir, organization string, certificate *big.Int) string {
+	return filepath.Join(CertificateDirectory(dir, organization, certificate), CertificatePemName)
 }
 
-// CertificateDirectory returns a path like `{dir}/organizations/{organization}(/certificates/{certificate})+`
+// CertificateDirectory returns a path like `{dir}/organizations/{organization}/certificates/{certificate}`
 func CertificateDirectory(
 	dir, organization string,
-	certificates []*big.Int,
+	certificate *big.Int,
 ) string {
-	parts := []string{dir, OrganizationsDirectoryName, organization}
-	for _, certificate := range certificates {
-		parts = append(parts, CertificatesDirectoryName, certificate.String())
-	}
+	parts := []string{dir, OrganizationsDirectoryName, organization, CertificatesDirectoryName, certificate.String()}
 	return filepath.Join(parts...)
 }

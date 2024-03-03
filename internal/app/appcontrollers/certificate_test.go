@@ -5,7 +5,6 @@ package appcontrollers_test
 import (
 	"crypto/rsa"
 	"crypto/x509"
-	"math/big"
 	"testing"
 	"time"
 
@@ -123,7 +122,6 @@ func TestCertificateController_GetChildCertificateCollection(t *testing.T) {
 	mockCertRepo := new(appmocks.MockCertificateService)
 	mockCert := new(appmocks.MockCertificate)
 	serialNumber := appmodels.NewSerialNumber(123)
-	mockCert.On("Parents").Return([]*big.Int{})
 	certs := []appmodels.Certificate{mockCert}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
 	mockOrganizationController := &appmocks.MockOrganizationController{}
@@ -132,7 +130,7 @@ func TestCertificateController_GetChildCertificateCollection(t *testing.T) {
 	mockCertManager := &managers.SystemCertificateManager{}
 	mockRandomManager := &commonmocks.MockRandomManager{}
 
-	mockCertRepo.On("FindAllByOrganizationAndSerialNumbers", mock.Anything, mock.Anything).Return(certs, nil)
+	mockCertRepo.On("FindAllByOrganizationAndSignedBy", mock.Anything, mock.Anything).Return(certs, nil)
 
 	controller := appcontrollers.NewCertificateController(
 		mockOrganizationController,
@@ -186,11 +184,10 @@ func TestCertificateController_NewIntermediateCertificate(t *testing.T) {
 
 	mockCert.On("Certificate").Return(&x509.Certificate{})
 	mockCert.On("SerialNumber").Return(serialNumber)
-	mockCert.On("Parents").Return([]*big.Int{})
 
 	mockPrivateKey.On("PrivateKey").Return(&rsa.PrivateKey{})
 
-	mockPrivateKeyRepo.On("FindByOrganizationAndSerialNumbers", orgID, []*big.Int{serialNumber}).Return(mockPrivateKey, nil)
+	mockPrivateKeyRepo.On("FindByOrganizationAndSerialNumber", orgID, serialNumber).Return(mockPrivateKey, nil)
 	mockCertRepo.On("Save", mock.Anything).Return(mockCert, nil)
 
 	controller := appcontrollers.NewCertificateController(

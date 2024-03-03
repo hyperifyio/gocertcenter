@@ -15,8 +15,8 @@ type CertificateModel struct {
 	// organization is the organization ID this certificate belongs to
 	organization string
 
-	// parents is all parent certificates in the chain
-	parents []*big.Int
+	// signedBy is the serial number of the root/intermediate certificate which signed this one
+	signedBy *big.Int
 
 	// data is the certificate data
 	certificate *x509.Certificate
@@ -25,12 +25,12 @@ type CertificateModel struct {
 // NewCertificate creates a certificate model from existing data
 func NewCertificate(
 	organization string,
-	parents []*big.Int,
+	signedBy *big.Int,
 	certificate *x509.Certificate,
 ) *CertificateModel {
 	return &CertificateModel{
 		organization: organization,
-		parents:      parents,
+		signedBy:     signedBy,
 		certificate:  certificate,
 	}
 }
@@ -88,16 +88,6 @@ func (c *CertificateModel) OrganizationID() string {
 	return c.organization
 }
 
-func (c *CertificateModel) Parents() []*big.Int {
-	originalSlice := c.parents
-	if originalSlice == nil {
-		return make([]*big.Int, 0)
-	}
-	newSlice := make([]*big.Int, len(originalSlice))
-	copy(newSlice, originalSlice)
-	return newSlice
-}
-
 func (c *CertificateModel) CommonName() string {
 	return c.certificate.Subject.CommonName
 }
@@ -118,10 +108,7 @@ func (c *CertificateModel) Organization() []string {
 }
 
 func (c *CertificateModel) SignedBy() *big.Int {
-	if len(c.parents) >= 1 {
-		return c.parents[len(c.parents)-1]
-	}
-	return c.SerialNumber()
+	return c.signedBy
 }
 
 func (c *CertificateModel) Certificate() *x509.Certificate {

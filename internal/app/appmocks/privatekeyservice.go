@@ -17,8 +17,8 @@ type MockPrivateKeyService struct {
 
 // GetExistingPrivateKey simulates retrieving an existing private key by serial number.
 // It uses a function field to allow custom behavior for each test.
-func (m *MockPrivateKeyService) FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (appmodels.PrivateKey, error) {
-	args := m.Called(organization, certificates)
+func (m *MockPrivateKeyService) FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (appmodels.PrivateKey, error) {
+	args := m.Called(organization, certificate)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}

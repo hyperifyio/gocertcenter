@@ -51,7 +51,7 @@ func ToPrivateKeyDTOList(certManager managers.CertificateManager, list []appmode
 //   - keyType: The key type to generate
 func GeneratePrivateKey(
 	organization string,
-	certificates []*big.Int,
+	certificate *big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
 
@@ -59,8 +59,8 @@ func GeneratePrivateKey(
 		return nil, fmt.Errorf("GeneratePrivateKey: organization: must not be empty")
 	}
 
-	if len(certificates) <= 0 {
-		return nil, fmt.Errorf("GeneratePrivateKey: certificates: must have at least one serial number")
+	if certificate == nil {
+		return nil, fmt.Errorf("GeneratePrivateKey: certificate: must have a serial number")
 	}
 
 	var key any
@@ -90,7 +90,7 @@ func GeneratePrivateKey(
 	if err != nil {
 		return nil, fmt.Errorf("GeneratePrivateKey: failed to generate key: %w", err)
 	}
-	return appmodels.NewPrivateKey(organization, certificates, keyType, key), nil
+	return appmodels.NewPrivateKey(organization, certificate, keyType, key), nil
 }
 
 // GenerateRSAPrivateKey creates a new RSA private key
@@ -99,27 +99,27 @@ func GeneratePrivateKey(
 //   - keyType: Should be appmodels.RSA_1024, appmodels.RSA_2048, appmodels.RSA_3072 or appmodels.RSA_4096
 func GenerateRSAPrivateKey(
 	organization string,
-	certificates []*big.Int,
+	certificate *big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
-	return GeneratePrivateKey(organization, certificates, keyType)
+	return GeneratePrivateKey(organization, certificate, keyType)
 }
 
 // GenerateECDSAPrivateKey creates a new private key of type models.KeyType
 func GenerateECDSAPrivateKey(
 	organization string,
-	certificates []*big.Int,
+	certificate *big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
-	return GeneratePrivateKey(organization, certificates, keyType)
+	return GeneratePrivateKey(organization, certificate, keyType)
 }
 
 // GenerateEd25519PrivateKey creates a new private key of type models.Ed25519
 func GenerateEd25519PrivateKey(
 	organization string,
-	certificates []*big.Int,
+	certificate *big.Int,
 ) (appmodels.PrivateKey, error) {
-	return GeneratePrivateKey(organization, certificates, appmodels.Ed25519)
+	return GeneratePrivateKey(organization, certificate, appmodels.Ed25519)
 }
 
 // MarshalPrivateKeyAsPEM converts a private key to PEM data bytes

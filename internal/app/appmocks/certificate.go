@@ -52,11 +52,6 @@ func (m *MockCertificate) Organization() []string {
 	return args.Get(0).([]string)
 }
 
-func (m *MockCertificate) Parents() []*big.Int {
-	args := m.Called()
-	return args.Get(0).([]*big.Int)
-}
-
 func (m *MockCertificate) SignedBy() *big.Int {
 	args := m.Called()
 	return args.Get(0).(*big.Int)

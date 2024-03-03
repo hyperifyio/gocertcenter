@@ -54,14 +54,13 @@ type Certificate interface {
 	// certificates and have specific extended key usages.
 	IsClientCertificate() bool
 
-	// Parents returns all parent certificate serial numbers
-	Parents() []*big.Int
+	// SignedBy returns the parent certificate serial number
+	SignedBy() *big.Int
 
 	SerialNumber() *big.Int
 	OrganizationID() string
 	OrganizationName() string
 	Organization() []string
-	SignedBy() *big.Int
 	Certificate() *x509.Certificate
 }
 
@@ -75,24 +74,17 @@ type PublicKey interface {
 // PrivateKey describes an interface for PrivateKeyModel model
 type PrivateKey interface {
 
-	// GetPrivateKey returns the internal private key
+	// PrivateKey returns the internal private key
 	PrivateKey() any
 
-	// GetKeyType returns the type of the internal key
+	// KeyType returns the type of the internal key
 	KeyType() KeyType
 
-	// GetPublicKey returns the public key
+	// PublicKey returns the public key
 	PublicKey() any
 
 	// OrganizationID returns the organization this key belongs to
 	OrganizationID() string
-
-	// GetParents returns all parent certificate serial numbers
-	Parents() []*big.Int
-
-	// GetCertificates returns all serial numbers from root certificate to the
-	// certificate this key belongs to
-	Certificates() []*big.Int
 
 	// SerialNumber returns the serial number of the certificate which this
 	// key belongs to
@@ -102,7 +94,7 @@ type PrivateKey interface {
 // RevokedCertificate describes an interface for RevokedCertificateModel model
 type RevokedCertificate interface {
 
-	// GetSerialNumber returns the serial number of the certificate which was revoked
+	// SerialNumber returns the serial number of the certificate which was revoked
 	SerialNumber() *big.Int
 
 	RevocationTime() time.Time
@@ -128,8 +120,11 @@ type OrganizationRepository interface {
 // promoting loose coupling between the application's business logic and its data layer.
 type CertificateRepository interface {
 	FindAllByOrganization(organization string) ([]Certificate, error)
-	FindAllByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) ([]Certificate, error)
-	FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (Certificate, error)
+
+	// FindAllByOrganizationAndSignedBy returns all certificates signed by this certificate
+	FindAllByOrganizationAndSignedBy(organization string, certificate *big.Int) ([]Certificate, error)
+
+	FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (Certificate, error)
 	Save(certificate Certificate) (Certificate, error)
 }
 
@@ -140,8 +135,8 @@ type CertificateRepository interface {
 // data layer.
 type PrivateKeyRepository interface {
 
-	// FindByOrganizationAndSerialNumbers only returns public properties of the private key
-	FindByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) (PrivateKey, error)
+	// FindByOrganizationAndSerialNumber only returns public properties of the private key
+	FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (PrivateKey, error)
 	Save(key PrivateKey) (PrivateKey, error)
 }
 

@@ -3,7 +3,6 @@
 package memoryrepository_test
 
 import (
-	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,7 @@ import (
 	"github.com/hyperifyio/gocertcenter/internal/app/apprepositories/memoryrepository"
 )
 
-// TestPrivateKeyRepository_CreateAndGetPrivateKey tests the Save and FindByOrganizationAndSerialNumbers methods
+// TestPrivateKeyRepository_CreateAndGetPrivateKey tests the Save and FindByOrganizationAndSerialNumber methods
 func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 	organization := "testOrg"
 	repo := memoryrepository.NewPrivateKeyRepository()
@@ -24,14 +23,13 @@ func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 	mockKey := new(appmocks.MockPrivateKey)
 	mockKey.On("OrganizationID").Return(organization)
 	mockKey.On("SerialNumber").Return(serialNumber)
-	mockKey.On("Parents").Return([]*big.Int{})
 
 	// Test Save
 	_, err := repo.Save(mockKey)
 	assert.NoError(t, err)
 
-	// Test FindByOrganizationAndSerialNumbers success
-	foundKey, err := repo.FindByOrganizationAndSerialNumbers(organization, []*big.Int{serialNumber})
+	// Test FindByOrganizationAndSerialNumber success
+	foundKey, err := repo.FindByOrganizationAndSerialNumber(organization, serialNumber)
 	assert.NoError(t, err)
 	assert.NotNil(t, foundKey, "The key should be found")
 
@@ -45,8 +43,8 @@ func TestPrivateKeyRepository_GetExistingPrivateKeyNotFound(t *testing.T) {
 	repo := memoryrepository.NewPrivateKeyRepository()
 	serialNumber := appmodels.NewSerialNumber(456)
 
-	// Test FindByOrganizationAndSerialNumbers for a non-existent key
-	_, err := repo.FindByOrganizationAndSerialNumbers(organization, []*big.Int{serialNumber})
+	// Test FindByOrganizationAndSerialNumber for a non-existent key
+	_, err := repo.FindByOrganizationAndSerialNumber(organization, serialNumber)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), ": not found:")
 }

@@ -52,7 +52,7 @@ func (r *CertOrganizationController) CertificateCollection() ([]appmodels.Certif
 	if r.certificateRepository == nil {
 		return nil, fmt.Errorf("[%s:CertificateCollection]: no certificate repository", organization)
 	}
-	list, err := r.certificateRepository.FindAllByOrganizationAndSerialNumbers(organization, []*big.Int{})
+	list, err := r.certificateRepository.FindAllByOrganization(organization)
 	if err != nil {
 		return nil, fmt.Errorf("[%s:CertificateCollection]: failed: %w", organization, err)
 	}
@@ -90,7 +90,7 @@ func (r *CertOrganizationController) CertificateController(serialNumber *big.Int
 }
 
 func (r *CertOrganizationController) Certificate(serialNumber *big.Int) (appmodels.Certificate, error) {
-	model, err := r.certificateRepository.FindByOrganizationAndSerialNumbers(r.id, []*big.Int{serialNumber})
+	model, err := r.certificateRepository.FindByOrganizationAndSerialNumber(r.id, serialNumber)
 	if err != nil {
 		return nil, fmt.Errorf("[%s:Certificate:%s]: failed: %w", r.id, serialNumber.String(), err)
 	}
@@ -122,7 +122,7 @@ func (r *CertOrganizationController) NewRootCertificate(commonName string) (appm
 		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: failed to create serial number: %w", organization, commonName, err)
 	}
 
-	_, err = r.certificateRepository.FindByOrganizationAndSerialNumbers(organization, []*big.Int{serialNumber})
+	_, err = r.certificateRepository.FindByOrganizationAndSerialNumber(organization, serialNumber)
 	if err == nil {
 		return nil, fmt.Errorf("[%s:NewRootCertificate:%s]: serial number exists already: %s", organization, commonName, serialNumber.String())
 	}
@@ -134,7 +134,7 @@ func (r *CertOrganizationController) NewRootCertificate(commonName string) (appm
 
 	privateKey, err := apputils.GeneratePrivateKey(
 		organization,
-		[]*big.Int{serialNumber},
+		serialNumber,
 		keyType,
 	)
 	if err != nil {

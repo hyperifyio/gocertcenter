@@ -31,9 +31,9 @@ func TestPrivateKeyRepository_GetExistingPrivateKey(t *testing.T) {
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
 	organization := "TestOrg"
-	certificates := []*big.Int{appmodels.NewSerialNumber(1)}
+	certificate := appmodels.NewSerialNumber(1)
 
-	fileName := filerepository.PrivateKeyPemPath(tempDir, organization, certificates)
+	fileName := filerepository.PrivateKeyPemPath(tempDir, organization, certificate)
 
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	assert.NoError(t, err)
@@ -43,7 +43,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey(t *testing.T) {
 	err = fsutils.SaveBytes(fileManager, fileName, keyPEM, 0600, 0700)
 	assert.NoError(t, err)
 
-	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)
+	privateKey, err := repo.FindByOrganizationAndSerialNumber(organization, certificate)
 	assert.NoError(t, err)
 	assert.NotNil(t, privateKey)
 
@@ -62,7 +62,6 @@ func TestPrivateKeyRepository_CreatePrivateKey(t *testing.T) {
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
 
-	parentSerialNumber := appmodels.NewSerialNumber(1)
 	serialNumber := appmodels.NewSerialNumber(2)
 
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -71,7 +70,6 @@ func TestPrivateKeyRepository_CreatePrivateKey(t *testing.T) {
 
 	mockPrivateKey := &appmocks.MockPrivateKey{}
 	mockPrivateKey.On("OrganizationID").Return("TestOrg")
-	mockPrivateKey.On("Parents").Return([]*big.Int{parentSerialNumber})
 	mockPrivateKey.On("SerialNumber").Return(serialNumber)
 	mockPrivateKey.On("PrivateKey").Return(rsaPrivKey)
 
@@ -95,9 +93,9 @@ func TestPrivateKeyRepository_GetExistingPrivateKey_Nonexistent(t *testing.T) {
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
 	organization := "NonexistentOrg"
-	certificates := []*big.Int{appmodels.NewSerialNumber(1)}
+	certificate := appmodels.NewSerialNumber(1)
 
-	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)
+	privateKey, err := repo.FindByOrganizationAndSerialNumber(organization, certificate)
 	assert.Error(t, err)
 	assert.Nil(t, privateKey)
 }
@@ -111,9 +109,9 @@ func TestPrivateKeyRepository_GetExistingPrivateKey_EmptyCertificates(t *testing
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
 	organization := "NonexistentOrg"
-	var certificates []*big.Int
+	var certificate *big.Int
 
-	privateKey, err := repo.FindByOrganizationAndSerialNumbers(organization, certificates)
+	privateKey, err := repo.FindByOrganizationAndSerialNumber(organization, certificate)
 	assert.Error(t, err)
 	assert.Nil(t, privateKey)
 }

@@ -18,7 +18,7 @@ type FileCertificateRepository struct {
 	fileManager managers.FileManager
 }
 
-func (r *FileCertificateRepository) FindAllByOrganizationAndSerialNumbers(organization string, certificates []*big.Int) ([]appmodels.Certificate, error) {
+func (r *FileCertificateRepository) FindAllByOrganizationAndSignedBy(organization string, certificate *big.Int) ([]appmodels.Certificate, error) {
 	// TODO implement me
 	panic("implement me")
 }
@@ -28,39 +28,37 @@ func (r *FileCertificateRepository) FindAllByOrganization(organization string) (
 	panic("implement me")
 }
 
-func (r *FileCertificateRepository) FindByOrganizationAndSerialNumbers(
+func (r *FileCertificateRepository) FindByOrganizationAndSerialNumber(
 	organization string,
-	certificates []*big.Int,
+	certificate *big.Int,
 ) (appmodels.Certificate, error) {
 
-	if len(certificates) <= 0 {
-		return nil, errors.New("no certificate serial numbers provided")
+	if certificate == nil {
+		return nil, errors.New("no certificate serial number provided")
 	}
 
-	fileName := CertificatePemPath(r.filePath, organization, certificates)
+	fileName := CertificatePemPath(r.filePath, organization, certificate)
 	cert, err := ReadCertificateFile(r.fileManager, r.certManager, fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read certificate: %w", err)
 	}
 
-	return appmodels.NewCertificate(organization, certificates[:len(certificates)-1], cert), nil
+	return appmodels.NewCertificate(organization, certificate, cert), nil
 }
 
 func (r *FileCertificateRepository) Save(certificate appmodels.Certificate) (appmodels.Certificate, error) {
 	organization := certificate.OrganizationID()
-	parents := certificate.Parents()
 	serialNumber := certificate.SerialNumber()
-	fullPath := append(parents, serialNumber)
 	fileName := CertificatePemPath(
 		r.filePath,
 		organization,
-		fullPath,
+		serialNumber,
 	)
 	err := SaveCertificateFile(r.fileManager, r.certManager, fileName, certificate.Certificate())
 	if err != nil {
 		return nil, fmt.Errorf("failed to save certificate: %w", err)
 	}
-	return r.FindByOrganizationAndSerialNumbers(organization, fullPath)
+	return r.FindByOrganizationAndSerialNumber(organization, serialNumber)
 }
 
 // NewCertificateRepository creates a file based repository
