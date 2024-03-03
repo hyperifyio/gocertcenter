@@ -50,12 +50,12 @@ func ToPrivateKeyDTOList(certManager managers.CertificateManager, list []appmode
 //   - certificates: The certificate signatures from root certificate to the one owning this private key
 //   - keyType: The key type to generate
 func GeneratePrivateKey(
-	organization string,
+	organization *big.Int,
 	certificate *big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
 
-	if organization == "" {
+	if organization == nil {
 		return nil, fmt.Errorf("GeneratePrivateKey: organization: must not be empty")
 	}
 
@@ -98,7 +98,7 @@ func GeneratePrivateKey(
 //   - certificates: Certificate serial numbers from root certificate to the one owning this key
 //   - keyType: Should be appmodels.RSA_1024, appmodels.RSA_2048, appmodels.RSA_3072 or appmodels.RSA_4096
 func GenerateRSAPrivateKey(
-	organization string,
+	organization *big.Int,
 	certificate *big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
@@ -107,7 +107,7 @@ func GenerateRSAPrivateKey(
 
 // GenerateECDSAPrivateKey creates a new private key of type models.KeyType
 func GenerateECDSAPrivateKey(
-	organization string,
+	organization *big.Int,
 	certificate *big.Int,
 	keyType appmodels.KeyType,
 ) (appmodels.PrivateKey, error) {
@@ -116,7 +116,7 @@ func GenerateECDSAPrivateKey(
 
 // GenerateEd25519PrivateKey creates a new private key of type models.Ed25519
 func GenerateEd25519PrivateKey(
-	organization string,
+	organization *big.Int,
 	certificate *big.Int,
 ) (appmodels.PrivateKey, error) {
 	return GeneratePrivateKey(organization, certificate, appmodels.Ed25519)

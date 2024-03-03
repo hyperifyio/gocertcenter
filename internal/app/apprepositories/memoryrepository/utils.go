@@ -7,6 +7,6 @@ import (
 	"math/big"
 )
 
-func getCertificateLocator(organization string, certificate *big.Int) string {
-	return fmt.Sprintf("%s/%s", organization, certificate.String())
+func getCertificateLocator(organization *big.Int, certificate *big.Int) string {
+	return fmt.Sprintf("%s/%s", organization.String(), certificate.String())
 }

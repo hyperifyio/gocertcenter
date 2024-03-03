@@ -14,28 +14,33 @@ func TestNewOrganizationDTO(t *testing.T) {
 	tests := []struct {
 		name     string // Test case name
 		id       string
+		slug     string
 		orgName  string
 		allNames []string
 		want     appdtos.OrganizationDTO
 	}{
 		{
 			name:     "Single name",
-			id:       "org1",
+			id:       "1001",
+			slug:     "org1",
 			orgName:  "Organization One",
 			allNames: []string{"Organization One"},
 			want: appdtos.OrganizationDTO{
-				ID:       "org1",
+				ID:       "1001",
+				Slug:     "org1",
 				Name:     "Organization One",
 				AllNames: []string{"Organization One"},
 			},
 		},
 		{
 			name:     "Multiple names",
-			id:       "org2",
+			id:       "1002",
+			slug:     "org2",
 			orgName:  "Organization Two",
 			allNames: []string{"Organization Two", "Org 2"},
 			want: appdtos.OrganizationDTO{
-				ID:       "org2",
+				ID:       "1002",
+				Slug:     "org2",
 				Name:     "Organization Two",
 				AllNames: []string{"Organization Two", "Org 2"},
 			},
@@ -46,7 +51,7 @@ func TestNewOrganizationDTO(t *testing.T) {
 	// Execute tests
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := appdtos.NewOrganizationDTO(tt.id, tt.orgName, tt.allNames)
+			got := appdtos.NewOrganizationDTO(tt.id, tt.slug, tt.orgName, tt.allNames)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewOrganizationDTO() = %v, want %v", got, tt.want)
 			}

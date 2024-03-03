@@ -13,7 +13,7 @@ import (
 type CertificateModel struct {
 
 	// organization is the organization ID this certificate belongs to
-	organization string
+	organization *big.Int
 
 	// signedBy is the serial number of the root/intermediate certificate which signed this one
 	signedBy *big.Int
@@ -24,7 +24,7 @@ type CertificateModel struct {
 
 // NewCertificate creates a certificate model from existing data
 func NewCertificate(
-	organization string,
+	organization *big.Int,
 	signedBy *big.Int,
 	certificate *x509.Certificate,
 ) *CertificateModel {
@@ -84,7 +84,7 @@ func (c *CertificateModel) SerialNumber() *big.Int {
 	return c.certificate.SerialNumber
 }
 
-func (c *CertificateModel) OrganizationID() string {
+func (c *CertificateModel) OrganizationID() *big.Int {
 	return c.organization
 }
 

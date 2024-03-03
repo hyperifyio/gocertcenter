@@ -3,6 +3,8 @@
 package appmocks
 
 import (
+	"math/big"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
@@ -18,9 +20,9 @@ func (m *MockPrivateKeyController) ApplicationController() appmodels.Application
 	return args.Get(0).(appmodels.ApplicationController)
 }
 
-func (m *MockPrivateKeyController) OrganizationID() string {
+func (m *MockPrivateKeyController) OrganizationID() *big.Int {
 	args := m.Called()
-	return args.String(0)
+	return args.Get(0).(*big.Int)
 }
 
 func (m *MockPrivateKeyController) Organization() appmodels.Organization {

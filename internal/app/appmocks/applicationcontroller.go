@@ -3,6 +3,8 @@
 package appmocks
 
 import (
+	"math/big"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
@@ -37,13 +39,13 @@ func (m *MockApplicationController) UsesPrivateKeyService(service appmodels.Priv
 }
 
 // Organization mocks the Organization method
-func (m *MockApplicationController) Organization(organization string) (appmodels.Organization, error) {
+func (m *MockApplicationController) Organization(organization *big.Int) (appmodels.Organization, error) {
 	args := m.Called(organization)
 	return args.Get(0).(appmodels.Organization), args.Error(1)
 }
 
 // OrganizationController mocks the OrganizationController method
-func (m *MockApplicationController) OrganizationController(name string) (appmodels.OrganizationController, error) {
+func (m *MockApplicationController) OrganizationController(name *big.Int) (appmodels.OrganizationController, error) {
 	args := m.Called(name)
 	return args.Get(0).(appmodels.OrganizationController), args.Error(1)
 }

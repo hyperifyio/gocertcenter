@@ -3,6 +3,8 @@
 package appmocks
 
 import (
+	"math/big"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
@@ -13,7 +15,12 @@ type MockOrganization struct {
 	mock.Mock
 }
 
-func (m *MockOrganization) ID() string {
+func (m *MockOrganization) ID() *big.Int {
+	args := m.Called()
+	return args.Get(0).(*big.Int)
+}
+
+func (m *MockOrganization) Slug() string {
 	args := m.Called()
 	return args.String(0)
 }

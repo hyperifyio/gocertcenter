@@ -30,7 +30,7 @@ import (
 const InvalidKeyType = 999 // A value not represented in the KeyType enum
 
 func TestGeneratePrivateKey(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
@@ -79,7 +79,7 @@ func TestGeneratePrivateKey(t *testing.T) {
 }
 
 func TestGeneratePrivateKey_InvalidKeyType(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 	_, err := apputils.GeneratePrivateKey(organization, serialNumber, InvalidKeyType) // Using the invalid KeyType here
@@ -89,7 +89,7 @@ func TestGeneratePrivateKey_InvalidKeyType(t *testing.T) {
 }
 
 func TestGenerateRSAPrivateKey(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 
@@ -109,7 +109,7 @@ func TestGenerateRSAPrivateKey(t *testing.T) {
 
 // TestGenerateECDSAPrivateKey checks if a new ECDSA private key is generated without error
 func TestGenerateECDSAPrivateKey(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	randomManager := managers.NewRandomManager()
 	serialNumber, err := apputils.GenerateSerialNumber(randomManager)
 	if err != nil {
@@ -129,7 +129,7 @@ func TestGenerateECDSAPrivateKey(t *testing.T) {
 }
 
 func TestGenerateEd25519PrivateKey(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 
@@ -148,7 +148,7 @@ func TestGenerateEd25519PrivateKey(t *testing.T) {
 
 // TestPrivateKey_GetSerialNumber verifies that SerialNumber returns the correct serial number
 func TestPrivateKey_GetSerialNumber(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	randomManager := managers.NewRandomManager()
 	expectedSerialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 	privateKey := appmodels.NewPrivateKey(
@@ -167,7 +167,7 @@ func TestPrivateKey_GetSerialNumber(t *testing.T) {
 
 // TestPrivateKey_GetPublicKey checks if PublicKey returns a valid public key from the private key
 func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 	key, _ := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
@@ -185,7 +185,7 @@ func TestPrivateKey_GetPublicKey_ECDSA_P384(t *testing.T) {
 
 // TestPrivateKey_GetPublicKey_Ed25519 checks if PublicKey returns a valid public key from the private key
 func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 	privateKey, err := apputils.GenerateEd25519PrivateKey(organization, serialNumber)
@@ -278,7 +278,7 @@ func TestMarshalPrivateKeyAsPEM_ECDSAError(t *testing.T) {
 }
 func TestGeneratePrivateKey_EmptyOrganization(t *testing.T) {
 	_, err := apputils.GeneratePrivateKey(
-		"", // Empty organization
+		nil, // Empty organization
 		big.NewInt(1),
 		appmodels.RSA_2048,
 	)
@@ -288,7 +288,7 @@ func TestGeneratePrivateKey_EmptyOrganization(t *testing.T) {
 
 func TestGeneratePrivateKey_NoCertificates(t *testing.T) {
 	_, err := apputils.GeneratePrivateKey(
-		"TestOrg",
+		big.NewInt(123),
 		nil, // No certificate
 		appmodels.RSA_2048,
 	)

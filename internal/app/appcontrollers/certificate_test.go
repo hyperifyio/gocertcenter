@@ -5,6 +5,7 @@ package appcontrollers_test
 import (
 	"crypto/rsa"
 	"crypto/x509"
+	"math/big"
 	"testing"
 	"time"
 
@@ -125,7 +126,7 @@ func TestCertificateController_GetChildCertificateCollection(t *testing.T) {
 	certs := []appmodels.Certificate{mockCert}
 	mockPrivateKeyRepository := &appmocks.MockPrivateKeyService{}
 	mockOrganizationController := &appmocks.MockOrganizationController{}
-	mockOrganizationController.On("OrganizationID").Return("exmaple")
+	mockOrganizationController.On("OrganizationID").Return(big.NewInt(123))
 
 	mockCertManager := &managers.SystemCertificateManager{}
 	mockRandomManager := &commonmocks.MockRandomManager{}
@@ -154,7 +155,8 @@ func TestCertificateController_GetChildCertificateCollection(t *testing.T) {
 }
 
 func TestCertificateController_NewIntermediateCertificate(t *testing.T) {
-	orgID := "exampleOrg"
+	orgID := big.NewInt(123)
+	orgSlug := "exampleOrg"
 	commonName := "example.com"
 	mockCert := new(appmocks.MockCertificate)
 	mockPrivateKey := new(appmocks.MockPrivateKey)
@@ -165,8 +167,9 @@ func TestCertificateController_NewIntermediateCertificate(t *testing.T) {
 	mockRandomManager := new(commonmocks.MockRandomManager)
 	mockOrgController := new(appmocks.MockOrganizationController)
 
-	mockOrganization.On("ID").Return("example")
+	mockOrganization.On("ID").Return(orgID)
 	mockOrganization.On("Name").Return("Example")
+	mockOrganization.On("Slug").Return(orgSlug)
 	mockOrganization.On("Names").Return([]string{"Example"})
 
 	mockOrgController.On("OrganizationID").Return(orgID)

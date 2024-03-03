@@ -3,6 +3,7 @@
 package memoryrepository_test
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ import (
 func TestOrganizationRepository_CreateAndGetOrganization(t *testing.T) {
 	repo := memoryrepository.NewOrganizationRepository()
 	mockOrg := new(appmocks.MockOrganization)
-	id := "orgId"
+	id := big.NewInt(123)
 
 	// Setting up expectations
 	mockOrg.On("ID").Return(id)
@@ -35,7 +36,7 @@ func TestOrganizationRepository_CreateAndGetOrganization(t *testing.T) {
 
 func TestOrganizationRepository_GetExistingOrganizationNotFound(t *testing.T) {
 	repo := memoryrepository.NewOrganizationRepository()
-	id := "testOrg"
+	id := big.NewInt(123)
 
 	// Test FindById for a non-existent organization
 	_, err := repo.FindById(id)
@@ -50,8 +51,8 @@ func TestOrganizationRepository_FindAll(t *testing.T) {
 	mockOrg1 := new(appmocks.MockOrganization)
 	mockOrg2 := new(appmocks.MockOrganization)
 
-	id1 := "orgId1"
-	id2 := "orgId2"
+	id1 := big.NewInt(123)
+	id2 := big.NewInt(124)
 
 	// Setting up expectations for the mock organizations
 	mockOrg1.On("ID").Return(id1)
@@ -71,7 +72,7 @@ func TestOrganizationRepository_FindAll(t *testing.T) {
 
 	// Verify that returned organizations match saved ones
 	// Since map iteration order is not guaranteed, use a map to verify existence
-	foundIds := make(map[string]bool)
+	foundIds := make(map[*big.Int]bool)
 	for _, org := range organizations {
 		foundIds[org.ID()] = true
 	}

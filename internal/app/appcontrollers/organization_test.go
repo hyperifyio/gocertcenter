@@ -20,7 +20,7 @@ import (
 
 func TestNewOrganizationController(t *testing.T) {
 
-	organization := "testorg"
+	organization := big.NewInt(123)
 	model := &appmocks.MockOrganization{}
 	mockOrganizationRepository := &appmocks.MockOrganizationService{}
 	mockCertificateRepository := &appmocks.MockCertificateService{}
@@ -55,7 +55,7 @@ func TestOrganizationController_NewRootCertificate_SerialNumberExists(t *testing
 	mockRandomManager.On("CreateBigInt", mock.Anything).Return(big.NewInt(123), nil)
 
 	mockOrganization := &appmocks.MockOrganization{}
-	organizationID := "testorg"
+	organizationID := big.NewInt(123)
 	mockOrganization.On("ID").Return(organizationID)
 
 	// Simulate existing serial number
@@ -87,7 +87,7 @@ func TestOrganizationController_GetCertificateController_FetchFail(t *testing.T)
 	mockCertificateRepository.On("FindByOrganizationAndSerialNumber", mock.Anything, serialNumber).Return(nil, fmt.Errorf("fetch fail"))
 
 	controller := appcontrollers.NewOrganizationController(
-		"testorg",
+		big.NewInt(123),
 		&appmocks.MockOrganization{},
 		&appmocks.MockOrganizationService{},
 		mockCertificateRepository,
@@ -105,7 +105,7 @@ func TestOrganizationController_GetCertificateController_FetchFail(t *testing.T)
 }
 
 func TestOrganizationController_GetCertificateCollection_Success(t *testing.T) {
-	organizationID := "testOrg"
+	organizationID := big.NewInt(123)
 	mockCertificateRepository := new(appmocks.MockCertificateService)
 	mockCertificates := []appmodels.Certificate{
 		&appmocks.MockCertificate{}, // Assume this is properly initialized in your setup
@@ -133,7 +133,7 @@ func TestOrganizationController_GetCertificateCollection_Success(t *testing.T) {
 }
 
 func TestOrganizationController_GetCertificateCollection_NoCertificateRepository(t *testing.T) {
-	organizationID := "testOrg"
+	organizationID := big.NewInt(123)
 
 	controller := appcontrollers.NewOrganizationController(
 		organizationID,
@@ -157,7 +157,7 @@ func TestOrganizationController_GetCertificateCollection_NoCertificateRepository
 func TestOrganizationController_GetOrganizationModel(t *testing.T) {
 	mockModel := new(appmocks.MockOrganization)
 	controller := appcontrollers.NewOrganizationController(
-		"testOrg",
+		big.NewInt(123),
 		mockModel, // This is the model we expect to retrieve
 		nil, nil, nil, nil, nil, 0,
 		new(appmocks.MockApplicationController),
@@ -170,7 +170,7 @@ func TestOrganizationController_GetOrganizationModel(t *testing.T) {
 func TestOrganizationController_GetApplicationController(t *testing.T) {
 	mockParent := new(appmocks.MockApplicationController)
 	controller := appcontrollers.NewOrganizationController(
-		"testOrg",
+		big.NewInt(123),
 		nil,
 		nil, nil, nil,
 		nil, nil,
@@ -184,7 +184,7 @@ func TestOrganizationController_GetApplicationController(t *testing.T) {
 
 func TestOrganizationController_SetExpirationDuration(t *testing.T) {
 	controller := appcontrollers.NewOrganizationController(
-		"testOrg",
+		big.NewInt(123),
 		nil,
 		nil, nil, nil,
 		nil, nil,
@@ -201,7 +201,7 @@ func TestOrganizationController_SetExpirationDuration(t *testing.T) {
 func TestOrganizationController_UsesApplicationController(t *testing.T) {
 	mockParent := new(appmocks.MockApplicationController)
 	controller := appcontrollers.NewOrganizationController(
-		"testOrg",
+		big.NewInt(123),
 		nil,
 		nil, nil, nil,
 		nil, nil,
@@ -218,7 +218,7 @@ func TestOrganizationController_RevokeCertificate_NotImplemented(t *testing.T) {
 
 	// The following is a placeholder structure for the future test
 	controller := appcontrollers.NewOrganizationController(
-		"testOrg",
+		big.NewInt(123),
 		nil,
 		nil, nil, nil,
 		nil, nil,
@@ -234,7 +234,7 @@ func TestOrganizationController_RevokeCertificate_NotImplemented(t *testing.T) {
 }
 
 func TestOrganizationController_GetCertificateCollection_Failure(t *testing.T) {
-	organizationID := "testOrg"
+	organizationID := big.NewInt(123)
 	expectedErr := fmt.Errorf("database error")
 
 	// Mocking Organization and its repositories
@@ -274,7 +274,7 @@ func TestOrganizationController_GetCertificateCollection_Failure(t *testing.T) {
 }
 
 func TestOrganizationController_GetCertificateController(t *testing.T) {
-	organizationID := "testOrg"
+	organizationID := big.NewInt(123)
 	serialNumber := appmodels.NewSerialNumber(12345)
 
 	// Mocking Organization and its repositories
@@ -320,7 +320,7 @@ func TestNewRootCertificate_SerialNumberGenerationFail(t *testing.T) {
 	mockCertificateRepository := new(appmocks.MockCertificateService)
 	mockPrivateKeyRepository := new(appmocks.MockPrivateKeyService)
 	mockCertManager := commonmocks.NewMockCertificateManager()
-	organizationID := "testOrg"
+	organizationID := big.NewInt(123)
 
 	// Setup the CertOrganizationController with mocked dependencies
 	controller := appcontrollers.NewOrganizationController(
@@ -346,7 +346,7 @@ func TestNewRootCertificate_SerialNumberGenerationFail(t *testing.T) {
 func TestNewRootCertificate_NoCertificateRepository(t *testing.T) {
 	// Setup the CertOrganizationController without a certificate repository
 	controller := appcontrollers.NewOrganizationController(
-		"testOrg",
+		big.NewInt(123),
 		new(appmocks.MockOrganization),
 		new(appmocks.MockOrganizationService),
 		nil, // No certificate repository
@@ -366,7 +366,7 @@ func TestNewRootCertificate_NoPrivateKeyRepository(t *testing.T) {
 
 	// Setup the CertOrganizationController without a private key repository
 	controller := appcontrollers.NewOrganizationController(
-		"testOrg",
+		big.NewInt(123),
 		new(appmocks.MockOrganization),
 		new(appmocks.MockOrganizationService),
 		new(appmocks.MockCertificateService),

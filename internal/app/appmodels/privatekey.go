@@ -13,7 +13,7 @@ import (
 type PrivateKeyModel struct {
 
 	// organization is the organization this key belongs to
-	organization string
+	organization *big.Int
 
 	// certificate is the serial number of the certificate this private key is for
 	certificate *big.Int
@@ -29,7 +29,7 @@ func (k *PrivateKeyModel) SerialNumber() *big.Int {
 	return k.certificate
 }
 
-func (k *PrivateKeyModel) OrganizationID() string {
+func (k *PrivateKeyModel) OrganizationID() *big.Int {
 	return k.organization
 }
 
@@ -60,7 +60,7 @@ func (k *PrivateKeyModel) PublicKey() any {
 //   - keyType is the private key type
 //   - data is the private key data
 func NewPrivateKey(
-	organization string,
+	organization *big.Int,
 	certificate *big.Int,
 	keyType KeyType,
 	data any,

@@ -16,7 +16,7 @@ func (c *HttpApiController) requestOrganization(request apitypes.Request) string
 	organization := request.Variable("organization")
 	organization = strings.Trim(strings.ToLower(organization), " ")
 	if organization != "" {
-		if err := apputils.ValidateOrganizationID(organization); err != nil {
+		if err := apputils.ValidateOrganizationSlug(organization); err != nil {
 			c.logf(request, "invalid organization: '%s': %v", organization, err)
 			return ""
 		}
@@ -29,7 +29,7 @@ func (c *HttpApiController) requestOrganization(request apitypes.Request) string
 
 func (c *HttpApiController) rootSerialNumber(request apitypes.Request) (*big.Int, error) {
 	serialNumberString := request.Variable("rootSerialNumber")
-	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
+	serialNumber, err := apputils.ParseBigInt(serialNumberString, 10)
 	if err != nil {
 		return nil, fmt.Errorf("[%s %s]: failed to parse rootSerialNumber: %v", request.Method(), request.URL(), err)
 	}
@@ -39,7 +39,7 @@ func (c *HttpApiController) rootSerialNumber(request apitypes.Request) (*big.Int
 
 func (c *HttpApiController) serialNumber(request apitypes.Request) (*big.Int, error) {
 	serialNumberString := request.Variable("serialNumber")
-	serialNumber, err := appmodels.ParseSerialNumber(serialNumberString, 10)
+	serialNumber, err := apputils.ParseBigInt(serialNumberString, 10)
 	if err != nil {
 		return nil, fmt.Errorf("[%s %s]: failed to parse serialNumber: %v", request.Method(), request.URL(), err)
 	}
@@ -52,7 +52,11 @@ func (c *HttpApiController) organizationController(request apitypes.Request) (ap
 	if organization == "" {
 		return nil, fmt.Errorf("[%s %s]: failed to find organization id", request.Method(), request.URL())
 	}
-	controller, err := c.appController.OrganizationController(organization)
+	id, err := apputils.ParseBigInt(organization, 10)
+	if err != nil {
+		return nil, fmt.Errorf("[%s %s]: failed to parse organization id: %s", request.Method(), request.URL(), organization)
+	}
+	controller, err := c.appController.OrganizationController(id)
 	if err != nil {
 		return nil, fmt.Errorf("[%s %s]: failed to find organization controller: %v", request.Method(), request.URL(), err)
 	}

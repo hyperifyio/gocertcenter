@@ -3,6 +3,8 @@
 package appendpoints
 
 import (
+	"fmt"
+
 	swagger "github.com/davidebianchi/gswagger"
 
 	"github.com/hyperifyio/gocertcenter/internal/common/api/apitypes"
@@ -43,27 +45,34 @@ func (c *HttpApiController) CreateOrganization(response apitypes.Response, reque
 		return c.badRequest(response, request, "body invalid", err)
 	}
 
-	id := body.ID
+	slug := body.Slug
 	name := body.Name
 	names := body.AllNames
 	var certificates []appmodels.Certificate
 	var keys []appmodels.PrivateKey
 
-	if id == "" && name != "" {
-		id = name
+	if slug == "" && name != "" {
+		slug = name
 	}
 
-	if name == "" && id != "" {
-		name = id
+	if name == "" && slug != "" {
+		name = slug
 	}
 
 	if len(names) == 0 {
 		names = append(names, name)
 	}
 
-	id = apputils.Slugify(id)
+	randomManager := c.certManager.RandomManager()
 
-	model := appmodels.NewOrganization(id, names)
+	newOrgId, err := apputils.GenerateSerialNumber(randomManager)
+	if err != nil {
+		return c.internalServerError(response, request, fmt.Errorf("CreateOrganization: failed: %w", err))
+	}
+
+	slug = apputils.Slugify(slug)
+
+	model := appmodels.NewOrganization(newOrgId, slug, names)
 
 	savedModel, err := c.appController.NewOrganization(model)
 	if err != nil {

@@ -18,18 +18,18 @@ type FileCertificateRepository struct {
 	fileManager managers.FileManager
 }
 
-func (r *FileCertificateRepository) FindAllByOrganizationAndSignedBy(organization string, certificate *big.Int) ([]appmodels.Certificate, error) {
+func (r *FileCertificateRepository) FindAllByOrganizationAndSignedBy(organization *big.Int, certificate *big.Int) ([]appmodels.Certificate, error) {
 	// TODO implement me
 	panic("implement me")
 }
 
-func (r *FileCertificateRepository) FindAllByOrganization(organization string) ([]appmodels.Certificate, error) {
+func (r *FileCertificateRepository) FindAllByOrganization(organization *big.Int) ([]appmodels.Certificate, error) {
 	// TODO implement me
 	panic("implement me")
 }
 
 func (r *FileCertificateRepository) FindByOrganizationAndSerialNumber(
-	organization string,
+	organization *big.Int,
 	certificate *big.Int,
 ) (appmodels.Certificate, error) {
 

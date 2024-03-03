@@ -26,9 +26,9 @@ func (m *MockCertificateController) ApplicationController() appmodels.Applicatio
 	return args.Get(0).(appmodels.ApplicationController)
 }
 
-func (m *MockCertificateController) OrganizationID() string {
+func (m *MockCertificateController) OrganizationID() *big.Int {
 	args := m.Called()
-	return args.String(0)
+	return args.Get(0).(*big.Int)
 }
 
 func (m *MockCertificateController) Organization() appmodels.Organization {

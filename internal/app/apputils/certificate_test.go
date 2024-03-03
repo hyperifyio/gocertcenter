@@ -41,7 +41,7 @@ func TestGetCertificatePEMBytes(t *testing.T) {
 		t.Fatalf("Failed to parse certificate: %v", err)
 	}
 
-	modelCert := appmodels.NewCertificate("Org123", appmodels.NewSerialNumber(1), cert)
+	modelCert := appmodels.NewCertificate(big.NewInt(123), appmodels.NewSerialNumber(1), cert)
 
 	pemBytes := apputils.CertificateToPEMBytes(modelCert)
 
@@ -77,7 +77,7 @@ func TestGetCertificateDTO(t *testing.T) {
 	}
 
 	// Create the certificate model instance
-	cert := appmodels.NewCertificate("Org123", appmodels.NewSerialNumber(1), certData)
+	cert := appmodels.NewCertificate(big.NewInt(123), appmodels.NewSerialNumber(1), certData)
 
 	// Generate PEM for comparison
 	pemBlock := &pem.Block{
@@ -200,7 +200,7 @@ func TestNewIntermediateCertificate(t *testing.T) {
 	publicKey := &appmocks.MockPublicKey{}
 	commonName := "Intermediate CA"
 
-	organizationId := "TestOrg"
+	organizationId := big.NewInt(123)
 
 	organization.On("ID").Return(organizationId)
 	organization.On("Name").Return("Test Org")
@@ -256,7 +256,7 @@ func TestNewServerCertificate(t *testing.T) {
 	commonName := "server.example.com"
 	dnsNames := []string{"www.example.com", "example.com"}
 
-	organizationId := "TestOrgServer"
+	organizationId := big.NewInt(123)
 
 	organization.On("ID").Return(organizationId)
 	organization.On("Name").Return("Test Org Server")
@@ -309,7 +309,7 @@ func TestNewClientCertificate(t *testing.T) {
 	parentPrivateKey := &appmocks.MockPrivateKey{}
 	commonName := "Client Certificate"
 
-	organizationID := "TestOrgClient"
+	organizationID := big.NewInt(123)
 
 	organization.On("ID").Return(organizationID)
 	organization.On("Name").Return("Test Org Client")
@@ -357,15 +357,15 @@ func TestNewRootCertificate_Success(t *testing.T) {
 
 	parentSerialNumber := big.NewInt(100)
 	serialNumber := appmodels.NewSerialNumber(1)
-	organizationID := "TestOrg"
+	organizationID := big.NewInt(123)
 	expiration := 365 * 24 * time.Hour
 	commonName := "Test Root CA"
 
 	expectedCert := &x509.Certificate{ /* expected certificate details */ }
 
-	organizationId := "TestOrg"
+	nextOrganizationId := big.NewInt(124)
 
-	mockOrganization.On("ID").Return(organizationId)
+	mockOrganization.On("ID").Return(nextOrganizationId)
 	mockOrganization.On("Name").Return("Test Org")
 	mockOrganization.On("Names").Return([]string{"Test Org"})
 

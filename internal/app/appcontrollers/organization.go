@@ -26,7 +26,7 @@ const (
 type CertOrganizationController struct {
 
 	// id is the organization ID this controller controls
-	id string
+	id *big.Int
 
 	// model is the latest model of the organization
 	model appmodels.Organization
@@ -59,7 +59,7 @@ func (r *CertOrganizationController) CertificateCollection() ([]appmodels.Certif
 	return list, nil
 }
 
-func (r *CertOrganizationController) OrganizationID() string {
+func (r *CertOrganizationController) OrganizationID() *big.Int {
 	return r.id
 }
 
@@ -193,7 +193,7 @@ func (r *CertOrganizationController) RevokeCertificate(certificate appmodels.Cer
 //
 // Returns *CertOrganizationController
 func NewOrganizationController(
-	organization string,
+	organization *big.Int,
 	model appmodels.Organization,
 	organizationRepository appmodels.OrganizationRepository,
 	certificateRepository appmodels.CertificateRepository,

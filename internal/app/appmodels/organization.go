@@ -2,18 +2,28 @@
 
 package appmodels
 
+import (
+	"math/big"
+)
+
 // OrganizationModel model implements Organization
 type OrganizationModel struct {
-	id    string
+	id    *big.Int
+	slug  string
 	names []string
 }
 
-// GetID returns unique identifier for this organization
-func (o *OrganizationModel) ID() string {
+// ID returns the numeric unique identifier for this organization
+func (o *OrganizationModel) ID() *big.Int {
 	return o.id
 }
 
-// GetName returns the primary organization name
+// Slug returns unique, URL-friendly identifier for the organization
+func (o *OrganizationModel) Slug() string {
+	return o.slug
+}
+
+// Name returns the primary organization name
 func (o *OrganizationModel) Name() string {
 	slice := o.Names()
 	if len(slice) > 0 {
@@ -22,7 +32,7 @@ func (o *OrganizationModel) Name() string {
 	return ""
 }
 
-// GetNames returns the full name of the organization including department
+// Names returns the full name of the organization including department
 func (o *OrganizationModel) Names() []string {
 	originalSlice := o.names
 	sliceCopy := make([]string, len(originalSlice))
@@ -32,11 +42,13 @@ func (o *OrganizationModel) Names() []string {
 
 // NewOrganization creates a organization model from existing data
 func NewOrganization(
-	id string,
+	id *big.Int,
+	slug string,
 	names []string,
 ) *OrganizationModel {
 	return &OrganizationModel{
 		id:    id,
+		slug:  slug,
 		names: names,
 	}
 }

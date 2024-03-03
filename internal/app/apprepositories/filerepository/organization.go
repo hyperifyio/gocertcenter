@@ -4,6 +4,7 @@ package filerepository
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 	"github.com/hyperifyio/gocertcenter/internal/app/apputils"
@@ -23,14 +24,19 @@ func (r *FileOrganizationRepository) FindAll() ([]appmodels.Organization, error)
 	return list, nil
 }
 
-func (r *FileOrganizationRepository) FindById(id string) (appmodels.Organization, error) {
+func (r *FileOrganizationRepository) FindById(id *big.Int) (appmodels.Organization, error) {
 	fileName := OrganizationJsonPath(r.filePath, id)
 	dto, err := ReadOrganizationJsonFile(r.fileManager, fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read saved organization '%s': %w", id, err)
 	}
+	id, err = apputils.ParseBigInt(dto.ID, 10)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse organization id '%s': %w", dto.ID, err)
+	}
 	model := appmodels.NewOrganization(
-		dto.ID,
+		id,
+		dto.Slug,
 		dto.AllNames,
 	)
 	return model, nil

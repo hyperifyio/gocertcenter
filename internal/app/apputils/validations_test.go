@@ -210,7 +210,7 @@ func TestValidateOrganizationID(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := apputils.ValidateOrganizationID(tc.id)
+			err := apputils.ValidateOrganizationSlug(tc.id)
 			if tc.expectedError == "" && err != nil {
 				t.Errorf("Expected no error for '%s', but got: %s", tc.id, err)
 			} else if tc.expectedError != "" && (err == nil || err.Error() != tc.expectedError) {
@@ -229,24 +229,27 @@ func TestValidateOrganizationModel(t *testing.T) {
 		{
 			name: "Valid Organization",
 			setupMocks: func(m *appmocks.MockOrganization) {
-				m.On("ID").Return("valid-id")
+				m.On("ID").Return("1234")
+				m.On("Slug").Return("valid-slug")
 				m.On("Name").Return("Valid Organization")
 				m.On("Names").Return([]string{"Valid Org", "Another Valid Name"})
 			},
 		},
 		{
-			name: "Invalid Organization ID",
+			name: "Invalid Organization slug",
 			setupMocks: func(m *appmocks.MockOrganization) {
-				m.On("ID").Return("!!!!!!")
+				m.On("ID").Return("5678")
+				m.On("Slug").Return("!!!!!!")
 				m.On("Name").Return("Valid Organization")
 				m.On("Names").Return([]string{"Valid Org", "Another Valid Name"})
 			},
-			expectedError: "id: '!!!!!!': contains invalid characters, or has leading/trailing spaces, '-', or '.'",
+			expectedError: "slug: '!!!!!!': contains invalid characters, or has leading/trailing spaces, '-', or '.'",
 		},
 		{
 			name: "Invalid Organization Name",
 			setupMocks: func(m *appmocks.MockOrganization) {
 				m.On("ID").Return("valid-id")
+				m.On("Slug").Return("valid-slug")
 				m.On("Name").Return("!!!!!!!")
 				m.On("Names").Return([]string{"Valid Org", "Another Valid Name"})
 			},
@@ -256,6 +259,7 @@ func TestValidateOrganizationModel(t *testing.T) {
 			name: "Invalid Organization Names",
 			setupMocks: func(m *appmocks.MockOrganization) {
 				m.On("ID").Return("valid-id")
+				m.On("Slug").Return("valid-slug")
 				m.On("Name").Return("Valid Organization")
 				m.On("Names").Return([]string{"Valid Org", "!!!!!!"})
 			},

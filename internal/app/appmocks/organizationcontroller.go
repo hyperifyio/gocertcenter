@@ -29,9 +29,9 @@ func (m *MockOrganizationController) CertificateCollection() ([]appmodels.Certif
 	return args.Get(0).([]appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockOrganizationController) OrganizationID() string {
+func (m *MockOrganizationController) OrganizationID() *big.Int {
 	args := m.Called()
-	return args.String(0)
+	return args.Get(0).(*big.Int)
 }
 
 func (m *MockOrganizationController) Organization() appmodels.Organization {

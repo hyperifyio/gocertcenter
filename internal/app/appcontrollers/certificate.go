@@ -57,7 +57,7 @@ func (r *CertCertificateController) ApplicationController() appmodels.Applicatio
 	return r.parentOrganizationController.ApplicationController()
 }
 
-func (r *CertCertificateController) OrganizationID() string {
+func (r *CertCertificateController) OrganizationID() *big.Int {
 	if r.parentOrganizationController == nil {
 		panic("[CertCertificateController.OrganizationID]: No parent organization controller")
 	}
@@ -73,6 +73,7 @@ func (r *CertCertificateController) Certificate() appmodels.Certificate {
 }
 
 func (r *CertCertificateController) ChildCertificateCollection(certificateType string) ([]appmodels.Certificate, error) {
+
 	organization := r.OrganizationID()
 	list, err := r.certificateRepository.FindAllByOrganizationAndSignedBy(
 		organization,
@@ -355,7 +356,7 @@ func (r *CertCertificateController) UsesCertificateService(service appmodels.Cer
 	return r.certificateRepository == service
 }
 
-func (r *CertCertificateController) FindCertificate(organization string, certificate *big.Int) (appmodels.Certificate, error) {
+func (r *CertCertificateController) FindCertificate(organization *big.Int, certificate *big.Int) (appmodels.Certificate, error) {
 	return r.certificateRepository.FindByOrganizationAndSerialNumber(organization, certificate)
 }
 

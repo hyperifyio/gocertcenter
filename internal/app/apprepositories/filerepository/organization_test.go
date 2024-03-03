@@ -3,6 +3,7 @@
 package filerepository_test
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,7 @@ func TestOrganizationRepository_GetExistingOrganization(t *testing.T) {
 	defer cleanup()
 
 	filePath := tempDir
-	orgID := "org123"
+	orgID := big.NewInt(123)
 	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	orgJsonPath := filerepository.OrganizationJsonPath(filePath, orgID)
@@ -33,7 +34,7 @@ func TestOrganizationRepository_GetExistingOrganization(t *testing.T) {
 	err := filerepository.SaveOrganizationJsonFile(
 		fileManager,
 		orgJsonPath,
-		appdtos.NewOrganizationDTO(orgID, "Test Org", []string{"Test Org"}),
+		appdtos.NewOrganizationDTO(orgID.String(), "org123", "Test Org", []string{"Test Org"}),
 	)
 	assert.NoError(t, err)
 
@@ -61,10 +62,11 @@ func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 	defer cleanup()
 
 	filePath := tempDir
-	orgID := "org123"
+	orgID := big.NewInt(123)
 	orgName := "Test Org"
 	mockOrg := &appmocks.MockOrganization{}
 	mockOrg.On("Name").Return(orgName)
+	mockOrg.On("Slug").Return("testorg")
 	mockOrg.On("Names").Return([]string{orgName})
 	mockOrg.On("ID").Return(orgID)
 	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
@@ -80,7 +82,7 @@ func TestOrganizationRepository_CreateOrganization(t *testing.T) {
 	savedOrg, err := filerepository.ReadOrganizationJsonFile(fileManager, orgJsonPath)
 	assert.NoError(t, err, "Should be able to retrieve the newly created organization without error")
 	assert.NotNil(t, savedOrg, "The saved organization should not be nil")
-	assert.Equal(t, orgID, savedOrg.ID, "The saved organization ID should match the original ID")
+	assert.Equal(t, orgID.String(), savedOrg.ID, "The saved organization ID should match the original ID")
 	expectedNames := []string{orgName}
 	assert.Equal(t, expectedNames, savedOrg.AllNames, "The saved organization names should match the original names")
 
@@ -97,7 +99,7 @@ func TestOrganizationRepository_GetExistingOrganization_ReadFail(t *testing.T) {
 	defer cleanup()
 
 	filePath := tempDir
-	orgID := "nonexistent_org"
+	orgID := big.NewInt(0)
 	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
 	// Attempt to get an organization with an ID that does not have a corresponding JSON file
@@ -120,12 +122,14 @@ func TestOrganizationRepository_CreateOrganization_SaveFail(t *testing.T) {
 	filePath := "/invalid/path/that/does/not/exist"
 	repo := filerepository.NewOrganizationRepository(certManager, fileManager, filePath)
 
-	orgId := "org123"
+	orgId := big.NewInt(123)
+	orgSlug := "testorg"
 	orgName := "Test Org"
 
 	// Mock organization to pass to Save
 	mockOrg := &appmocks.MockOrganization{}
 	mockOrg.On("ID").Return(orgId)
+	mockOrg.On("Slug").Return(orgSlug)
 	mockOrg.On("Name").Return(orgName)
 	mockOrg.On("Names").Return([]string{orgName})
 	mockOrg.On("ID").Return(orgId)

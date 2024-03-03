@@ -3,6 +3,7 @@
 package memoryrepository_test
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ import (
 
 // TestPrivateKeyRepository_CreateAndGetPrivateKey tests the Save and FindByOrganizationAndSerialNumber methods
 func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	repo := memoryrepository.NewPrivateKeyRepository()
 	serialNumber := appmodels.NewSerialNumber(123)
 
@@ -39,7 +40,7 @@ func TestPrivateKeyRepository_CreateAndGetPrivateKey(t *testing.T) {
 
 // TestPrivateKeyRepository_GetExistingPrivateKeyNotFound tests retrieving a private key that does not exist
 func TestPrivateKeyRepository_GetExistingPrivateKeyNotFound(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	repo := memoryrepository.NewPrivateKeyRepository()
 	serialNumber := appmodels.NewSerialNumber(456)
 

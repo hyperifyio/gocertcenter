@@ -25,7 +25,7 @@ func (r *FilePrivateKeyRepository) FilePath() string {
 }
 
 func (r *FilePrivateKeyRepository) FindByOrganizationAndSerialNumber(
-	organization string,
+	organization,
 	certificate *big.Int,
 ) (appmodels.PrivateKey, error) {
 	if certificate == nil {

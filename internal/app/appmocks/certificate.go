@@ -37,9 +37,9 @@ func (m *MockCertificate) SerialNumber() *big.Int {
 	return args.Get(0).(*big.Int)
 }
 
-func (m *MockCertificate) OrganizationID() string {
+func (m *MockCertificate) OrganizationID() *big.Int {
 	args := m.Called()
-	return args.String(0)
+	return args.Get(0).(*big.Int)
 }
 
 func (m *MockCertificate) OrganizationName() string {

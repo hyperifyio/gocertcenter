@@ -3,6 +3,7 @@
 package appcontrollers_test
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -45,7 +46,7 @@ func TestPrivateKeyController_Delegations(t *testing.T) {
 	mockCertificate := new(appmocks.MockCertificate)
 
 	// Organization ID and other return values for the mocked calls
-	orgID := "org123"
+	orgID := big.NewInt(123)
 	mockCertificateController.On("ApplicationController").Return(mockApplicationController)
 	mockCertificateController.On("OrganizationID").Return(orgID)
 	mockCertificateController.On("Organization").Return(mockOrganization)

@@ -3,6 +3,8 @@
 package appmocks
 
 import (
+	"math/big"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
@@ -22,7 +24,7 @@ func (m *MockOrganizationService) FindAll() ([]appmodels.Organization, error) {
 }
 
 // GetExistingOrganization mocks the GetExistingOrganization method
-func (m *MockOrganizationService) FindById(organization string) (appmodels.Organization, error) {
+func (m *MockOrganizationService) FindById(organization *big.Int) (appmodels.Organization, error) {
 	args := m.Called(organization)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)

@@ -3,15 +3,17 @@
 package appmodels_test
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
 func TestNewOrganization(t *testing.T) {
-	orgID := "org123"
+	orgID := big.NewInt(123)
+	orgSlug := "org789"
 	names := []string{"Test Org", "Test Org Department"}
-	org := appmodels.NewOrganization(orgID, names)
+	org := appmodels.NewOrganization(orgID, orgSlug, names)
 
 	if org.ID() != orgID {
 		t.Errorf("ID() = %s, want %s", org.ID(), orgID)
@@ -28,34 +30,51 @@ func TestNewOrganization(t *testing.T) {
 	}
 }
 
-func TestOrganization_GetID(t *testing.T) {
-	orgID := "org456"
-	org := appmodels.NewOrganization(orgID, nil)
+func TestOrganization_ID(t *testing.T) {
+	orgID := big.NewInt(1)
+	orgSlug := "org456"
+	org := appmodels.NewOrganization(orgID, orgSlug, nil)
 
 	if got := org.ID(); got != orgID {
 		t.Errorf("ID() = %s, want = %s", got, orgID)
 	}
 }
 
-func TestOrganization_GetName(t *testing.T) {
+func TestOrganization_Slug(t *testing.T) {
+	orgID := big.NewInt(1)
+	orgSlug := "org456"
+	org := appmodels.NewOrganization(orgID, orgSlug, nil)
+
+	if got := org.Slug(); got != orgSlug {
+		t.Errorf("ID() = %s, want = %s", got, orgID)
+	}
+}
+
+func TestOrganization_Name(t *testing.T) {
+	orgID := big.NewInt(1)
+	orgSlug := "org789"
 	names := []string{"Primary Name", "Secondary Name"}
-	org := appmodels.NewOrganization("org789", names)
+	org := appmodels.NewOrganization(orgID, orgSlug, names)
 
 	if got := org.Name(); got != names[0] {
 		t.Errorf("Name() = %s, want = %s", got, names[0])
 	}
 }
 
-func TestOrganization_GetName_NoNames(t *testing.T) {
-	org := appmodels.NewOrganization("orgNoNames", []string{})
+func TestOrganization_Name_NoNames(t *testing.T) {
+	orgID := big.NewInt(1)
+	orgSlug := "orgNoNames"
+	org := appmodels.NewOrganization(orgID, orgSlug, []string{})
 	if name := org.Name(); name != "" {
 		t.Errorf("Name() with no names should return an empty string, got: %s", name)
 	}
 }
 
-func TestOrganization_GetNames(t *testing.T) {
+func TestOrganization_Names(t *testing.T) {
+	orgID := big.NewInt(1)
+	orgSlug := "org101112"
 	names := []string{"Primary Name", "Secondary Name"}
-	org := appmodels.NewOrganization("org101112", names)
+	org := appmodels.NewOrganization(orgID, orgSlug, names)
 
 	gotNames := org.Names()
 	if len(gotNames) != len(names) || gotNames[0] != names[0] || gotNames[1] != names[1] {

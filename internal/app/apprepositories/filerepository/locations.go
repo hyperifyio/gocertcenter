@@ -16,30 +16,30 @@ const (
 )
 
 // OrganizationDirectory returns a path like `{dir}/organizations/{organization}`
-func OrganizationDirectory(dir, organization string) string {
-	return filepath.Join(dir, OrganizationsDirectoryName, organization)
+func OrganizationDirectory(dir string, organization *big.Int) string {
+	return filepath.Join(dir, OrganizationsDirectoryName, organization.String())
 }
 
 // OrganizationJsonPath returns a path like `{dir}/organizations/{organization}/organization.json`
-func OrganizationJsonPath(dir, organization string) string {
-	return filepath.Join(dir, OrganizationsDirectoryName, organization, OrganizationJsonName)
+func OrganizationJsonPath(dir string, organization *big.Int) string {
+	return filepath.Join(dir, OrganizationsDirectoryName, organization.String(), OrganizationJsonName)
 }
 
 // PrivateKeyPemPath returns a path like `{dir}/organizations/{organization}/certificates/{certificate}/privkey.pem`
-func PrivateKeyPemPath(dir, organization string, certificate *big.Int) string {
+func PrivateKeyPemPath(dir string, organization, certificate *big.Int) string {
 	return filepath.Join(CertificateDirectory(dir, organization, certificate), PrivateKeyPemName)
 }
 
 // CertificatePemPath returns a path like `{dir}/organizations/{organization}/certificates/{certificate}/cert.pem`
-func CertificatePemPath(dir, organization string, certificate *big.Int) string {
+func CertificatePemPath(dir string, organization, certificate *big.Int) string {
 	return filepath.Join(CertificateDirectory(dir, organization, certificate), CertificatePemName)
 }
 
 // CertificateDirectory returns a path like `{dir}/organizations/{organization}/certificates/{certificate}`
 func CertificateDirectory(
-	dir, organization string,
-	certificate *big.Int,
+	dir string,
+	organization, certificate *big.Int,
 ) string {
-	parts := []string{dir, OrganizationsDirectoryName, organization, CertificatesDirectoryName, certificate.String()}
+	parts := []string{dir, OrganizationsDirectoryName, organization.String(), CertificatesDirectoryName, certificate.String()}
 	return filepath.Join(parts...)
 }

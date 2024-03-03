@@ -30,7 +30,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey(t *testing.T) {
 	defer cleanup()
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
-	organization := "TestOrg"
+	organization := big.NewInt(123)
 	certificate := appmodels.NewSerialNumber(1)
 
 	fileName := filerepository.PrivateKeyPemPath(tempDir, organization, certificate)
@@ -69,7 +69,7 @@ func TestPrivateKeyRepository_CreatePrivateKey(t *testing.T) {
 	assert.NotNil(t, rsaPrivKey)
 
 	mockPrivateKey := &appmocks.MockPrivateKey{}
-	mockPrivateKey.On("OrganizationID").Return("TestOrg")
+	mockPrivateKey.On("OrganizationID").Return(big.NewInt(123))
 	mockPrivateKey.On("SerialNumber").Return(serialNumber)
 	mockPrivateKey.On("PrivateKey").Return(rsaPrivKey)
 
@@ -92,7 +92,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey_Nonexistent(t *testing.T) {
 	fileManager := managers.NewFileManager()
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
-	organization := "NonexistentOrg"
+	organization := big.NewInt(0)
 	certificate := appmodels.NewSerialNumber(1)
 
 	privateKey, err := repo.FindByOrganizationAndSerialNumber(organization, certificate)
@@ -108,7 +108,7 @@ func TestPrivateKeyRepository_GetExistingPrivateKey_EmptyCertificates(t *testing
 	fileManager := managers.NewFileManager()
 
 	repo := filerepository.NewPrivateKeyRepository(certManager, fileManager, tempDir)
-	organization := "NonexistentOrg"
+	organization := big.NewInt(0)
 	var certificate *big.Int
 
 	privateKey, err := repo.FindByOrganizationAndSerialNumber(organization, certificate)

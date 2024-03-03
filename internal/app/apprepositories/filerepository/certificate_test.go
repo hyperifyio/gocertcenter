@@ -37,7 +37,7 @@ func TestCertificateRepository_GetExistingCertificate(t *testing.T) {
 	filePath := tempDir
 	repo := filerepository.NewCertificateRepository(certManager, fileManager, filePath)
 
-	organization := "TestOrg"
+	organization := big.NewInt(123)
 	serialNumber := appmodels.NewSerialNumber(1)
 
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -83,7 +83,7 @@ func TestCertificateRepository_GetExistingCertificate_EmptySerialNumbers(t *test
 	repo := filerepository.NewCertificateRepository(certManager, fileManager, tempDir)
 
 	// Attempt to get an existing certificate with no serialNumber
-	organization := "TestOrg"
+	organization := big.NewInt(123)
 
 	retrievedCert, err := repo.FindByOrganizationAndSerialNumber(organization, nil)
 
@@ -104,7 +104,7 @@ func TestCertificateRepository_GetExistingCertificate_ReadFail(t *testing.T) {
 	repo := filerepository.NewCertificateRepository(certManager, fileManager, tempDir)
 
 	// Setup a scenario where the certificate file will not exist
-	organization := "NonExistentOrg"
+	organization := big.NewInt(0)
 	serialNumber := appmodels.NewSerialNumber(1)
 
 	// Attempt to get a certificate that does not exist, which should fail
@@ -150,7 +150,7 @@ func TestCertificateRepository_CreateCertificate(t *testing.T) {
 
 	mockCertificate := &appmocks.MockCertificate{}
 	mockCertificate.On("Certificate").Return(cert, nil)
-	mockCertificate.On("OrganizationID").Return("testOrg")
+	mockCertificate.On("OrganizationID").Return(big.NewInt(123))
 	mockCertificate.On("SerialNumber").Return(template.SerialNumber)
 	mockCertificate.On("ID").Return("")
 
@@ -189,7 +189,7 @@ func TestCertificateRepository_CreateCertificate_SaveFail(t *testing.T) {
 	// Use a mock or a simple certificate for testing
 	mockCertificate := appmocks.MockCertificate{}
 	mockCertificate.On("Certificate").Return(&x509.Certificate{}, nil)
-	mockCertificate.On("OrganizationID").Return("TestOrg")
+	mockCertificate.On("OrganizationID").Return(big.NewInt(123))
 	mockCertificate.On("SerialNumber").Return(appmodels.NewSerialNumber(1))
 
 	// Attempt to save the certificate, expecting a failure

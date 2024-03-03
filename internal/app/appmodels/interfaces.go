@@ -12,13 +12,16 @@ import (
 // Organization describes an interface for OrganizationModel model
 type Organization interface {
 
-	// GetID returns unique identifier for this organization
-	ID() string
+	// ID returns unique identifier for this organization
+	ID() *big.Int
 
-	// GetName returns the primary organization name
+	// Slug returns the unique, user-friendly identifier for the organization
+	Slug() string
+
+	// Name returns the primary organization name
 	Name() string
 
-	// GetNames returns the full name of the organization including department
+	// Names returns the full name of the organization including department
 	Names() []string
 }
 
@@ -58,7 +61,7 @@ type Certificate interface {
 	SignedBy() *big.Int
 
 	SerialNumber() *big.Int
-	OrganizationID() string
+	OrganizationID() *big.Int
 	OrganizationName() string
 	Organization() []string
 	Certificate() *x509.Certificate
@@ -83,8 +86,8 @@ type PrivateKey interface {
 	// PublicKey returns the public key
 	PublicKey() any
 
-	// OrganizationID returns the organization this key belongs to
-	OrganizationID() string
+	// OrganizationID returns the organization ID this key belongs to
+	OrganizationID() *big.Int
 
 	// SerialNumber returns the serial number of the certificate which this
 	// key belongs to
@@ -110,7 +113,7 @@ type RevokedCertificate interface {
 // data layer.
 type OrganizationRepository interface {
 	FindAll() ([]Organization, error)
-	FindById(organization string) (Organization, error)
+	FindById(organization *big.Int) (Organization, error)
 	Save(certificate Organization) (Organization, error)
 }
 
@@ -119,12 +122,12 @@ type OrganizationRepository interface {
 // interface it supports easy substitution of its implementation, thereby
 // promoting loose coupling between the application's business logic and its data layer.
 type CertificateRepository interface {
-	FindAllByOrganization(organization string) ([]Certificate, error)
+	FindAllByOrganization(organization *big.Int) ([]Certificate, error)
 
 	// FindAllByOrganizationAndSignedBy returns all certificates signed by this certificate
-	FindAllByOrganizationAndSignedBy(organization string, certificate *big.Int) ([]Certificate, error)
+	FindAllByOrganizationAndSignedBy(organization *big.Int, certificate *big.Int) ([]Certificate, error)
 
-	FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (Certificate, error)
+	FindByOrganizationAndSerialNumber(organization *big.Int, certificate *big.Int) (Certificate, error)
 	Save(certificate Certificate) (Certificate, error)
 }
 
@@ -136,7 +139,7 @@ type CertificateRepository interface {
 type PrivateKeyRepository interface {
 
 	// FindByOrganizationAndSerialNumber only returns public properties of the private key
-	FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (PrivateKey, error)
+	FindByOrganizationAndSerialNumber(organization *big.Int, certificate *big.Int) (PrivateKey, error)
 	Save(key PrivateKey) (PrivateKey, error)
 }
 
@@ -166,10 +169,10 @@ type ApplicationController interface {
 	OrganizationCollection() ([]Organization, error)
 
 	// Organization returns an organization model by an organization ID
-	Organization(organization string) (Organization, error)
+	Organization(organization *big.Int) (Organization, error)
 
 	// OrganizationController returns an organization controller by an organization ID
-	OrganizationController(name string) (OrganizationController, error)
+	OrganizationController(organization *big.Int) (OrganizationController, error)
 
 	// NewOrganization creates a new organization
 	NewOrganization(model Organization) (Organization, error)
@@ -180,7 +183,7 @@ type ApplicationController interface {
 type OrganizationController interface {
 
 	// OrganizationID returns the organization ID which this controller controls
-	OrganizationID() string
+	OrganizationID() *big.Int
 
 	// Organization returns the model of the organization this controller controls
 	Organization() Organization
@@ -225,7 +228,7 @@ type CertificateController interface {
 
 	// OrganizationID returns the organization ID who owns the certificate
 	// this controller controls
-	OrganizationID() string
+	OrganizationID() *big.Int
 
 	// Organization returns the model of the organization who owns the
 	// certificate this controller controls
@@ -288,19 +291,19 @@ type CertificateController interface {
 // PrivateKeyController controls a private key owned by the certificate
 type PrivateKeyController interface {
 
-	// GetApplicationController returns the parent controller who owns this
+	// ApplicationController returns the parent controller who owns this
 	// organization controller
 	ApplicationController() ApplicationController
 
-	// GetOrganizationID returns the organization ID who owns the certificate
+	// OrganizationID returns the organization ID who owns the certificate
 	// this controller controls
-	OrganizationID() string
+	OrganizationID() *big.Int
 
 	// Organization returns the model of the organization who owns the
 	// certificate this controller controls
 	Organization() Organization
 
-	// GetOrganizationController returns the model of the organization who owns the
+	// OrganizationController returns the model of the organization who owns the
 	// certificate this controller controls
 	OrganizationController() OrganizationController
 

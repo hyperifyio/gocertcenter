@@ -17,9 +17,9 @@ type MockPrivateKey struct {
 	mock.Mock
 }
 
-func (m *MockPrivateKey) OrganizationID() string {
+func (m *MockPrivateKey) OrganizationID() *big.Int {
 	args := m.Called()
-	return args.Get(0).(string)
+	return args.Get(0).(*big.Int)
 }
 
 func (m *MockPrivateKey) PrivateKey() any {

@@ -15,7 +15,7 @@ type MockCertificateService struct {
 	mock.Mock
 }
 
-func (m *MockCertificateService) FindAllByOrganizationAndSignedBy(organization string, certificate *big.Int) ([]appmodels.Certificate, error) {
+func (m *MockCertificateService) FindAllByOrganizationAndSignedBy(organization *big.Int, certificate *big.Int) ([]appmodels.Certificate, error) {
 	args := m.Called(organization, certificate)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -23,7 +23,7 @@ func (m *MockCertificateService) FindAllByOrganizationAndSignedBy(organization s
 	return args.Get(0).([]appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockCertificateService) FindAllByOrganization(organization string) ([]appmodels.Certificate, error) {
+func (m *MockCertificateService) FindAllByOrganization(organization *big.Int) ([]appmodels.Certificate, error) {
 	args := m.Called(organization)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -31,7 +31,7 @@ func (m *MockCertificateService) FindAllByOrganization(organization string) ([]a
 	return args.Get(0).([]appmodels.Certificate), args.Error(1)
 }
 
-func (m *MockCertificateService) FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (appmodels.Certificate, error) {
+func (m *MockCertificateService) FindByOrganizationAndSerialNumber(organization *big.Int, certificate *big.Int) (appmodels.Certificate, error) {
 	args := m.Called(organization, certificate)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)

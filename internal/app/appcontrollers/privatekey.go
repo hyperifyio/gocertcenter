@@ -3,6 +3,8 @@
 package appcontrollers
 
 import (
+	"math/big"
+
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
 
@@ -24,7 +26,7 @@ func (r *CertPrivateKeyController) ApplicationController() appmodels.Application
 	return r.parent.ApplicationController()
 }
 
-func (r *CertPrivateKeyController) OrganizationID() string {
+func (r *CertPrivateKeyController) OrganizationID() *big.Int {
 	return r.parent.OrganizationID()
 }
 

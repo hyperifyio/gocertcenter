@@ -5,6 +5,7 @@ package memoryrepository
 import (
 	"fmt"
 	"log"
+	"math/big"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
 )
@@ -12,7 +13,7 @@ import (
 // MemoryOrganizationRepository implements models.OrganizationRepository in a memory
 // @implements models.OrganizationRepository
 type MemoryOrganizationRepository struct {
-	organizations map[string]appmodels.Organization
+	organizations map[*big.Int]appmodels.Organization
 }
 
 func (r *MemoryOrganizationRepository) FindAll() ([]appmodels.Organization, error) {
@@ -23,7 +24,7 @@ func (r *MemoryOrganizationRepository) FindAll() ([]appmodels.Organization, erro
 	return list, nil
 }
 
-func (r *MemoryOrganizationRepository) FindById(id string) (appmodels.Organization, error) {
+func (r *MemoryOrganizationRepository) FindById(id *big.Int) (appmodels.Organization, error) {
 	if organization, exists := r.organizations[id]; exists {
 		return organization, nil
 	}
@@ -40,7 +41,7 @@ func (r *MemoryOrganizationRepository) Save(organization appmodels.Organization)
 // NewOrganizationRepository creates a memory based repository for organizations
 func NewOrganizationRepository() *MemoryOrganizationRepository {
 	return &MemoryOrganizationRepository{
-		organizations: make(map[string]appmodels.Organization),
+		organizations: make(map[*big.Int]appmodels.Organization),
 	}
 }
 

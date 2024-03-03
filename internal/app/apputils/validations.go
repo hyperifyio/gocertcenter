@@ -164,8 +164,8 @@ func ValidateOrganizationNames(list []string) error {
 	return nil
 }
 
-// ValidateOrganizationID checks if the provided ID adheres to specific rules.
-func ValidateOrganizationID(id string) error {
+// ValidateOrganizationSlug checks if the provided slug adheres to specific rules.
+func ValidateOrganizationSlug(id string) error {
 	if len(id) < 2 {
 		return errors.New("must be at least two characters long")
 	}
@@ -184,9 +184,9 @@ func ValidateOrganizationID(id string) error {
 }
 
 func ValidateOrganizationModel(model appmodels.Organization) error {
-	id := model.ID()
-	if err := ValidateOrganizationID(id); err != nil {
-		return fmt.Errorf("id: '%v': %v", id, err)
+	id := model.Slug()
+	if err := ValidateOrganizationSlug(id); err != nil {
+		return fmt.Errorf("slug: '%v': %v", id, err)
 	}
 	name := model.Name()
 	if err := ValidateOrganizationName(name); err != nil {

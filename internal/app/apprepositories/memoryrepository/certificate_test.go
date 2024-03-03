@@ -3,6 +3,7 @@
 package memoryrepository_test
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestCertificateRepository_CreateAndGetCertificate(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	repo := memoryrepository.NewCertificateRepository()
 	mockCert := new(appmocks.MockCertificate)
 	serialNumber := appmodels.NewSerialNumber(123)
@@ -41,13 +42,13 @@ func TestCertificateRepository_GetExistingCertificateNotFound(t *testing.T) {
 	serialNumber := appmodels.NewSerialNumber(999)
 
 	// Test FindByOrganizationAndSerialNumbers for a non-existent certificate
-	_, err := repo.FindByOrganizationAndSerialNumber("testorg", serialNumber)
+	_, err := repo.FindByOrganizationAndSerialNumber(big.NewInt(123), serialNumber)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), ": not found:")
 }
 
 func TestCertificateRepository_FindAllByOrganizationAndSignedBy(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	repo := memoryrepository.NewCertificateRepository()
 	mockCert1 := new(appmocks.MockCertificate)
 	mockCert2 := new(appmocks.MockCertificate)
@@ -83,7 +84,7 @@ func TestCertificateRepository_FindAllByOrganizationAndSignedBy(t *testing.T) {
 }
 
 func TestCertificateRepository_FindAllByOrganization(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	repo := memoryrepository.NewCertificateRepository()
 	mockCert1 := new(appmocks.MockCertificate)
 	mockCert2 := new(appmocks.MockCertificate)
@@ -115,7 +116,7 @@ func TestCertificateRepository_FindAllByOrganization(t *testing.T) {
 }
 
 func TestCertificateRepository_FindByOrganizationAndSerialNumber_WithNoCertificates(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 
 	// Indirectly setting certificates to nil to test the specific case
 	repo := memoryrepository.MemoryCertificateRepository{}
@@ -137,7 +138,7 @@ func TestCertificateRepository_FindAllByOrganization_WithNilCertificates(t *test
 	// Manually setting the certificates map to nil to simulate the uninitialized scenario
 	repo := memoryrepository.MemoryCertificateRepository{}
 
-	organization := "testOrg"
+	organization := big.NewInt(123)
 
 	// Attempt to retrieve certificates by organization
 	_, err := repo.FindAllByOrganization(organization)

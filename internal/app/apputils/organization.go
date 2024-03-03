@@ -9,7 +9,8 @@ import (
 
 func ToOrganizationDTO(o appmodels.Organization) appdtos.OrganizationDTO {
 	return appdtos.NewOrganizationDTO(
-		o.ID(),
+		o.ID().String(),
+		o.Slug(),
 		o.Name(),
 		o.Names(),
 	)

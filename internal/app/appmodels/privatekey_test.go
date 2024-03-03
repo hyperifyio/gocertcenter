@@ -8,6 +8,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ const mockKeyType appmodels.KeyType = 0
 // TestNewPrivateKey verifies the NewPrivateKey function correctly initializes a PrivateKeyModel instance.
 func TestNewPrivateKey(t *testing.T) {
 	// Mock data for initialization
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	serialNumber := appmodels.NewSerialNumber(13)
 	keyType := mockKeyType
 	mockData := "mockPrivateKeyData" // Example mock data, could be any type
@@ -50,7 +51,7 @@ func TestNewPrivateKey(t *testing.T) {
 }
 
 func TestPrivateKey_GetPublicKey_NilCase(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	randomManager := managers.NewRandomManager()
 	serialNumber, _ := apputils.GenerateSerialNumber(randomManager)
 	unsupportedKeyType := "unsupported key type" // Simulate incorrect initialization
@@ -64,7 +65,7 @@ func TestPrivateKey_GetPublicKey_NilCase(t *testing.T) {
 }
 
 func TestPrivateKey_GetPublicKey_RSA(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 
 	// Generate an RSA private key
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -97,7 +98,7 @@ func TestPrivateKey_GetPublicKey_RSA(t *testing.T) {
 
 func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 	// Generate an Ed25519 private key
-	organization := "testOrg"
+	organization := big.NewInt(123)
 
 	_, ed25519PrivKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
@@ -127,7 +128,7 @@ func TestPrivateKey_GetPublicKey_Ed25519(t *testing.T) {
 }
 
 func TestPrivateKey_Methods(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	serialNumber := appmodels.NewSerialNumber(3)
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -152,7 +153,7 @@ func TestPrivateKey_Methods(t *testing.T) {
 }
 
 func TestPrivateKey_NewPrivateKey_WithSingleSerialNumber(t *testing.T) {
-	organization := "rootOrg"
+	organization := big.NewInt(123)
 	// Simulate root certificate with only one serial number
 	serialNumber := appmodels.NewSerialNumber(1)
 	rsaPrivKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -164,7 +165,7 @@ func TestPrivateKey_NewPrivateKey_WithSingleSerialNumber(t *testing.T) {
 }
 
 func TestPrivateKey_GetSerialNumber_WithZeroCertificates(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 	// Create a PrivateKey instance with no certificates
 	privateKey := appmodels.NewPrivateKey(organization, nil, appmodels.RSA_2048, "mockData")
 
@@ -176,7 +177,7 @@ func TestPrivateKey_GetSerialNumber_WithZeroCertificates(t *testing.T) {
 }
 
 func TestPrivateKey_GetPublicKey_ECDSA(t *testing.T) {
-	organization := "testOrg"
+	organization := big.NewInt(123)
 
 	// Generate an ECDSA private key
 	ecdsaPrivKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)

@@ -17,7 +17,7 @@ type MemoryCertificateRepository struct {
 	certificates map[string]appmodels.Certificate
 }
 
-func (r *MemoryCertificateRepository) FindAllByOrganizationAndSignedBy(organization string, certificate *big.Int) ([]appmodels.Certificate, error) {
+func (r *MemoryCertificateRepository) FindAllByOrganizationAndSignedBy(organization *big.Int, certificate *big.Int) ([]appmodels.Certificate, error) {
 	var result []appmodels.Certificate
 	if r.certificates == nil {
 		return result, nil
@@ -30,7 +30,7 @@ func (r *MemoryCertificateRepository) FindAllByOrganizationAndSignedBy(organizat
 	return result, nil
 }
 
-func (r *MemoryCertificateRepository) FindAllByOrganization(organization string) ([]appmodels.Certificate, error) {
+func (r *MemoryCertificateRepository) FindAllByOrganization(organization *big.Int) ([]appmodels.Certificate, error) {
 	if r.certificates == nil {
 		return nil, errors.New("[Certificate:FindAllByOrganization]: not initialized")
 	}
@@ -43,7 +43,7 @@ func (r *MemoryCertificateRepository) FindAllByOrganization(organization string)
 	return result, nil
 }
 
-func (r *MemoryCertificateRepository) FindByOrganizationAndSerialNumber(organization string, certificate *big.Int) (appmodels.Certificate, error) {
+func (r *MemoryCertificateRepository) FindByOrganizationAndSerialNumber(organization *big.Int, certificate *big.Int) (appmodels.Certificate, error) {
 	id := getCertificateLocator(organization, certificate)
 	if certificate, exists := r.certificates[id]; exists {
 		return certificate, nil

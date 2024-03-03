@@ -4,6 +4,7 @@ package appcontrollers
 
 import (
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/hyperifyio/gocertcenter/internal/app/appmodels"
@@ -35,7 +36,7 @@ func (a *CertApplicationController) UsesPrivateKeyService(service appmodels.Priv
 	return service == a.privateKeyRepository
 }
 
-func (a *CertApplicationController) Organization(organization string) (appmodels.Organization, error) {
+func (a *CertApplicationController) Organization(organization *big.Int) (appmodels.Organization, error) {
 	model, err := a.organizationRepository.FindById(organization)
 	if err != nil {
 		return nil, fmt.Errorf("[Organization]: failed: '%s': %w", organization, err)
@@ -43,7 +44,7 @@ func (a *CertApplicationController) Organization(organization string) (appmodels
 	return model, nil
 }
 
-func (a *CertApplicationController) OrganizationController(organization string) (appmodels.OrganizationController, error) {
+func (a *CertApplicationController) OrganizationController(organization *big.Int) (appmodels.OrganizationController, error) {
 	model, err := a.Organization(organization)
 	if err != nil {
 		return nil, fmt.Errorf("[OrganizationController:%s]: not found: %w", organization, err)
