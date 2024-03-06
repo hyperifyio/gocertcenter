@@ -4,8 +4,9 @@ Mutual Transport Layer Security (mTLS) is a security protocol that extends TLS
 (Transport Layer Security) by requiring both the client and the server to 
 authenticate themselves to each other before any data is exchanged. This mutual 
 authentication ensures a higher level of security, making mTLS an excellent 
-choice for protecting sensitive transactions and data transfers. Here's a 
-closer look at the key technical components and processes involved:
+choice for protecting sensitive transactions and data transfers. 
+
+Here's a closer look at the key technical components and processes involved:
 
 #### X.509 Certificates: The Digital Passports
 
