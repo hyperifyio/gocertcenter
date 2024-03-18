@@ -1,32 +1,34 @@
-# Certificate Management Microservice (CMM)
+# `gocertcenter` by [HyperifyIO](https://github.com/hyperifyio): Elevating PKI with Certificate Management
 
-## Overview
+`gocertcenter` embarks on HyperifyIO's ambitious journey to redefine secure, 
+custom Public Key Infrastructure (PKI) solutions. As a crucial component of our 
+ecosystem, it addresses the nuanced demands of digital certificate management 
+for private networks and applications.
 
-The Certificate Management Microservice (CMM) is a powerful, in-development 
-solution designed to meet the specialized needs of digital certificate 
-management for private services and embedded application connections. Focused 
-on enhancing security for microservices and applications, CMM specializes in 
-the generation, renewal, and revocation of CA, intermediate, server, and client 
-certificates. Its modular and lightweight design is particularly suited for 
-embedding directly into Go applications, facilitating seamless integration for 
-developers.
+## Elevating Security through Simplified Certificate Management
 
-CMM is engineered for organizations looking to secure their internal 
-communications and applications with mTLS and PKI, without the 
-complexities and overhead associated with public Certificate Authorities (CAs). 
-This makes it an ideal choice for private services and custom software use 
-cases where security, trust, and privacy are paramount.
+At the heart of `gocertcenter` is a commitment to streamline the complexities 
+of managing digital certificates for microservices, embedded systems, and 
+private applications. Designed with a focus on security enhancements, 
+`gocertcenter` excels in generating, renewing, and revoking certificates across 
+the spectrum—from CA and intermediate to server and client certificates. Its 
+adaptability and lightweight architecture make it an optimal choice for direct 
+integration into Go applications, ensuring developers a seamless experience.
 
-In addition to on-premise deployment, CMM will be available as a commercial 
-hosted SaaS solution at [https://cert.center](https://cert.center), offering an 
-automated, managed platform for hassle-free certificate management, 
-specifically tailored for internal and custom application needs.
+`gocertcenter` is purpose-built for organizations seeking to fortify their 
+internal communications and application security using mTLS and PKI, 
+sidestepping the challenges posed by traditional public Certificate Authorities 
+(CAs). Ideal for scenarios demanding heightened security, trust, and privacy, 
+it presents a perfect fit for both on-premise solutions and as a hosted SaaS 
+offering at [https://cert.center](https://cert.center), providing an automated, 
+effortless certificate management platform tailored for the intricacies of 
+internal and bespoke application requirements.
 
-**Project Status**: Progressing towards our first release, MVP v1, we are 
-committed to delivering a robust, feature-rich service. Our development is 
-focused on ensuring unparalleled security and operational efficiency. For the 
-latest updates and milestones, visit 
-[MVP v1 Issue](https://github.com/hyperifyio/gocertcenter/issues/1).
+**Project Status**: Advancing towards the initial MVP v1 release, our 
+dedication lies in crafting a service that stands synonymous with security 
+excellence and operational superiority. Stay updated with our progress and 
+contribute to shaping the future of PKI management by following the [MVP v1 
+development journey](https://github.com/hyperifyio/gocertcenter/issues/1).
 
 ## Key Features
 
